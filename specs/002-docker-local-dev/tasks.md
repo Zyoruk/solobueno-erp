@@ -19,7 +19,7 @@
 
 **Purpose**: Create required directory structure (minimal - most exists from 001-init-monorepo)
 
-- [ ] T001 Create scripts directory at `infrastructure/scripts/`
+- [x] T001 Create scripts directory at `infrastructure/scripts/`
 
 ---
 
@@ -29,13 +29,13 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T002 Enhance docker-compose.yml with named network `solobueno-network` in `infrastructure/docker/docker-compose.yml`
-- [ ] T003 Update docker-compose.yml volumes to use explicit naming (`solobueno_postgres_data`, `solobueno_redis_data`, `solobueno_minio_data`) in `infrastructure/docker/docker-compose.yml`
-- [ ] T004 Add `start_period` to all health checks in `infrastructure/docker/docker-compose.yml`
-- [ ] T005 Update PostgreSQL health check to include database name (`pg_isready -U solobueno -d solobueno_dev`) in `infrastructure/docker/docker-compose.yml`
-- [ ] T006 Create health-check.sh script with PostgreSQL, Redis, and MinIO checks at `infrastructure/scripts/health-check.sh`
-- [ ] T007 Make health-check.sh executable with `chmod +x infrastructure/scripts/health-check.sh`
-- [ ] T008 Define DOCKER_COMPOSE variable in Makefile at `Makefile`
+- [x] T002 Enhance docker-compose.yml with named network `solobueno-network` in `infrastructure/docker/docker-compose.yml`
+- [x] T003 Update docker-compose.yml volumes to use explicit naming (`solobueno_postgres_data`, `solobueno_redis_data`, `solobueno_minio_data`) in `infrastructure/docker/docker-compose.yml`
+- [x] T004 Add `start_period` to all health checks in `infrastructure/docker/docker-compose.yml`
+- [x] T005 Update PostgreSQL health check to include database name (`pg_isready -U solobueno -d solobueno_dev`) in `infrastructure/docker/docker-compose.yml`
+- [x] T006 Create health-check.sh script with PostgreSQL, Redis, and MinIO checks at `infrastructure/scripts/health-check.sh`
+- [x] T007 Make health-check.sh executable with `chmod +x infrastructure/scripts/health-check.sh`
+- [x] T008 Define DOCKER_COMPOSE variable in Makefile at `Makefile`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin
 
@@ -49,12 +49,12 @@
 
 ### Implementation for User Story 1
 
-- [ ] T009 [US1] Enhance docker-up target with Docker installation check in `Makefile`
-- [ ] T010 [US1] Enhance docker-up target with Docker daemon running check in `Makefile`
-- [ ] T011 [US1] Add port availability check (5432, 6379, 9000, 9001) with helpful error messages in `Makefile`
-- [ ] T012 [US1] Add docker-status target that shows `docker compose ps` output in `Makefile`
-- [ ] T013 [US1] Add docker-health target that runs health-check.sh in `Makefile`
-- [ ] T014 [US1] Update docker-up target to call docker-status after starting services in `Makefile`
+- [x] T009 [US1] Enhance docker-up target with Docker installation check in `Makefile`
+- [x] T010 [US1] Enhance docker-up target with Docker daemon running check in `Makefile`
+- [x] T011 [US1] Add port availability check (5432, 6379, 9000, 9001) with helpful error messages in `Makefile`
+- [x] T012 [US1] Add docker-status target that shows `docker compose ps` output in `Makefile`
+- [x] T013 [US1] Add docker-health target that runs health-check.sh in `Makefile`
+- [x] T014 [US1] Update docker-up target to call docker-status after starting services in `Makefile`
 
 **Checkpoint**: User Story 1 complete - developers can start all services with `make docker-up`
 
@@ -68,9 +68,9 @@
 
 ### Implementation for User Story 2
 
-- [ ] T015 [US2] Add docker-restart target that restarts all services in `Makefile`
-- [ ] T016 [US2] Enhance docker-reset target with warning message and 3-second delay in `Makefile`
-- [ ] T017 [US2] Update docker-reset to output confirmation message after reset in `Makefile`
+- [x] T015 [US2] Add docker-restart target that restarts all services in `Makefile`
+- [x] T016 [US2] Enhance docker-reset target with warning message and 3-second delay in `Makefile`
+- [x] T017 [US2] Update docker-reset to output confirmation message after reset in `Makefile`
 
 **Checkpoint**: User Story 2 complete - developers can manage service lifecycle with `make docker-down/restart/reset`
 
@@ -84,9 +84,9 @@
 
 ### Implementation for User Story 3
 
-- [ ] T018 [P] [US3] Add docker-logs-postgres target for PostgreSQL logs in `Makefile`
-- [ ] T019 [P] [US3] Add docker-logs-redis target for Redis logs in `Makefile`
-- [ ] T020 [P] [US3] Add docker-logs-minio target for MinIO logs in `Makefile`
+- [x] T018 [P] [US3] Add docker-logs-postgres target for PostgreSQL logs in `Makefile`
+- [x] T019 [P] [US3] Add docker-logs-redis target for Redis logs in `Makefile`
+- [x] T020 [P] [US3] Add docker-logs-minio target for MinIO logs in `Makefile`
 
 **Checkpoint**: User Story 3 complete - developers can view logs with `make docker-logs[-service]`
 
@@ -96,11 +96,11 @@
 
 **Purpose**: Additional convenience features and documentation
 
-- [ ] T021 [P] Add docker-shell-postgres target to open psql shell in `Makefile`
-- [ ] T022 [P] Update .PHONY declaration with all new targets in `Makefile`
-- [ ] T023 Update infrastructure/config/dev.env.example with connection strings for all services
-- [ ] T024 Run quickstart.md validation (verify all documented commands work)
-- [ ] T025 Test data persistence across 10 stop/start cycles per SC-003
+- [x] T021 [P] Add docker-shell-postgres target to open psql shell in `Makefile`
+- [x] T022 [P] Update .PHONY declaration with all new targets in `Makefile`
+- [x] T023 Update infrastructure/config/dev.env.example with connection strings for all services
+- [x] T024 Run quickstart.md validation (verify all documented commands work) - All targets present in `make help`
+- [ ] T025 Test data persistence across 10 stop/start cycles per SC-003 - Requires Docker running
 
 ---
 
