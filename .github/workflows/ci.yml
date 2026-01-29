@@ -135,19 +135,18 @@ jobs:
         working-directory: backend
         run: |
           go test -v -race -coverprofile=coverage.out -covermode=atomic ./...
-          # Show coverage summary (threshold enforcement disabled until tests exist)
-          go tool cover -func=coverage.out || true
+          go tool cover -func=coverage.out
 
-      # TODO: Enable coverage threshold when Go tests are implemented
-      # - name: Check Go coverage threshold
-      #   working-directory: backend
-      #   run: |
-      #     COVERAGE=$(go tool cover -func=coverage.out | grep total | awk '{print substr($3, 1, length($3)-1)}')
-      #     echo "Go coverage: ${COVERAGE}%"
-      #     if (( $(echo "$COVERAGE < 80" | bc -l) )); then
-      #       echo "Coverage ${COVERAGE}% is below 80% threshold"
-      #       exit 1
-      #     fi
+      - name: Check Go coverage threshold
+        working-directory: backend
+        run: |
+          COVERAGE=$(go tool cover -func=coverage.out | grep total | awk '{print substr($3, 1, length($3)-1)}')
+          echo "Go coverage: ${COVERAGE}%"
+          # TODO: Increase threshold to 80% as more tests are added
+          if (( $(echo "$COVERAGE < 50" | bc -l) )); then
+            echo "Coverage ${COVERAGE}% is below 50% threshold"
+            exit 1
+          fi
 
       - name: Upload coverage artifacts
         uses: actions/upload-artifact@v4
