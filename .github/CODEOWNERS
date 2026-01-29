@@ -1,0 +1,17 @@
+# Default owners for everything in the repo
+* @zyoruk
+
+# Backend (Go) code
+/backend/ @zyoruk
+
+# Frontend packages
+/packages/ @zyoruk
+/apps/ @zyoruk
+
+# Infrastructure and CI/CD
+/.github/ @zyoruk
+/infrastructure/ @zyoruk
+
+# Documentation
+/docs/ @zyoruk
+/specs/ @zyoruk
