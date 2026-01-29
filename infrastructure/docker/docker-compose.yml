@@ -6,54 +6,71 @@ services:
     container_name: solobueno-postgres
     restart: unless-stopped
     ports:
-      - "5432:5432"
+      - '5432:5432'
     environment:
       POSTGRES_USER: solobueno
       POSTGRES_PASSWORD: solobueno_dev
       POSTGRES_DB: solobueno_dev
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - solobueno_postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U solobueno"]
+      test: ['CMD-SHELL', 'pg_isready -U solobueno -d solobueno_dev']
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 10s
+    networks:
+      - solobueno-network
 
   redis:
     image: redis:7-alpine
     container_name: solobueno-redis
     restart: unless-stopped
     ports:
-      - "6379:6379"
+      - '6379:6379'
     volumes:
-      - redis_data:/data
+      - solobueno_redis_data:/data
     command: redis-server --appendonly yes
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ['CMD', 'redis-cli', 'ping']
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 5s
+    networks:
+      - solobueno-network
 
   minio:
     image: minio/minio:latest
     container_name: solobueno-minio
     restart: unless-stopped
     ports:
-      - "9000:9000"
-      - "9001:9001"
+      - '9000:9000'
+      - '9001:9001'
     environment:
       MINIO_ROOT_USER: solobueno
       MINIO_ROOT_PASSWORD: solobueno_dev
     volumes:
-      - minio_data:/data
+      - solobueno_minio_data:/data
     command: server /data --console-address ":9001"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:9000/minio/health/live']
       interval: 30s
       timeout: 20s
       retries: 3
+      start_period: 10s
+    networks:
+      - solobueno-network
+
+networks:
+  solobueno-network:
+    driver: bridge
+    name: solobueno-network
 
 volumes:
-  postgres_data:
-  redis_data:
-  minio_data:
+  solobueno_postgres_data:
+    name: solobueno_postgres_data
+  solobueno_redis_data:
+    name: solobueno_redis_data
+  solobueno_minio_data:
+    name: solobueno_minio_data

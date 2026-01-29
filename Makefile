@@ -1,4 +1,6 @@
-.PHONY: help check-versions install dev build test lint clean docker-up docker-down docker-logs docker-reset
+.PHONY: help check-versions install dev build test lint clean
+.PHONY: docker-up docker-down docker-restart docker-reset docker-status docker-health
+.PHONY: docker-logs docker-logs-postgres docker-logs-redis docker-logs-minio docker-shell-postgres
 
 # Colors
 BLUE=\033[0;34m
@@ -51,21 +53,58 @@ clean: ## Clean all build artifacts
 # Docker Services
 # =============================================================================
 
+DOCKER_COMPOSE := docker compose -f infrastructure/docker/docker-compose.yml
+
 docker-up: ## Start Docker services (PostgreSQL, Redis, MinIO)
-	docker compose -f infrastructure/docker/docker-compose.yml up -d
+	@command -v docker >/dev/null 2>&1 || (echo "Error: Docker not found. Install Docker Desktop or Docker Engine." && exit 1)
+	@docker info >/dev/null 2>&1 || (echo "Error: Docker is not running. Start Docker Desktop or the Docker daemon." && exit 1)
+	@lsof -i :5432 >/dev/null 2>&1 && (echo "Error: Port 5432 already in use. Run: lsof -i :5432" && exit 1) || true
+	@lsof -i :6379 >/dev/null 2>&1 && (echo "Error: Port 6379 already in use. Run: lsof -i :6379" && exit 1) || true
+	@lsof -i :9000 >/dev/null 2>&1 && (echo "Error: Port 9000 already in use. Run: lsof -i :9000" && exit 1) || true
+	@lsof -i :9001 >/dev/null 2>&1 && (echo "Error: Port 9001 already in use. Run: lsof -i :9001" && exit 1) || true
+	$(DOCKER_COMPOSE) up -d
 	@echo "Waiting for services to be healthy..."
 	@sleep 5
-	@docker compose -f infrastructure/docker/docker-compose.yml ps
+	@$(MAKE) docker-status
 
-docker-down: ## Stop Docker services
-	docker compose -f infrastructure/docker/docker-compose.yml down
+docker-down: ## Stop Docker services (preserve data)
+	$(DOCKER_COMPOSE) down
 
-docker-logs: ## View Docker service logs
-	docker compose -f infrastructure/docker/docker-compose.yml logs -f
+docker-restart: ## Restart Docker services
+	$(DOCKER_COMPOSE) restart
 
 docker-reset: ## Reset Docker services (removes all data!)
-	docker compose -f infrastructure/docker/docker-compose.yml down -v
-	docker compose -f infrastructure/docker/docker-compose.yml up -d
+	@echo "⚠️  This will delete all local data. Press Ctrl+C to cancel..."
+	@sleep 3
+	$(DOCKER_COMPOSE) down -v
+	$(DOCKER_COMPOSE) up -d
+	@echo "✓ Services reset with fresh data."
+
+docker-status: ## Show service status and health
+	@echo ""
+	@echo "Service Status:"
+	@$(DOCKER_COMPOSE) ps
+	@echo ""
+	@echo "Health Check:"
+	@bash infrastructure/scripts/health-check.sh || true
+
+docker-health: ## Run health check script
+	@bash infrastructure/scripts/health-check.sh
+
+docker-logs: ## Tail logs from all services
+	$(DOCKER_COMPOSE) logs -f
+
+docker-logs-postgres: ## Tail PostgreSQL logs
+	$(DOCKER_COMPOSE) logs -f postgres
+
+docker-logs-redis: ## Tail Redis logs
+	$(DOCKER_COMPOSE) logs -f redis
+
+docker-logs-minio: ## Tail MinIO logs
+	$(DOCKER_COMPOSE) logs -f minio
+
+docker-shell-postgres: ## Open PostgreSQL shell
+	docker exec -it solobueno-postgres psql -U solobueno -d solobueno_dev
 
 # =============================================================================
 # Backend
