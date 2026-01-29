@@ -5,6 +5,16 @@
 **Status**: Draft  
 **Dependencies**: 001-init-monorepo
 
+## Clarifications
+
+### Session 2025-01-29
+
+- Q: Does CI need Docker services for integration tests? → A: Remove integration tests, keep only unit tests (simplifies CI, no Docker services needed)
+- Q: How to handle flaky test failures? → A: Not applicable - unit tests are deterministic, no retry strategy needed
+- Q: Which Node.js and Go versions for CI? → A: Single version - Node.js 20.x, Go 1.22.x (matches monorepo requirements)
+- Q: Should CI enforce code coverage thresholds? → A: Yes, enforce minimum 80% coverage - fail PR if below threshold
+- Q: Should CI include security scanning? → A: Yes, full security scanning with Dependabot + CodeQL static analysis
+
 ## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Developer Gets Automated Feedback on Pull Request (Priority: P1)
@@ -66,8 +76,7 @@ As a team lead, I want the main branch to always be in a deployable state, so th
 ### Edge Cases
 
 - What happens when CI infrastructure is down? PRs should be mergeable with admin override after manual verification.
-- What happens when tests are flaky? Document retry strategy and flaky test handling.
-- What happens when a third-party service is unavailable? Tests should mock external dependencies.
+- What happens when a third-party service is unavailable? Tests should mock external dependencies (unit tests only, no external service dependencies).
 
 ## Requirements _(mandatory)_
 
@@ -81,19 +90,27 @@ As a team lead, I want the main branch to always be in a deployable state, so th
 
 - **FR-004**: Pipeline MUST include a build job that compiles all packages and applications.
 
-- **FR-005**: Pipeline MUST include a test job that runs all unit and integration tests.
+- **FR-005**: Pipeline MUST include a test job that runs all unit tests (integration tests excluded from CI for simplicity).
 
-- **FR-006**: Pipeline MUST cache dependencies (pnpm, Go modules) between runs for faster execution.
+- **FR-006**: Pipeline MUST use Node.js 20.x and Go 1.22.x (single version, no matrix).
 
-- **FR-007**: Pipeline MUST cache Turborepo build artifacts for incremental builds.
+- **FR-007**: Pipeline MUST cache dependencies (pnpm, Go modules) between runs for faster execution.
 
-- **FR-008**: Pipeline MUST report individual job status (pass/fail) clearly in PR interface.
+- **FR-008**: Pipeline MUST cache Turborepo build artifacts for incremental builds.
 
-- **FR-009**: Pipeline MUST cancel in-progress runs when new commits are pushed to the same PR.
+- **FR-009**: Pipeline MUST report individual job status (pass/fail) clearly in PR interface.
 
-- **FR-010**: Pipeline MUST support running Go backend and TypeScript frontend checks in parallel.
+- **FR-010**: Pipeline MUST cancel in-progress runs when new commits are pushed to the same PR.
 
-- **FR-011**: System MUST enforce CI passage before PR merge via branch protection rules.
+- **FR-011**: Pipeline MUST support running Go backend and TypeScript frontend checks in parallel.
+
+- **FR-012**: Pipeline MUST generate code coverage reports and enforce minimum 80% coverage threshold.
+
+- **FR-013**: Pipeline MUST include Dependabot for automated dependency vulnerability scanning.
+
+- **FR-014**: Pipeline MUST include CodeQL for static code analysis and security scanning.
+
+- **FR-015**: System MUST enforce CI passage before PR merge via branch protection rules.
 
 ### Key Entities
 
@@ -117,3 +134,9 @@ As a team lead, I want the main branch to always be in a deployable state, so th
 - **SC-005**: Pipeline correctly detects and reports 100% of linting violations.
 
 - **SC-006**: Pipeline correctly detects and reports 100% of test failures.
+
+- **SC-007**: Pipeline fails PRs with code coverage below 80% threshold.
+
+- **SC-008**: Dependabot alerts are generated for known vulnerable dependencies within 24 hours of disclosure.
+
+- **SC-009**: CodeQL scans complete and report findings on every PR.

@@ -5,6 +5,8 @@ Auto-generated from all feature plans. Last updated: 2026-01-29
 ## Active Technologies
 - Docker Compose 3.8+, GNU Make, Bash + Docker, Docker Compose, PostgreSQL 16, Redis 7, MinIO (002-docker-local-dev)
 - Named Docker volumes for data persistence (002-docker-local-dev)
+- YAML (GitHub Actions), Node.js 20.x, Go 1.22.x + GitHub Actions, pnpm, Turborepo, Go toolchain, CodeQL, Dependabo (003-ci-pipeline)
+- GitHub Actions Cache (dependencies, Turborepo artifacts) (003-ci-pipeline)
 
 - Go 1.22+ (backend), TypeScript 5.x (frontend), Node.js 20+ + Turborepo, pnpm (workspace management), Docker Compose (001-init-monorepo)
 
@@ -25,6 +27,7 @@ npm test && npm run lint
 Go 1.22+ (backend), TypeScript 5.x (frontend), Node.js 20+: Follow standard conventions
 
 ## Recent Changes
+- 003-ci-pipeline: Added YAML (GitHub Actions), Node.js 20.x, Go 1.22.x + GitHub Actions, pnpm, Turborepo, Go toolchain, CodeQL, Dependabo
 - 002-docker-local-dev: Added Docker Compose 3.8+, GNU Make, Bash + Docker, Docker Compose, PostgreSQL 16, Redis 7, MinIO
 
 - 001-init-monorepo: Added Go 1.22+ (backend), TypeScript 5.x (frontend), Node.js 20+ + Turborepo, pnpm (workspace management), Docker Compose
