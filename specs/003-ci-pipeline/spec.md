@@ -5,7 +5,7 @@
 **Status**: Draft  
 **Dependencies**: 001-init-monorepo
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Developer Gets Automated Feedback on Pull Request (Priority: P1)
 
@@ -69,7 +69,7 @@ As a team lead, I want the main branch to always be in a deployable state, so th
 - What happens when tests are flaky? Document retry strategy and flaky test handling.
 - What happens when a third-party service is unavailable? Tests should mock external dependencies.
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -102,7 +102,7 @@ As a team lead, I want the main branch to always be in a deployable state, so th
 - **Cache**: Stored artifacts (dependencies, build outputs) that speed up subsequent runs.
 - **Branch Protection**: GitHub settings that enforce CI requirements for merging.
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 

@@ -5,7 +5,7 @@
 **Status**: Draft  
 **Dependencies**: 001-init-monorepo
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Developer Uses Shared UI Components (Priority: P1)
 
@@ -103,7 +103,7 @@ As a frontend developer, I want helper functions for tracking analytics events, 
 - What happens when translations are incomplete? Missing keys return the key itself; complete languages are documented.
 - What happens when packages have version mismatches? pnpm workspace ensures all packages use the same version.
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -144,7 +144,7 @@ As a frontend developer, I want helper functions for tracking analytics events, 
 - **GraphQL Client**: Generated code for making type-safe API calls.
 - **Analytics Tracker**: Utility for recording and queuing analytics events.
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 
@@ -158,6 +158,6 @@ As a frontend developer, I want helper functions for tracking analytics events, 
 
 - **SC-005**: Packages build independently in under 30 seconds each.
 
-- **SC-006**: Import statements use package names (@solobueno/*) not relative paths.
+- **SC-006**: Import statements use package names (@solobueno/\*) not relative paths.
 
 - **SC-007**: All packages pass linting with zero warnings.

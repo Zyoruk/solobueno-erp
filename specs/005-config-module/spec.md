@@ -5,7 +5,7 @@
 **Status**: Draft  
 **Dependencies**: 004-auth-module
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Owner Customizes Restaurant Branding (Priority: P1)
 
@@ -83,7 +83,7 @@ As a system administrator, I want to configure global settings that apply to all
 - What happens when configuration changes during active orders? Active orders keep original settings; new orders use new settings.
 - What happens when required configuration is missing? System uses sensible defaults and logs a warning.
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -120,7 +120,7 @@ As a system administrator, I want to configure global settings that apply to all
 - **BrandingSettings**: Logo URL, colors, restaurant name for white-labeling.
 - **BusinessSettings**: Currency, timezone, tax configuration, service charge rules.
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 
