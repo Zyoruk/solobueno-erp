@@ -19,7 +19,7 @@
 
 **Purpose**: Create required directory structure for GitHub Actions
 
-- [ ] T001 Create .github/workflows directory at `.github/workflows/`
+- [x] T001 Create .github/workflows directory at `.github/workflows/`
 
 ---
 
@@ -29,8 +29,8 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T002 Create ci.yml workflow file with name, triggers (push/PR to main), and environment variables at `.github/workflows/ci.yml`
-- [ ] T003 Add concurrency configuration to cancel in-progress runs on same PR in `.github/workflows/ci.yml`
+- [x] T002 Create ci.yml workflow file with name, triggers (push/PR to main), and environment variables at `.github/workflows/ci.yml`
+- [x] T003 Add concurrency configuration to cancel in-progress runs on same PR in `.github/workflows/ci.yml`
 
 **Checkpoint**: Foundation ready - CI workflow skeleton exists
 
@@ -44,16 +44,16 @@
 
 ### Implementation for User Story 1
 
-- [ ] T004 [US1] Add lint job with checkout, pnpm setup, Node.js setup in `.github/workflows/ci.yml`
-- [ ] T005 [US1] Add Go setup to lint job with cache configuration in `.github/workflows/ci.yml`
-- [ ] T006 [US1] Add pnpm install and lint commands to lint job in `.github/workflows/ci.yml`
-- [ ] T007 [US1] Add Go vet and staticcheck commands to lint job in `.github/workflows/ci.yml`
-- [ ] T008 [US1] Add build job with needs: lint dependency in `.github/workflows/ci.yml`
-- [ ] T009 [US1] Add pnpm build and go build commands to build job in `.github/workflows/ci.yml`
-- [ ] T010 [US1] Add test job with needs: build dependency in `.github/workflows/ci.yml`
-- [ ] T011 [US1] Add TypeScript test with coverage command to test job in `.github/workflows/ci.yml`
-- [ ] T012 [US1] Add Go test with coverage and threshold check to test job in `.github/workflows/ci.yml`
-- [ ] T013 [US1] Add coverage artifact upload step to test job in `.github/workflows/ci.yml`
+- [x] T004 [US1] Add lint job with checkout, pnpm setup, Node.js setup in `.github/workflows/ci.yml`
+- [x] T005 [US1] Add Go setup to lint job with cache configuration in `.github/workflows/ci.yml`
+- [x] T006 [US1] Add pnpm install and lint commands to lint job in `.github/workflows/ci.yml`
+- [x] T007 [US1] Add Go vet and staticcheck commands to lint job in `.github/workflows/ci.yml`
+- [x] T008 [US1] Add build job with needs: lint dependency in `.github/workflows/ci.yml`
+- [x] T009 [US1] Add pnpm build and go build commands to build job in `.github/workflows/ci.yml`
+- [x] T010 [US1] Add test job with needs: build dependency in `.github/workflows/ci.yml`
+- [x] T011 [US1] Add TypeScript test with coverage command to test job in `.github/workflows/ci.yml`
+- [x] T012 [US1] Add Go test with coverage and threshold check to test job in `.github/workflows/ci.yml`
+- [x] T013 [US1] Add coverage artifact upload step to test job in `.github/workflows/ci.yml`
 
 **Checkpoint**: User Story 1 complete - PRs trigger lint→build→test pipeline
 
@@ -67,9 +67,9 @@
 
 ### Implementation for User Story 2
 
-- [ ] T014 [US2] Add Turborepo cache configuration with restore-keys to build job in `.github/workflows/ci.yml`
-- [ ] T015 [US2] Verify pnpm cache is configured in setup-node action in `.github/workflows/ci.yml`
-- [ ] T016 [US2] Verify Go module cache is configured in setup-go action in `.github/workflows/ci.yml`
+- [x] T014 [US2] Add Turborepo cache configuration with restore-keys to build job in `.github/workflows/ci.yml`
+- [x] T015 [US2] Verify pnpm cache is configured in setup-node action in `.github/workflows/ci.yml`
+- [x] T016 [US2] Verify Go module cache is configured in setup-go action in `.github/workflows/ci.yml`
 
 **Checkpoint**: User Story 2 complete - Subsequent runs use cached dependencies
 
@@ -83,11 +83,11 @@
 
 ### Implementation for User Story 3
 
-- [ ] T017 [P] [US3] Create dependabot.yml with npm, gomod, and github-actions ecosystems at `.github/dependabot.yml`
-- [ ] T018 [P] [US3] Create codeql.yml workflow with JS/TS and Go language matrix at `.github/workflows/codeql.yml`
-- [ ] T019 [P] [US3] Create CODEOWNERS file for code review assignments at `.github/CODEOWNERS`
-- [ ] T020 [US3] Document branch protection rules configuration in `specs/003-ci-pipeline/BRANCH_PROTECTION.md`
-- [ ] T021 [US3] Add required status checks list to branch protection documentation
+- [x] T017 [P] [US3] Create dependabot.yml with npm, gomod, and github-actions ecosystems at `.github/dependabot.yml`
+- [x] T018 [P] [US3] Create codeql.yml workflow with JS/TS and Go language matrix at `.github/workflows/codeql.yml`
+- [x] T019 [P] [US3] Create CODEOWNERS file for code review assignments at `.github/CODEOWNERS`
+- [x] T020 [US3] Document branch protection rules configuration in `specs/003-ci-pipeline/BRANCH_PROTECTION.md`
+- [x] T021 [US3] Add required status checks list to branch protection documentation
 
 **Checkpoint**: User Story 3 complete - Security scanning configured, protection rules documented
 
@@ -97,13 +97,13 @@
 
 **Purpose**: Finalize configuration and verify end-to-end functionality
 
-- [ ] T022 [P] Verify ci.yml syntax with actionlint or GitHub Actions validator
-- [ ] T023 [P] Verify codeql.yml syntax with actionlint or GitHub Actions validator
-- [ ] T024 [P] Verify dependabot.yml syntax via GitHub documentation
-- [ ] T025 Test full CI pipeline by creating a test PR
-- [ ] T026 Verify coverage threshold enforcement by intentionally lowering coverage
-- [ ] T027 Verify cache hit rate >80% on second CI run per SC-004
-- [ ] T028 Update quickstart.md with actual workflow file locations
+- [x] T022 [P] Verify ci.yml syntax with actionlint or GitHub Actions validator
+- [x] T023 [P] Verify codeql.yml syntax with actionlint or GitHub Actions validator
+- [x] T024 [P] Verify dependabot.yml syntax via GitHub documentation
+- [ ] T025 Test full CI pipeline by creating a test PR (manual - requires push to GitHub)
+- [ ] T026 Verify coverage threshold enforcement by intentionally lowering coverage (manual - requires GitHub)
+- [ ] T027 Verify cache hit rate >80% on second CI run per SC-004 (manual - requires GitHub)
+- [x] T028 Update quickstart.md with actual workflow file locations
 
 ---
 

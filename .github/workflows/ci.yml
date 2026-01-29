@@ -8,7 +8,12 @@ on:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+env:
+  NODE_VERSION: '20'
+  GO_VERSION: '1.22'
+  PNPM_VERSION: '8'
 
 jobs:
   lint:
@@ -17,49 +22,78 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v3
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
         with:
-          version: 8
+          version: ${{ env.PNPM_VERSION }}
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Lint
-        run: pnpm lint
-
-      - name: Format check
-        run: pnpm format:check
-
-  build:
-    name: Build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: pnpm/action-setup@v3
-        with:
-          version: 8
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
 
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.22'
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
           cache-dependency-path: backend/go.sum
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build packages
+      - name: Lint TypeScript
+        run: pnpm lint
+
+      - name: Format check
+        run: pnpm format:check
+
+      - name: Lint Go
+        working-directory: backend
+        run: |
+          go vet ./...
+          go install honnef.co/go/tools/cmd/staticcheck@latest
+          staticcheck ./...
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+          cache-dependency-path: backend/go.sum
+
+      - name: Setup Turborepo cache
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-${{ github.ref }}-${{ github.sha }}
+          restore-keys: |
+            turbo-${{ github.ref }}-
+            turbo-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build TypeScript packages
         run: pnpm build
 
       - name: Build Go backend
@@ -73,27 +107,50 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v3
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
         with:
-          version: 8
+          version: ${{ env.PNPM_VERSION }}
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
 
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.22'
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
           cache-dependency-path: backend/go.sum
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Test packages
-        run: pnpm test
+      - name: Test TypeScript with coverage
+        run: pnpm test --coverage
 
-      - name: Test Go backend
+      - name: Test Go with coverage
         working-directory: backend
-        run: go test -v ./...
+        run: |
+          go test -v -race -coverprofile=coverage.out -covermode=atomic ./...
+          go tool cover -func=coverage.out
+
+      - name: Check Go coverage threshold
+        working-directory: backend
+        run: |
+          COVERAGE=$(go tool cover -func=coverage.out | grep total | awk '{print substr($3, 1, length($3)-1)}')
+          echo "Go coverage: ${COVERAGE}%"
+          if (( $(echo "$COVERAGE < 80" | bc -l) )); then
+            echo "Coverage ${COVERAGE}% is below 80% threshold"
+            exit 1
+          fi
+
+      - name: Upload coverage artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-reports
+          path: |
+            coverage/
+            backend/coverage.out

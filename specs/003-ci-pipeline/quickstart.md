@@ -217,8 +217,10 @@ git push --force-with-lease
 
 ## File Locations
 
-| File                           | Purpose            |
-| ------------------------------ | ------------------ |
-| `.github/workflows/ci.yml`     | Main CI workflow   |
-| `.github/workflows/codeql.yml` | Security scanning  |
-| `.github/dependabot.yml`       | Dependency updates |
+| File                                         | Purpose                            |
+| -------------------------------------------- | ---------------------------------- |
+| `.github/workflows/ci.yml`                   | Main CI workflow (lint/build/test) |
+| `.github/workflows/codeql.yml`               | Security scanning (JS/TS + Go)     |
+| `.github/dependabot.yml`                     | Dependency updates (weekly)        |
+| `.github/CODEOWNERS`                         | Code review assignments            |
+| `specs/003-ci-pipeline/BRANCH_PROTECTION.md` | Branch protection setup guide      |
