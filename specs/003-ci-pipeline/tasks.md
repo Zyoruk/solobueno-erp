@@ -85,8 +85,9 @@
 
 - [ ] T017 [P] [US3] Create dependabot.yml with npm, gomod, and github-actions ecosystems at `.github/dependabot.yml`
 - [ ] T018 [P] [US3] Create codeql.yml workflow with JS/TS and Go language matrix at `.github/workflows/codeql.yml`
-- [ ] T019 [US3] Document branch protection rules configuration in `specs/003-ci-pipeline/BRANCH_PROTECTION.md`
-- [ ] T020 [US3] Add required status checks list to branch protection documentation
+- [ ] T019 [P] [US3] Create CODEOWNERS file for code review assignments at `.github/CODEOWNERS`
+- [ ] T020 [US3] Document branch protection rules configuration in `specs/003-ci-pipeline/BRANCH_PROTECTION.md`
+- [ ] T021 [US3] Add required status checks list to branch protection documentation
 
 **Checkpoint**: User Story 3 complete - Security scanning configured, protection rules documented
 
@@ -96,12 +97,13 @@
 
 **Purpose**: Finalize configuration and verify end-to-end functionality
 
-- [ ] T021 [P] Verify ci.yml syntax with actionlint or GitHub Actions validator
-- [ ] T022 [P] Verify codeql.yml syntax with actionlint or GitHub Actions validator
-- [ ] T023 [P] Verify dependabot.yml syntax via GitHub documentation
-- [ ] T024 Test full CI pipeline by creating a test PR
-- [ ] T025 Verify coverage threshold enforcement by intentionally lowering coverage
-- [ ] T026 Update quickstart.md with actual workflow file locations
+- [ ] T022 [P] Verify ci.yml syntax with actionlint or GitHub Actions validator
+- [ ] T023 [P] Verify codeql.yml syntax with actionlint or GitHub Actions validator
+- [ ] T024 [P] Verify dependabot.yml syntax via GitHub documentation
+- [ ] T025 Test full CI pipeline by creating a test PR
+- [ ] T026 Verify coverage threshold enforcement by intentionally lowering coverage
+- [ ] T027 Verify cache hit rate >80% on second CI run per SC-004
+- [ ] T028 Update quickstart.md with actual workflow file locations
 
 ---
 
@@ -125,19 +127,19 @@
 ### Within Each Phase
 
 - US1 tasks must be sequential (building up ci.yml incrementally)
-- US3 tasks T017, T018 can run in parallel (different files)
-- Polish tasks T021-T023 can run in parallel (different validations)
+- US3 tasks T017, T018, T019 can run in parallel (different files)
+- Polish tasks T022-T024 can run in parallel (different validations)
 
 ### Parallel Opportunities
 
 ```text
 Phase 5 (US3):
-  Parallel: T017 (dependabot.yml), T018 (codeql.yml)
-  Sequential: T019 → T020 (documentation)
+  Parallel: T017 (dependabot.yml), T018 (codeql.yml), T019 (CODEOWNERS)
+  Sequential: T020 → T021 (documentation)
 
 Phase 6 (Polish):
-  Parallel: T021, T022, T023 (syntax validation)
-  Sequential: T024 → T025 → T026 (integration testing)
+  Parallel: T022, T023, T024 (syntax validation)
+  Sequential: T025 → T026 → T027 → T028 (integration testing)
 ```
 
 ---
@@ -166,15 +168,15 @@ Phase 6 (Polish):
 
 ### Estimated Task Counts
 
-| Phase        | Tasks  | Description                           |
-| ------------ | ------ | ------------------------------------- |
-| Setup        | 1      | Directory creation                    |
-| Foundational | 2      | Workflow triggers, concurrency        |
-| US1 (P1)     | 10     | Lint, build, test jobs                |
-| US2 (P2)     | 3      | Caching configuration                 |
-| US3 (P1)     | 4      | Dependabot, CodeQL, branch protection |
-| Polish       | 6      | Validation, testing                   |
-| **Total**    | **26** |                                       |
+| Phase        | Tasks  | Description                          |
+| ------------ | ------ | ------------------------------------ |
+| Setup        | 1      | Directory creation                   |
+| Foundational | 2      | Workflow triggers, concurrency       |
+| US1 (P1)     | 10     | Lint, build, test jobs               |
+| US2 (P2)     | 3      | Caching configuration                |
+| US3 (P1)     | 5      | Dependabot, CodeQL, CODEOWNERS, docs |
+| Polish       | 7      | Validation, testing, cache verify    |
+| **Total**    | **28** |                                      |
 
 ---
 

@@ -58,11 +58,10 @@ specs/003-ci-pipeline/
 ```text
 .github/
 ├── workflows/
-│   ├── ci.yml              # Main CI workflow (lint, build, test)
-│   ├── codeql.yml          # CodeQL security scanning
-│   └── coverage.yml        # Code coverage reporting
+│   ├── ci.yml              # Main CI workflow (lint, build, test, coverage)
+│   └── codeql.yml          # CodeQL security scanning
 ├── dependabot.yml          # Dependency update configuration
-└── CODEOWNERS              # Code ownership for reviews (optional)
+└── CODEOWNERS              # Code ownership for reviews
 
 # Branch protection configured via GitHub UI/API
 ```
