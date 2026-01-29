@@ -5,7 +5,7 @@
 **Status**: Draft  
 **Dependencies**: 002-docker-local-dev
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Staff Member Logs In (Priority: P1)
 
@@ -103,7 +103,7 @@ As a staff member ending my shift, I want to log out securely, so that the next 
 - What happens during a password reset? Current sessions should remain valid until password is changed.
 - What happens if a user's role changes while they're logged in? Changes take effect on next token refresh.
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -143,7 +143,7 @@ As a staff member ending my shift, I want to log out securely, so that the next 
 - **Tenant**: Restaurant business; users belong to exactly one tenant.
 - **AuthEvent**: Audit log of authentication actions (login, logout, failed attempt).
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 

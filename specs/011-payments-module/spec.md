@@ -5,7 +5,7 @@
 **Status**: Draft  
 **Dependencies**: 009-orders-module
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Customer Pays by Card (Priority: P1)
 
@@ -107,7 +107,7 @@ As a restaurant manager, I want to view payment summaries and reports, so that I
 - What happens when a refund exceeds original payment? System prevents refund greater than charged amount.
 - What happens during network timeout? Transaction status is verified before assuming failure.
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -146,7 +146,7 @@ As a restaurant manager, I want to view payment summaries and reports, so that I
 - **CashDrawer**: Physical drawer for cash; tracked for reconciliation.
 - **PaymentPlugin**: Integration with payment processor (Stripe, etc.).
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 

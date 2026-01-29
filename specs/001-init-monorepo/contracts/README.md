@@ -13,13 +13,13 @@ This feature establishes the project structure and does not introduce API contra
 
 All shared packages use the `@solobueno/` scope:
 
-| Package | Name | Purpose |
-|---------|------|---------|
-| UI Components | `@solobueno/ui` | Shared React/React Native components |
-| Internationalization | `@solobueno/i18n` | Translation strings and utilities |
-| Type Definitions | `@solobueno/types` | Shared TypeScript types |
-| GraphQL Client | `@solobueno/graphql` | Generated GraphQL client |
-| Analytics | `@solobueno/analytics` | Client-side analytics helpers |
+| Package              | Name                   | Purpose                              |
+| -------------------- | ---------------------- | ------------------------------------ |
+| UI Components        | `@solobueno/ui`        | Shared React/React Native components |
+| Internationalization | `@solobueno/i18n`      | Translation strings and utilities    |
+| Type Definitions     | `@solobueno/types`     | Shared TypeScript types              |
+| GraphQL Client       | `@solobueno/graphql`   | Generated GraphQL client             |
+| Analytics            | `@solobueno/analytics` | Client-side analytics helpers        |
 
 ### Import Conventions
 
@@ -32,7 +32,7 @@ import { t } from '@solobueno/i18n';
 import type { Order } from '@solobueno/types';
 
 // Avoid relative paths across packages
-import { Button } from '../../../packages/ui';  // Bad
+import { Button } from '../../../packages/ui'; // Bad
 ```
 
 ### Go Module Import Convention

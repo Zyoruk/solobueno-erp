@@ -59,46 +59,48 @@ communication, ready for microservice extraction when scale demands.
 
 #### Bounded Contexts (as internal modules)
 
-| Module | Domain Responsibility |
-|--------|----------------------|
-| `auth` | Authentication, authorization, tenant context, user management |
-| `menu` | Menu items, categories, modifiers, pricing rules |
-| `orders` | Order lifecycle, cart, kitchen tickets, order history |
-| `tables` | Table layout, reservations, active sessions |
-| `inventory` | Stock levels, ingredients, low-stock alerts |
-| `billing` | Invoice generation, fiscal plugin orchestration, tax calculation |
-| `payments` | Payment processing, plugin orchestration, refunds |
-| `reporting` | Analytics, reports, data exports |
-| `config` | Tenant configuration, feature flags, branding |
-| `feedback` | Customer complaints, ratings, staff performance tracking |
-| `analytics` | Clickstream collection, business intelligence events |
-| `notifications` | Push notifications, email, SMS, in-app alerts |
-| `audit` | Action logging, compliance trail, change history |
-| `jobs` | Background tasks, scheduled jobs, async processing |
-| `media` | File uploads, image processing, CDN management |
-| `search` | Full-text search, indexing, autocomplete (optional module) |
+| Module          | Domain Responsibility                                            |
+| --------------- | ---------------------------------------------------------------- |
+| `auth`          | Authentication, authorization, tenant context, user management   |
+| `menu`          | Menu items, categories, modifiers, pricing rules                 |
+| `orders`        | Order lifecycle, cart, kitchen tickets, order history            |
+| `tables`        | Table layout, reservations, active sessions                      |
+| `inventory`     | Stock levels, ingredients, low-stock alerts                      |
+| `billing`       | Invoice generation, fiscal plugin orchestration, tax calculation |
+| `payments`      | Payment processing, plugin orchestration, refunds                |
+| `reporting`     | Analytics, reports, data exports                                 |
+| `config`        | Tenant configuration, feature flags, branding                    |
+| `feedback`      | Customer complaints, ratings, staff performance tracking         |
+| `analytics`     | Clickstream collection, business intelligence events             |
+| `notifications` | Push notifications, email, SMS, in-app alerts                    |
+| `audit`         | Action logging, compliance trail, change history                 |
+| `jobs`          | Background tasks, scheduled jobs, async processing               |
+| `media`         | File uploads, image processing, CDN management                   |
+| `search`        | Full-text search, indexing, autocomplete (optional module)       |
 
 #### Module Communication Rules
 
 **Synchronous (Interface Calls)** - Use when:
+
 - Caller MUST have an immediate response to proceed
 - Query operations (read data from another module)
 - Validation that blocks the current operation
 
 **Asynchronous (Domain Events)** - Use when:
+
 - Side effects that don't affect the caller's response
 - Multiple modules need to react to the same action
 - Operations that can tolerate eventual consistency
 - Decoupling is more important than immediate consistency
 
-| Communication Type | Pattern | Example |
-|-------------------|---------|---------|
-| Query another module | Interface call | Orders calls `menu.GetItem()` to get price |
-| Validate before action | Interface call | Orders calls `inventory.CheckStock()` |
-| Notify something happened | Domain event | Orders publishes `OrderCompleted` |
-| Trigger side effects | Domain event | Inventory subscribes to `OrderCompleted` |
-| Complex multi-step workflow | Saga (events) | Payment → Invoice → Notification |
-| Track user behavior | Analytics event | UI publishes `MenuItemViewed` |
+| Communication Type          | Pattern         | Example                                    |
+| --------------------------- | --------------- | ------------------------------------------ |
+| Query another module        | Interface call  | Orders calls `menu.GetItem()` to get price |
+| Validate before action      | Interface call  | Orders calls `inventory.CheckStock()`      |
+| Notify something happened   | Domain event    | Orders publishes `OrderCompleted`          |
+| Trigger side effects        | Domain event    | Inventory subscribes to `OrderCompleted`   |
+| Complex multi-step workflow | Saga (events)   | Payment → Invoice → Notification           |
+| Track user behavior         | Analytics event | UI publishes `MenuItemViewed`              |
 
 #### Domain Events as First-Class Citizens
 
@@ -110,37 +112,37 @@ communication, ready for microservice extraction when scale demands.
 
 **Core Domain Events** (initial, will grow):
 
-| Module | Events Published |
-|--------|-----------------|
-| `orders` | `OrderCreated`, `OrderItemAdded`, `OrderSentToKitchen`, `OrderCompleted`, `OrderCancelled` |
-| `tables` | `TableSessionStarted`, `TableSessionClosed`, `ReservationCreated`, `ReservationCancelled` |
-| `payments` | `PaymentInitiated`, `PaymentSucceeded`, `PaymentFailed`, `RefundProcessed` |
-| `billing` | `InvoiceGenerated`, `InvoiceSent`, `InvoiceVoided` |
-| `inventory` | `StockDepleted`, `LowStockAlert`, `StockReplenished` |
-| `menu` | `MenuItemCreated`, `MenuItemUpdated`, `MenuItemDisabled`, `PriceChanged` |
-| `auth` | `UserCreated`, `UserRoleChanged`, `TenantCreated`, `LoginSucceeded`, `LoginFailed` |
-| `feedback` | `ComplaintFiled`, `ComplaintResolved`, `RatingSubmitted`, `StaffRated` |
-| `notifications` | `NotificationSent`, `NotificationFailed`, `NotificationRead` |
-| `audit` | `AuditEventRecorded` (internal, not for subscription) |
-| `jobs` | `JobScheduled`, `JobStarted`, `JobCompleted`, `JobFailed` |
-| `media` | `FileUploaded`, `FileDeleted`, `ImageProcessed` |
+| Module          | Events Published                                                                           |
+| --------------- | ------------------------------------------------------------------------------------------ |
+| `orders`        | `OrderCreated`, `OrderItemAdded`, `OrderSentToKitchen`, `OrderCompleted`, `OrderCancelled` |
+| `tables`        | `TableSessionStarted`, `TableSessionClosed`, `ReservationCreated`, `ReservationCancelled`  |
+| `payments`      | `PaymentInitiated`, `PaymentSucceeded`, `PaymentFailed`, `RefundProcessed`                 |
+| `billing`       | `InvoiceGenerated`, `InvoiceSent`, `InvoiceVoided`                                         |
+| `inventory`     | `StockDepleted`, `LowStockAlert`, `StockReplenished`                                       |
+| `menu`          | `MenuItemCreated`, `MenuItemUpdated`, `MenuItemDisabled`, `PriceChanged`                   |
+| `auth`          | `UserCreated`, `UserRoleChanged`, `TenantCreated`, `LoginSucceeded`, `LoginFailed`         |
+| `feedback`      | `ComplaintFiled`, `ComplaintResolved`, `RatingSubmitted`, `StaffRated`                     |
+| `notifications` | `NotificationSent`, `NotificationFailed`, `NotificationRead`                               |
+| `audit`         | `AuditEventRecorded` (internal, not for subscription)                                      |
+| `jobs`          | `JobScheduled`, `JobStarted`, `JobCompleted`, `JobFailed`                                  |
+| `media`         | `FileUploaded`, `FileDeleted`, `ImageProcessed`                                            |
 
 **Analytics/Clickstream Events** (for business intelligence):
 
-| Event | Purpose | Key Data |
-|-------|---------|----------|
-| `MenuItemViewed` | Track product interest | `itemId`, `categoryId`, `userId`, `sessionId`, `duration` |
-| `MenuCategoryBrowsed` | Track category popularity | `categoryId`, `userId`, `sessionId`, `itemsViewed` |
-| `ItemAddedToCart` | Track purchase intent | `itemId`, `quantity`, `orderId`, `userId` |
-| `ItemRemovedFromCart` | Track abandonment | `itemId`, `quantity`, `orderId`, `reason` |
-| `SearchPerformed` | Track search behavior | `query`, `resultsCount`, `userId`, `sessionId` |
-| `ModifierSelected` | Track customization patterns | `itemId`, `modifierId`, `userId` |
-| `OrderAbandoned` | Track incomplete orders | `orderId`, `itemsInCart`, `totalValue`, `stage` |
-| `PromotionViewed` | Track marketing effectiveness | `promotionId`, `userId`, `sessionId` |
-| `PromotionApplied` | Track promotion conversion | `promotionId`, `orderId`, `discountAmount` |
-| `PageViewed` | General navigation tracking | `pageName`, `userId`, `sessionId`, `referrer` |
-| `SessionStarted` | Track user sessions | `sessionId`, `userId`, `deviceType`, `appVersion` |
-| `SessionEnded` | Session duration tracking | `sessionId`, `duration`, `pagesViewed`, `ordersPlaced` |
+| Event                 | Purpose                       | Key Data                                                  |
+| --------------------- | ----------------------------- | --------------------------------------------------------- |
+| `MenuItemViewed`      | Track product interest        | `itemId`, `categoryId`, `userId`, `sessionId`, `duration` |
+| `MenuCategoryBrowsed` | Track category popularity     | `categoryId`, `userId`, `sessionId`, `itemsViewed`        |
+| `ItemAddedToCart`     | Track purchase intent         | `itemId`, `quantity`, `orderId`, `userId`                 |
+| `ItemRemovedFromCart` | Track abandonment             | `itemId`, `quantity`, `orderId`, `reason`                 |
+| `SearchPerformed`     | Track search behavior         | `query`, `resultsCount`, `userId`, `sessionId`            |
+| `ModifierSelected`    | Track customization patterns  | `itemId`, `modifierId`, `userId`                          |
+| `OrderAbandoned`      | Track incomplete orders       | `orderId`, `itemsInCart`, `totalValue`, `stage`           |
+| `PromotionViewed`     | Track marketing effectiveness | `promotionId`, `userId`, `sessionId`                      |
+| `PromotionApplied`    | Track promotion conversion    | `promotionId`, `orderId`, `discountAmount`                |
+| `PageViewed`          | General navigation tracking   | `pageName`, `userId`, `sessionId`, `referrer`             |
+| `SessionStarted`      | Track user sessions           | `sessionId`, `userId`, `deviceType`, `appVersion`         |
+| `SessionEnded`        | Session duration tracking     | `sessionId`, `duration`, `pagesViewed`, `ordersPlaced`    |
 
 #### Event Bus Abstraction
 
@@ -198,12 +200,14 @@ Compensation (if payment fails):
 #### Microservice Extraction Criteria
 
 A module SHOULD be extracted to a microservice only when:
+
 - It has different scaling requirements than the monolith
 - It needs independent deployment for release velocity
 - Team ownership boundaries require process isolation
 - Performance isolation is required (e.g., reporting heavy queries)
 
 **Extraction is straightforward because**:
+
 - Module interfaces become gRPC/HTTP clients
 - In-memory event bus becomes message broker topic
 - No business logic changes required
@@ -329,12 +333,14 @@ packages/i18n/
 ```
 
 **Why Package-Driven**:
+
 - Simpler architecture for MVP
 - Type-safe translation keys (compile-time checking)
 - Faster load times (bundled, no API calls)
 - Can migrate to database-driven later if tenant-specific overrides needed
 
 **Requirements**:
+
 - All user-facing strings MUST use i18n keys (no hardcoded text in UI)
 - Default languages: Spanish (Latin America), English
 - Additional languages MUST be addable without code changes
@@ -389,6 +395,7 @@ type Field struct {
 ```
 
 **Logging Requirements**:
+
 - All logs MUST be structured (JSON in production, human-readable in dev)
 - All logs MUST include: `timestamp`, `level`, `message`, `tenant_id`, `request_id`
 - Sensitive data (passwords, tokens, PII) MUST NOT appear in logs
@@ -397,33 +404,33 @@ type Field struct {
 
 **Standard Log Fields**:
 
-| Field | Description | Required |
-|-------|-------------|----------|
-| `timestamp` | ISO 8601 format | Yes |
-| `level` | debug, info, warn, error | Yes |
-| `message` | Human-readable description | Yes |
-| `tenant_id` | Current tenant context | Yes (if in tenant context) |
-| `request_id` | Correlation ID for request tracing | Yes (if in request context) |
-| `user_id` | Acting user | Yes (if authenticated) |
-| `module` | Source module (orders, payments, etc.) | Yes |
-| `duration_ms` | Operation duration | For operations |
-| `error` | Error details | For errors |
+| Field         | Description                            | Required                    |
+| ------------- | -------------------------------------- | --------------------------- |
+| `timestamp`   | ISO 8601 format                        | Yes                         |
+| `level`       | debug, info, warn, error               | Yes                         |
+| `message`     | Human-readable description             | Yes                         |
+| `tenant_id`   | Current tenant context                 | Yes (if in tenant context)  |
+| `request_id`  | Correlation ID for request tracing     | Yes (if in request context) |
+| `user_id`     | Acting user                            | Yes (if authenticated)      |
+| `module`      | Source module (orders, payments, etc.) | Yes                         |
+| `duration_ms` | Operation duration                     | For operations              |
+| `error`       | Error details                          | For errors                  |
 
 **Log Levels by Environment**:
 
-| Environment | Default Level | Notes |
-|-------------|---------------|-------|
-| dev | debug | All logs visible |
-| test | warn | Reduce noise in CI |
-| staging | info | Production-like |
-| prod | info | Consider warn for high-volume |
+| Environment | Default Level | Notes                         |
+| ----------- | ------------- | ----------------------------- |
+| dev         | debug         | All logs visible              |
+| test        | warn          | Reduce noise in CI            |
+| staging     | info          | Production-like               |
+| prod        | info          | Consider warn for high-volume |
 
 **Logger Implementations** (swap via configuration):
 
-| Phase | Implementation | Use Case |
-|-------|---------------|----------|
-| Phase 1 | `zerolog` / `zap` | Local structured logging |
-| Phase 2 | + File/stdout | Container log collection |
+| Phase   | Implementation      | Use Case                    |
+| ------- | ------------------- | --------------------------- |
+| Phase 1 | `zerolog` / `zap`   | Local structured logging    |
+| Phase 2 | + File/stdout       | Container log collection    |
 | Phase 3 | + Loki / CloudWatch | Centralized log aggregation |
 
 #### Future Observability (prepare interfaces, implement later)
@@ -451,16 +458,16 @@ type Tracer interface {
 
 #### What to Log
 
-| Category | Log Level | Example |
-|----------|-----------|---------|
-| Request received | info | `"message": "GraphQL request", "operation": "CreateOrder"` |
-| Request completed | info | `"message": "Request completed", "duration_ms": 45, "status": "success"` |
-| Business event | info | `"message": "Order sent to kitchen", "order_id": "...", "items_count": 5` |
-| External API call | info | `"message": "Payment API called", "provider": "stripe", "duration_ms": 230` |
-| Validation failure | warn | `"message": "Invalid input", "field": "email", "reason": "malformed"` |
-| Recoverable error | warn | `"message": "Retry succeeded", "attempt": 2, "operation": "sync"` |
-| Unrecoverable error | error | `"message": "Payment failed", "error": "insufficient_funds", "order_id": "..."` |
-| Debug details | debug | `"message": "Cache hit", "key": "menu:tenant123"` |
+| Category            | Log Level | Example                                                                         |
+| ------------------- | --------- | ------------------------------------------------------------------------------- |
+| Request received    | info      | `"message": "GraphQL request", "operation": "CreateOrder"`                      |
+| Request completed   | info      | `"message": "Request completed", "duration_ms": 45, "status": "success"`        |
+| Business event      | info      | `"message": "Order sent to kitchen", "order_id": "...", "items_count": 5`       |
+| External API call   | info      | `"message": "Payment API called", "provider": "stripe", "duration_ms": 230`     |
+| Validation failure  | warn      | `"message": "Invalid input", "field": "email", "reason": "malformed"`           |
+| Recoverable error   | warn      | `"message": "Retry succeeded", "attempt": 2, "operation": "sync"`               |
+| Unrecoverable error | error     | `"message": "Payment failed", "error": "insufficient_funds", "order_id": "..."` |
+| Debug details       | debug     | `"message": "Cache hit", "key": "menu:tenant123"`                               |
 
 #### Clickstream & Analytics Events
 
@@ -483,6 +490,7 @@ events and optimized for analysis rather than system reactions.
 ```
 
 **Analytics Collection Requirements**:
+
 - Analytics events MUST be non-blocking (fire-and-forget)
 - Analytics events MUST queue locally when offline
 - Analytics events SHOULD batch-upload (e.g., every 30 seconds or 50 events)
@@ -491,18 +499,18 @@ events and optimized for analysis rather than system reactions.
 
 **Business Intelligence Queries Enabled**:
 
-| Question | Events Used |
-|----------|-------------|
-| Most viewed items | `MenuItemViewed` aggregated by `itemId` |
-| Most purchased items | `OrderCompleted` → items breakdown |
-| Conversion rate (view → purchase) | `MenuItemViewed` vs `ItemAddedToCart` vs `OrderCompleted` |
-| Cart abandonment rate | `ItemAddedToCart` vs `OrderAbandoned` |
-| Average order value | `OrderCompleted` → `totalValue` |
-| Peak hours | `OrderCreated` by hour |
-| Popular modifiers | `ModifierSelected` aggregated |
-| Search effectiveness | `SearchPerformed` → `resultsCount` vs subsequent `ItemAddedToCart` |
-| Session duration | `SessionStarted` → `SessionEnded` |
-| Promotion effectiveness | `PromotionViewed` vs `PromotionApplied` |
+| Question                          | Events Used                                                        |
+| --------------------------------- | ------------------------------------------------------------------ |
+| Most viewed items                 | `MenuItemViewed` aggregated by `itemId`                            |
+| Most purchased items              | `OrderCompleted` → items breakdown                                 |
+| Conversion rate (view → purchase) | `MenuItemViewed` vs `ItemAddedToCart` vs `OrderCompleted`          |
+| Cart abandonment rate             | `ItemAddedToCart` vs `OrderAbandoned`                              |
+| Average order value               | `OrderCompleted` → `totalValue`                                    |
+| Peak hours                        | `OrderCreated` by hour                                             |
+| Popular modifiers                 | `ModifierSelected` aggregated                                      |
+| Search effectiveness              | `SearchPerformed` → `resultsCount` vs subsequent `ItemAddedToCart` |
+| Session duration                  | `SessionStarted` → `SessionEnded`                                  |
+| Promotion effectiveness           | `PromotionViewed` vs `PromotionApplied`                            |
 
 #### Feedback Module
 
@@ -510,10 +518,10 @@ The `feedback` module handles customer complaints, ratings, and service quality 
 
 **Feedback Entities**:
 
-| Entity | Purpose |
-|--------|---------|
-| `Complaint` | Customer issue requiring resolution |
-| `Rating` | Numeric + optional text feedback |
+| Entity        | Purpose                                   |
+| ------------- | ----------------------------------------- |
+| `Complaint`   | Customer issue requiring resolution       |
+| `Rating`      | Numeric + optional text feedback          |
 | `StaffRating` | Per-staff performance tracking (optional) |
 
 **Complaint Workflow**:
@@ -532,6 +540,7 @@ Customer files complaint
 ```
 
 **Complaint Fields**:
+
 - `id`, `tenant_id`, `order_id` (optional), `customer_id` (optional)
 - `type`: food_quality, service, wait_time, billing, cleanliness, other
 - `description`: Free text
@@ -542,6 +551,7 @@ Customer files complaint
 - `created_at`, `resolved_at`
 
 **Rating Fields**:
+
 - `id`, `tenant_id`, `order_id`, `customer_id` (optional)
 - `overall_rating`: 1-5 stars
 - `food_rating`: 1-5 (optional)
@@ -567,13 +577,13 @@ type Query {
 
 **Feedback Analytics**:
 
-| Metric | Calculation |
-|--------|-------------|
-| Average rating | Mean of `overall_rating` |
-| NPS (Net Promoter Score) | % promoters (4-5) - % detractors (1-2) |
-| Complaint resolution time | Avg time from `filed` to `resolved` |
-| Complaints by type | Aggregation by `type` field |
-| Rating trends | Ratings over time |
+| Metric                    | Calculation                            |
+| ------------------------- | -------------------------------------- |
+| Average rating            | Mean of `overall_rating`               |
+| NPS (Net Promoter Score)  | % promoters (4-5) - % detractors (1-2) |
+| Complaint resolution time | Avg time from `filed` to `resolved`    |
+| Complaints by type        | Aggregation by `type` field            |
+| Rating trends             | Ratings over time                      |
 
 **Rationale**: Observability enables debugging and performance analysis. Clickstream enables
 data-driven menu and pricing decisions. Feedback closes the loop with customers and tracks
@@ -601,6 +611,7 @@ authorization, data protection, and secure communication.
 ```
 
 **Token Requirements**:
+
 - Access tokens MUST expire in 15-60 minutes
 - Refresh tokens MUST expire in 7-30 days
 - Refresh tokens MUST be stored securely (httpOnly cookie or secure storage)
@@ -608,6 +619,7 @@ authorization, data protection, and secure communication.
 - Revocation MUST be supported (token blacklist or short expiry + refresh)
 
 **JWT Payload**:
+
 ```json
 {
   "sub": "user-uuid",
@@ -623,22 +635,24 @@ authorization, data protection, and secure communication.
 
 **Role Hierarchy**:
 
-| Role | Description | Example Permissions |
-|------|-------------|---------------------|
-| `owner` | Tenant owner, full access | `*:*` |
-| `admin` | Administrative access | `users:*, config:*, reports:*` |
-| `manager` | Operational management | `orders:*, inventory:*, staff:read` |
-| `cashier` | Payment and billing | `orders:read, payments:*, billing:*` |
-| `waiter` | Order taking | `orders:write, tables:write, menu:read` |
-| `kitchen` | Kitchen operations | `orders:read, kitchen:write` |
-| `viewer` | Read-only access | `*:read` |
+| Role      | Description               | Example Permissions                     |
+| --------- | ------------------------- | --------------------------------------- |
+| `owner`   | Tenant owner, full access | `*:*`                                   |
+| `admin`   | Administrative access     | `users:*, config:*, reports:*`          |
+| `manager` | Operational management    | `orders:*, inventory:*, staff:read`     |
+| `cashier` | Payment and billing       | `orders:read, payments:*, billing:*`    |
+| `waiter`  | Order taking              | `orders:write, tables:write, menu:read` |
+| `kitchen` | Kitchen operations        | `orders:read, kitchen:write`            |
+| `viewer`  | Read-only access          | `*:read`                                |
 
 **Permission Format**: `resource:action` or `resource:action:scope`
+
 - `orders:write` - Can create/update orders
 - `orders:read:own` - Can read only own orders
 - `reports:read:tenant` - Can read tenant reports
 
 **Authorization Enforcement**:
+
 ```go
 // Middleware checks permissions before handler
 func RequirePermission(permission string) Middleware {
@@ -658,21 +672,23 @@ func RequirePermission(permission string) Middleware {
 
 **Rate Limiting**:
 
-| Endpoint Type | Limit | Window | Scope |
-|---------------|-------|--------|-------|
-| Authentication | 5 requests | 1 minute | Per IP |
-| GraphQL mutations | 100 requests | 1 minute | Per user |
-| GraphQL queries | 500 requests | 1 minute | Per user |
+| Endpoint Type     | Limit         | Window   | Scope       |
+| ----------------- | ------------- | -------- | ----------- |
+| Authentication    | 5 requests    | 1 minute | Per IP      |
+| GraphQL mutations | 100 requests  | 1 minute | Per user    |
+| GraphQL queries   | 500 requests  | 1 minute | Per user    |
 | REST integrations | 1000 requests | 1 minute | Per API key |
-| File uploads | 10 requests | 1 minute | Per user |
+| File uploads      | 10 requests   | 1 minute | Per user    |
 
 **Input Validation**:
+
 - All inputs MUST be validated at API boundary
 - GraphQL inputs MUST use input types with validation directives
 - SQL queries MUST use parameterized queries (never string concatenation)
 - File uploads MUST validate type, size, and content
 
 **CORS Configuration**:
+
 ```go
 cors := cors.Config{
     AllowedOrigins:   []string{"https://app.solobueno.com", "capacitor://localhost"},
@@ -686,56 +702,60 @@ cors := cors.Config{
 #### Data Protection
 
 **Encryption at Rest**:
+
 - Database MUST use encrypted storage (PostgreSQL TDE or disk encryption)
 - Backups MUST be encrypted
 - Sensitive fields MAY use application-level encryption (e.g., PII)
 
 **Encryption in Transit**:
+
 - All external communication MUST use TLS 1.2+
 - Internal service communication SHOULD use TLS (MUST in production)
 - WebSocket connections MUST use WSS
 
 **Sensitive Data Handling**:
 
-| Data Type | Storage | Logging | Events |
-|-----------|---------|---------|--------|
-| Passwords | Hashed (bcrypt/argon2) | ❌ Never | ❌ Never |
-| Payment cards | ❌ Never stored | ❌ Never | ❌ Never |
-| Tokens | Hashed or encrypted | ❌ Never | ❌ Never |
-| PII (email, phone) | Encrypted or plain | Masked | Masked or excluded |
-| Session IDs | Plain | ✅ OK | ✅ OK |
+| Data Type          | Storage                | Logging  | Events             |
+| ------------------ | ---------------------- | -------- | ------------------ |
+| Passwords          | Hashed (bcrypt/argon2) | ❌ Never | ❌ Never           |
+| Payment cards      | ❌ Never stored        | ❌ Never | ❌ Never           |
+| Tokens             | Hashed or encrypted    | ❌ Never | ❌ Never           |
+| PII (email, phone) | Encrypted or plain     | Masked   | Masked or excluded |
+| Session IDs        | Plain                  | ✅ OK    | ✅ OK              |
 
 #### Secret Management
 
 **Environment-Based Secrets**:
 
-| Environment | Secret Source | Examples |
-|-------------|---------------|----------|
-| dev | `.env` file (gitignored) | Local DB password |
-| test | CI secrets | Test API keys |
+| Environment  | Secret Source                        | Examples               |
+| ------------ | ------------------------------------ | ---------------------- |
+| dev          | `.env` file (gitignored)             | Local DB password      |
+| test         | CI secrets                           | Test API keys          |
 | staging/prod | Vault / AWS SSM / GCP Secret Manager | Production credentials |
 
 **Secret Rotation**:
+
 - Database credentials SHOULD rotate quarterly
 - API keys MUST be rotatable without downtime
 - JWT signing keys MUST support rotation (kid header)
 
 #### OWASP Top 10 Considerations
 
-| Risk | Mitigation |
-|------|------------|
-| Injection | Parameterized queries, input validation |
-| Broken Authentication | JWT best practices, rate limiting, MFA (future) |
-| Sensitive Data Exposure | Encryption, minimal data exposure, secure headers |
-| XML External Entities | N/A (JSON only) |
-| Broken Access Control | RBAC enforcement at every layer, tenant isolation |
-| Security Misconfiguration | Secure defaults, environment-specific configs |
-| XSS | React auto-escaping, CSP headers |
-| Insecure Deserialization | Type-safe JSON parsing, schema validation |
-| Vulnerable Components | Dependency scanning, regular updates |
-| Insufficient Logging | Audit trail, security event logging |
+| Risk                      | Mitigation                                        |
+| ------------------------- | ------------------------------------------------- |
+| Injection                 | Parameterized queries, input validation           |
+| Broken Authentication     | JWT best practices, rate limiting, MFA (future)   |
+| Sensitive Data Exposure   | Encryption, minimal data exposure, secure headers |
+| XML External Entities     | N/A (JSON only)                                   |
+| Broken Access Control     | RBAC enforcement at every layer, tenant isolation |
+| Security Misconfiguration | Secure defaults, environment-specific configs     |
+| XSS                       | React auto-escaping, CSP headers                  |
+| Insecure Deserialization  | Type-safe JSON parsing, schema validation         |
+| Vulnerable Components     | Dependency scanning, regular updates              |
+| Insufficient Logging      | Audit trail, security event logging               |
 
 **Security Headers**:
+
 ```
 Strict-Transport-Security: max-age=31536000; includeSubDomains
 Content-Security-Policy: default-src 'self'; script-src 'self'
@@ -844,32 +864,32 @@ solobueno-erp/
 
 ### Stack Requirements (Finalized)
 
-| Layer | Technology | Rationale |
-|-------|------------|-----------|
-| **Mobile App** | React Native + TypeScript | Cross-platform, type safety, code sharing |
-| **Web Apps** | React + TypeScript | Shared components with mobile |
-| **Backend** | Go 1.22+ | Performance, strong typing, excellent concurrency |
-| **GraphQL** | gqlgen | Native Go, type-safe resolvers, subscriptions |
-| **REST** | Chi | Lightweight, idiomatic Go, good middleware |
-| **Database** | PostgreSQL 16 | Multi-tenant, JSONB flexibility, reliability |
-| **Migrations** | golang-migrate | Widely used, CLI + library, SQL-based |
-| **Cache** | Redis 7 | Shared cache, session storage, job queues |
-| **Logging** | zerolog | Structured, zero-allocation, high-performance |
-| **Event Bus (Dev)** | In-memory | Simple, fast, good for development |
-| **Event Bus (Prod)** | NATS | Purpose-built for events, persistence, replay |
-| **Job Queue** | Asynq | Redis-based, well-maintained, monitoring UI |
-| **File Storage** | AWS S3 | Lightsail integration, CDN-compatible, cost-effective |
-| **Search** | PostgreSQL FTS | Start simple; Meilisearch if needed later |
-| **Push Notifications** | FCM + APNs | Industry standard for mobile push |
-| **Email** | AWS SES | Same ecosystem as Lightsail, cost-effective |
-| **Offline Sync** | WatermelonDB | React Native optimized, excellent performance |
-| **Real-time** | GraphQL Subscriptions | Backed by domain events via NATS |
-| **Monorepo Tool** | Turborepo | Fast, simple config, good caching |
-| **CI/CD** | GitHub Actions | GitHub integration, generous free tier |
-| **Container Registry** | Amazon ECR | AWS ecosystem, Lightsail integration |
-| **Secrets** | AWS SSM Parameter Store | AWS ecosystem, free tier, encryption |
-| **Cloud Provider** | AWS Lightsail | Cost-effective, predictable pricing, upgrade path |
-| **Primary Region** | us-east-1 | Closest to Costa Rica with full Lightsail support |
+| Layer                  | Technology                | Rationale                                             |
+| ---------------------- | ------------------------- | ----------------------------------------------------- |
+| **Mobile App**         | React Native + TypeScript | Cross-platform, type safety, code sharing             |
+| **Web Apps**           | React + TypeScript        | Shared components with mobile                         |
+| **Backend**            | Go 1.22+                  | Performance, strong typing, excellent concurrency     |
+| **GraphQL**            | gqlgen                    | Native Go, type-safe resolvers, subscriptions         |
+| **REST**               | Chi                       | Lightweight, idiomatic Go, good middleware            |
+| **Database**           | PostgreSQL 16             | Multi-tenant, JSONB flexibility, reliability          |
+| **Migrations**         | golang-migrate            | Widely used, CLI + library, SQL-based                 |
+| **Cache**              | Redis 7                   | Shared cache, session storage, job queues             |
+| **Logging**            | zerolog                   | Structured, zero-allocation, high-performance         |
+| **Event Bus (Dev)**    | In-memory                 | Simple, fast, good for development                    |
+| **Event Bus (Prod)**   | NATS                      | Purpose-built for events, persistence, replay         |
+| **Job Queue**          | Asynq                     | Redis-based, well-maintained, monitoring UI           |
+| **File Storage**       | AWS S3                    | Lightsail integration, CDN-compatible, cost-effective |
+| **Search**             | PostgreSQL FTS            | Start simple; Meilisearch if needed later             |
+| **Push Notifications** | FCM + APNs                | Industry standard for mobile push                     |
+| **Email**              | AWS SES                   | Same ecosystem as Lightsail, cost-effective           |
+| **Offline Sync**       | WatermelonDB              | React Native optimized, excellent performance         |
+| **Real-time**          | GraphQL Subscriptions     | Backed by domain events via NATS                      |
+| **Monorepo Tool**      | Turborepo                 | Fast, simple config, good caching                     |
+| **CI/CD**              | GitHub Actions            | GitHub integration, generous free tier                |
+| **Container Registry** | Amazon ECR                | AWS ecosystem, Lightsail integration                  |
+| **Secrets**            | AWS SSM Parameter Store   | AWS ecosystem, free tier, encryption                  |
+| **Cloud Provider**     | AWS Lightsail             | Cost-effective, predictable pricing, upgrade path     |
+| **Primary Region**     | us-east-1                 | Closest to Costa Rica with full Lightsail support     |
 
 ### Module Design Pattern
 
@@ -900,6 +920,7 @@ internal/orders/
 #### PostgreSQL as Default
 
 PostgreSQL MUST be the default database for all modules. It handles:
+
 - Transactional data (orders, payments, inventory)
 - Time-series data (analytics events with partitioning)
 - JSON flexibility (event payloads, configuration)
@@ -914,7 +935,7 @@ Each module MUST own its data exclusively, enabling independent database decisio
 ```
 PostgreSQL Database: solobueno_erp
 ├── schema: auth          # auth module tables
-├── schema: menu          # menu module tables  
+├── schema: menu          # menu module tables
 ├── schema: orders        # orders module tables
 ├── schema: tables        # tables module tables
 ├── schema: inventory     # inventory module tables
@@ -983,7 +1004,7 @@ The adapter pattern allows any module to switch databases without affecting othe
 // Module initialization - database choice is configuration
 func NewOrdersModule(cfg Config) *OrdersModule {
     var repo ports.OrderRepository
-    
+
     switch cfg.Orders.DatabaseType {
     case "postgres":
         repo = postgres.NewOrderRepository(cfg.Orders.PostgresURL, "orders")
@@ -995,7 +1016,7 @@ func NewOrdersModule(cfg Config) *OrdersModule {
     default:
         repo = postgres.NewOrderRepository(cfg.Orders.PostgresURL, "orders")
     }
-    
+
     return &OrdersModule{
         repo:    repo,
         service: application.NewOrderService(repo, ...),
@@ -1045,7 +1066,7 @@ CREATE TABLE analytics.daily_summary (
 type DatabaseConfig struct {
     // Shared PostgreSQL connection (default)
     DefaultPostgresURL string
-    
+
     // Per-module overrides (optional)
     Modules map[string]ModuleDatabaseConfig
 }
@@ -1172,17 +1193,17 @@ Caching MUST be implemented to optimize performance and support offline-first op
 
 #### What to Cache
 
-| Data | Cache Location | TTL | Invalidation |
-|------|---------------|-----|--------------|
-| Menu items | Redis + Client | 1 hour | On menu update event |
-| Menu categories | Redis + Client | 1 hour | On category update event |
-| Tenant config | Redis + Client | 5 minutes | On config change |
-| Feature flags | Redis + Client | 1 minute | On flag toggle |
-| Translations | Redis + Client | 1 hour | On i18n update |
-| User session | Redis | Session lifetime | On logout |
-| Table layout | Redis + Client | 30 minutes | On layout change |
-| Current orders | Client only | Real-time | WebSocket updates |
-| Price calculations | Per-request | Request only | N/A |
+| Data               | Cache Location | TTL              | Invalidation             |
+| ------------------ | -------------- | ---------------- | ------------------------ |
+| Menu items         | Redis + Client | 1 hour           | On menu update event     |
+| Menu categories    | Redis + Client | 1 hour           | On category update event |
+| Tenant config      | Redis + Client | 5 minutes        | On config change         |
+| Feature flags      | Redis + Client | 1 minute         | On flag toggle           |
+| Translations       | Redis + Client | 1 hour           | On i18n update           |
+| User session       | Redis          | Session lifetime | On logout                |
+| Table layout       | Redis + Client | 30 minutes       | On layout change         |
+| Current orders     | Client only    | Real-time        | WebSocket updates        |
+| Price calculations | Per-request    | Request only     | N/A                      |
 
 #### Cache Adapter Pattern
 
@@ -1296,6 +1317,7 @@ func (s *PaymentService) ProcessPayment(ctx context.Context, req PaymentRequest)
 ```
 
 **Circuit States**:
+
 - **Closed**: Normal operation, requests pass through
 - **Open**: Failures exceeded threshold, requests fail fast
 - **Half-Open**: After timeout, allow one request to test recovery
@@ -1323,13 +1345,13 @@ var DefaultRetry = RetryConfig{
 
 #### Graceful Degradation
 
-| Failure | Degraded Behavior |
-|---------|-------------------|
-| Payment provider down | Queue payment, notify user, allow cash |
-| Fiscal API unavailable | Queue invoice, generate later |
-| Analytics service slow | Drop analytics events (non-critical) |
-| Search unavailable | Fall back to basic DB query |
-| Cache unavailable | Direct database queries (slower) |
+| Failure                | Degraded Behavior                      |
+| ---------------------- | -------------------------------------- |
+| Payment provider down  | Queue payment, notify user, allow cash |
+| Fiscal API unavailable | Queue invoice, generate later          |
+| Analytics service slow | Drop analytics events (non-critical)   |
+| Search unavailable     | Fall back to basic DB query            |
+| Cache unavailable      | Direct database queries (slower)       |
 
 ### Background Jobs & Scheduling
 
@@ -1352,16 +1374,16 @@ The system MUST support asynchronous processing for long-running and scheduled t
 
 #### Job Types
 
-| Job | Trigger | Priority | Retry |
-|-----|---------|----------|-------|
-| Generate invoice PDF | `PaymentSucceeded` event | High | 3x |
-| Send email notification | `InvoiceGenerated` event | Medium | 5x |
-| Process analytics batch | Scheduled (5 min) | Low | 3x |
-| Generate daily report | Scheduled (daily 3am) | Low | 3x |
-| Cleanup expired sessions | Scheduled (hourly) | Low | 1x |
-| Create partition tables | Scheduled (monthly) | High | 3x |
-| Sync offline data | `DeviceOnline` event | High | 5x |
-| Process image upload | `FileUploaded` event | Medium | 3x |
+| Job                      | Trigger                  | Priority | Retry |
+| ------------------------ | ------------------------ | -------- | ----- |
+| Generate invoice PDF     | `PaymentSucceeded` event | High     | 3x    |
+| Send email notification  | `InvoiceGenerated` event | Medium   | 5x    |
+| Process analytics batch  | Scheduled (5 min)        | Low      | 3x    |
+| Generate daily report    | Scheduled (daily 3am)    | Low      | 3x    |
+| Cleanup expired sessions | Scheduled (hourly)       | Low      | 1x    |
+| Create partition tables  | Scheduled (monthly)      | High     | 3x    |
+| Sync offline data        | `DeviceOnline` event     | High     | 5x    |
+| Process image upload     | `FileUploaded` event     | Medium   | 3x    |
 
 #### Job Definition
 
@@ -1441,13 +1463,13 @@ type FileStorage interface {
 
 #### File Types & Limits
 
-| Type | Allowed Formats | Max Size | Processing |
-|------|-----------------|----------|------------|
-| Menu images | JPEG, PNG, WebP | 5 MB | Resize to 800x800, thumbnails |
-| Receipt PDF | PDF | 2 MB | None |
-| Invoice PDF | PDF | 2 MB | None (generated) |
-| User avatar | JPEG, PNG | 1 MB | Resize to 200x200 |
-| Import files | CSV, XLSX | 10 MB | Validation |
+| Type         | Allowed Formats | Max Size | Processing                    |
+| ------------ | --------------- | -------- | ----------------------------- |
+| Menu images  | JPEG, PNG, WebP | 5 MB     | Resize to 800x800, thumbnails |
+| Receipt PDF  | PDF             | 2 MB     | None                          |
+| Invoice PDF  | PDF             | 2 MB     | None (generated)              |
+| User avatar  | JPEG, PNG       | 1 MB     | Resize to 200x200             |
+| Import files | CSV, XLSX       | 10 MB    | Validation                    |
 
 #### Image Processing
 
@@ -1491,13 +1513,13 @@ The system MUST support multi-channel notifications with delivery tracking.
 
 #### Notification Channels
 
-| Channel | Use Cases | Provider |
-|---------|-----------|----------|
-| Push (Mobile) | Order ready, payment received | FCM / APNs |
-| Email | Invoices, reports, password reset | SendGrid / SES |
-| SMS | Critical alerts, 2FA (future) | Twilio / SNS |
-| In-App | All notifications | WebSocket |
-| Kitchen Display | New orders, modifications | WebSocket |
+| Channel         | Use Cases                         | Provider       |
+| --------------- | --------------------------------- | -------------- |
+| Push (Mobile)   | Order ready, payment received     | FCM / APNs     |
+| Email           | Invoices, reports, password reset | SendGrid / SES |
+| SMS             | Critical alerts, 2FA (future)     | Twilio / SNS   |
+| In-App          | All notifications                 | WebSocket      |
+| Kitchen Display | New orders, modifications         | WebSocket      |
 
 #### Notification Architecture
 
@@ -1588,20 +1610,20 @@ The system MUST support real-time updates for order tracking, kitchen display, a
 
 ```graphql
 type Subscription {
-    # Order updates for a specific table/session
-    orderUpdated(tableId: ID!): Order!
-    
-    # Kitchen display - new orders to prepare
-    kitchenOrders(tenantId: ID!): KitchenOrder!
-    
-    # Order status changes
-    orderStatusChanged(orderId: ID!): OrderStatus!
-    
-    # Real-time inventory alerts
-    inventoryAlert(tenantId: ID!): InventoryAlert!
-    
-    # Live dashboard metrics
-    dashboardMetrics(tenantId: ID!): DashboardMetrics!
+  # Order updates for a specific table/session
+  orderUpdated(tableId: ID!): Order!
+
+  # Kitchen display - new orders to prepare
+  kitchenOrders(tenantId: ID!): KitchenOrder!
+
+  # Order status changes
+  orderStatusChanged(orderId: ID!): OrderStatus!
+
+  # Real-time inventory alerts
+  inventoryAlert(tenantId: ID!): InventoryAlert!
+
+  # Live dashboard metrics
+  dashboardMetrics(tenantId: ID!): DashboardMetrics!
 }
 ```
 
@@ -1652,6 +1674,7 @@ The system MUST support API evolution without breaking existing clients.
 #### GraphQL Schema Evolution
 
 **Additive Changes** (non-breaking):
+
 - Add new fields to types
 - Add new types
 - Add new queries/mutations
@@ -1659,6 +1682,7 @@ The system MUST support API evolution without breaking existing clients.
 - Add optional arguments
 
 **Breaking Changes** (require deprecation):
+
 - Remove fields
 - Change field types
 - Remove enum values
@@ -1669,18 +1693,19 @@ The system MUST support API evolution without breaking existing clients.
 
 ```graphql
 type Order {
-    id: ID!
-    status: OrderStatus!
-    
-    # Deprecated field - use 'status' instead
-    orderStatus: String @deprecated(reason: "Use 'status' field instead. Removal: 2025-06-01")
-    
-    # New field
-    statusHistory: [StatusChange!]!
+  id: ID!
+  status: OrderStatus!
+
+  # Deprecated field - use 'status' instead
+  orderStatus: String @deprecated(reason: "Use 'status' field instead. Removal: 2025-06-01")
+
+  # New field
+  statusHistory: [StatusChange!]!
 }
 ```
 
 **Deprecation Timeline**:
+
 1. Add deprecation warning (GraphQL `@deprecated` directive)
 2. Log usage of deprecated fields
 3. Notify clients using deprecated fields
@@ -1699,6 +1724,7 @@ X-API-Version: 2
 ```
 
 **Version Support Policy**:
+
 - Support current version (N) and previous version (N-1)
 - Deprecation notice 6 months before removal
 - Security fixes backported to supported versions
@@ -1749,15 +1775,15 @@ type AuditEvent struct {
 
 #### What to Audit
 
-| Category | Actions | Retention |
-|----------|---------|-----------|
-| Authentication | Login, logout, password change, failed attempts | 1 year |
-| Authorization | Permission changes, role assignments | 1 year |
-| Financial | Orders, payments, refunds, invoices | 7 years |
-| Data Access | Export, bulk read of sensitive data | 1 year |
-| Configuration | Setting changes, feature flags | 1 year |
-| User Management | Create, update, delete users | 1 year |
-| Critical Operations | Delete operations, bulk updates | 1 year |
+| Category            | Actions                                         | Retention |
+| ------------------- | ----------------------------------------------- | --------- |
+| Authentication      | Login, logout, password change, failed attempts | 1 year    |
+| Authorization       | Permission changes, role assignments            | 1 year    |
+| Financial           | Orders, payments, refunds, invoices             | 7 years   |
+| Data Access         | Export, bulk read of sensitive data             | 1 year    |
+| Configuration       | Setting changes, feature flags                  | 1 year    |
+| User Management     | Create, update, delete users                    | 1 year    |
+| Critical Operations | Delete operations, bulk updates                 | 1 year    |
 
 #### Audit Storage
 
@@ -1788,19 +1814,16 @@ CREATE TABLE audit.events_2025_01 PARTITION OF audit.events
 
 ```graphql
 type Query {
-    auditEvents(
-        filter: AuditFilter!
-        pagination: Pagination
-    ): AuditEventConnection!
+  auditEvents(filter: AuditFilter!, pagination: Pagination): AuditEventConnection!
 }
 
 input AuditFilter {
-    tenantId: ID!
-    actorId: ID
-    action: String
-    resource: String
-    resourceId: String
-    dateRange: DateRange!
+  tenantId: ID!
+  actorId: ID
+  action: String
+  resource: String
+  resourceId: String
+  dateRange: DateRange!
 }
 ```
 
@@ -1810,19 +1833,20 @@ The system MUST handle personal data responsibly and support privacy regulations
 
 #### PII Identification
 
-| Field | Classification | Handling |
-|-------|----------------|----------|
-| Email | PII | Encrypted at rest, masked in logs |
-| Phone | PII | Encrypted at rest, masked in logs |
-| Full name | PII | Plain text, excluded from logs |
-| Address | PII | Encrypted at rest |
-| Payment cards | Sensitive | Never stored (tokenized) |
-| IP address | PII | Hashed after 30 days |
-| Device ID | PII | Hashed |
+| Field         | Classification | Handling                          |
+| ------------- | -------------- | --------------------------------- |
+| Email         | PII            | Encrypted at rest, masked in logs |
+| Phone         | PII            | Encrypted at rest, masked in logs |
+| Full name     | PII            | Plain text, excluded from logs    |
+| Address       | PII            | Encrypted at rest                 |
+| Payment cards | Sensitive      | Never stored (tokenized)          |
+| IP address    | PII            | Hashed after 30 days              |
+| Device ID     | PII            | Hashed                            |
 
 #### Data Subject Rights (GDPR-aligned)
 
 **Right to Access**:
+
 ```go
 type DataExportService interface {
     // Export all data for a user in portable format
@@ -1841,11 +1865,12 @@ type DataExport struct {
 ```
 
 **Right to Deletion**:
+
 ```go
 type DataDeletionService interface {
     // Delete user data (with legal hold check)
     RequestDeletion(ctx context.Context, userID string) (*DeletionRequest, error)
-    
+
     // Execute deletion after retention period
     ExecuteDeletion(ctx context.Context, requestID string) error
 }
@@ -1858,6 +1883,7 @@ type DataDeletionService interface {
 ```
 
 **Right to Rectification**:
+
 - Users MUST be able to update their personal data
 - Updates MUST be propagated to all copies (cache invalidation)
 
@@ -1878,15 +1904,15 @@ type Consent struct {
 
 #### Data Retention Policies
 
-| Data Type | Retention | After Retention |
-|-----------|-----------|-----------------|
-| Active user data | Indefinite | Until deletion request |
-| Inactive user data | 2 years | Anonymize or delete |
-| Order history | 7 years | Required for tax |
-| Payment records | 7 years | Required for tax |
-| Audit logs | 1-7 years | Delete |
-| Analytics events | 2 years | Aggregate and delete |
-| Session data | 30 days | Delete |
+| Data Type          | Retention  | After Retention        |
+| ------------------ | ---------- | ---------------------- |
+| Active user data   | Indefinite | Until deletion request |
+| Inactive user data | 2 years    | Anonymize or delete    |
+| Order history      | 7 years    | Required for tax       |
+| Payment records    | 7 years    | Required for tax       |
+| Audit logs         | 1-7 years  | Delete                 |
+| Analytics events   | 2 years    | Aggregate and delete   |
+| Session data       | 30 days    | Delete                 |
 
 ### Disaster Recovery
 
@@ -1894,20 +1920,20 @@ The system MUST have documented backup and recovery procedures.
 
 #### Backup Strategy
 
-| Data | Frequency | Retention | Method |
-|------|-----------|-----------|--------|
-| PostgreSQL | Continuous (WAL) | 30 days | Streaming replication + daily snapshots |
-| PostgreSQL (full) | Daily | 90 days | pg_dump to encrypted S3 |
-| Redis | Hourly | 7 days | RDB snapshots |
-| File storage | Real-time | Indefinite | Cross-region replication |
-| Configuration | On change | 1 year | Version control |
+| Data              | Frequency        | Retention  | Method                                  |
+| ----------------- | ---------------- | ---------- | --------------------------------------- |
+| PostgreSQL        | Continuous (WAL) | 30 days    | Streaming replication + daily snapshots |
+| PostgreSQL (full) | Daily            | 90 days    | pg_dump to encrypted S3                 |
+| Redis             | Hourly           | 7 days     | RDB snapshots                           |
+| File storage      | Real-time        | Indefinite | Cross-region replication                |
+| Configuration     | On change        | 1 year     | Version control                         |
 
 #### Recovery Objectives
 
-| Metric | Target | Notes |
-|--------|--------|-------|
-| **RPO** (Recovery Point Objective) | < 1 hour | Maximum data loss acceptable |
-| **RTO** (Recovery Time Objective) | < 4 hours | Maximum downtime acceptable |
+| Metric                             | Target    | Notes                        |
+| ---------------------------------- | --------- | ---------------------------- |
+| **RPO** (Recovery Point Objective) | < 1 hour  | Maximum data loss acceptable |
+| **RTO** (Recovery Time Objective)  | < 4 hours | Maximum downtime acceptable  |
 
 #### Failover Architecture
 
@@ -1932,6 +1958,7 @@ Primary Region                    Secondary Region
 #### Recovery Procedures
 
 **Database Recovery**:
+
 ```bash
 # Point-in-time recovery
 pg_restore --target-time="2025-01-29 10:30:00" \
@@ -1946,6 +1973,7 @@ aws rds restore-db-instance-to-point-in-time \
 ```
 
 **Recovery Testing**:
+
 - Full recovery test MUST be performed quarterly
 - Recovery procedures MUST be documented in runbooks
 - Recovery time MUST be measured and tracked
@@ -1976,7 +2004,7 @@ CREATE INDEX idx_menu_items_search ON menu.items USING GIN(search_vector);
 -- Update search vector on insert/update
 CREATE OR REPLACE FUNCTION menu.update_search_vector() RETURNS trigger AS $$
 BEGIN
-    NEW.search_vector := 
+    NEW.search_vector :=
         setweight(to_tsvector('spanish', COALESCE(NEW.name, '')), 'A') ||
         setweight(to_tsvector('spanish', COALESCE(NEW.description, '')), 'B') ||
         setweight(to_tsvector('spanish', COALESCE(NEW.category_name, '')), 'C');
@@ -2008,15 +2036,15 @@ LIMIT 20;
 
 #### Search Features
 
-| Feature | PostgreSQL | Dedicated Engine |
-|---------|------------|------------------|
-| Full-text search | ✅ | ✅ |
-| Fuzzy matching | Limited | ✅ |
-| Autocomplete | Limited | ✅ |
-| Faceted search | Manual | ✅ |
-| Typo tolerance | ❌ | ✅ |
-| Multi-language | ✅ | ✅ |
-| Real-time indexing | ✅ | Near real-time |
+| Feature            | PostgreSQL | Dedicated Engine |
+| ------------------ | ---------- | ---------------- |
+| Full-text search   | ✅         | ✅               |
+| Fuzzy matching     | Limited    | ✅               |
+| Autocomplete       | Limited    | ✅               |
+| Faceted search     | Manual     | ✅               |
+| Typo tolerance     | ❌         | ✅               |
+| Multi-language     | ✅         | ✅               |
+| Real-time indexing | ✅         | Near real-time   |
 
 #### Search Adapter Pattern
 
@@ -2036,12 +2064,12 @@ type SearchService interface {
 
 #### What to Index
 
-| Entity | Searchable Fields | Use Case |
-|--------|-------------------|----------|
-| Menu items | Name, description, category, tags | Customer/waiter menu search |
-| Orders | Order number, customer name, items | Order lookup |
-| Customers | Name, email, phone | Customer lookup |
-| Invoices | Invoice number, customer | Invoice lookup |
+| Entity     | Searchable Fields                  | Use Case                    |
+| ---------- | ---------------------------------- | --------------------------- |
+| Menu items | Name, description, category, tags  | Customer/waiter menu search |
+| Orders     | Order number, customer name, items | Order lookup                |
+| Customers  | Name, email, phone                 | Customer lookup             |
+| Invoices   | Invoice number, customer           | Invoice lookup              |
 
 ### Infrastructure as Code (IaC)
 
@@ -2109,6 +2137,7 @@ cost-effective on minimal infrastructure and scale progressively as demand grows
 | AWS EC2 | t3.medium | 2 | 4GB | 80GB EBS | ~$35/mo | Only if need full AWS features |
 
 **Why AWS Lightsail is Recommended**:
+
 - **Predictable pricing**: Fixed monthly cost, no surprise bills
 - **AWS ecosystem access**: Easy to add S3, SES, RDS later without migration
 - **Snapshots included**: Automatic backups, easy cloning
@@ -2136,7 +2165,7 @@ services:
       - redis
       - minio
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:8080/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -2152,7 +2181,7 @@ services:
       - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_DB=solobueno
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U solobueno"]
+      test: ['CMD-SHELL', 'pg_isready -U solobueno']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -2178,8 +2207,8 @@ services:
     image: caddy:2-alpine
     restart: unless-stopped
     ports:
-      - "80:80"
-      - "443:443"
+      - '80:80'
+      - '443:443'
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile
       - caddy_data:/data
@@ -2196,6 +2225,7 @@ volumes:
 ```
 
 **Caddyfile** (automatic HTTPS):
+
 ```
 api.solobueno.com {
     reverse_proxy backend:8080
@@ -2209,6 +2239,7 @@ app.solobueno.com {
 ```
 
 **Deployment Script**:
+
 ```bash
 #!/bin/bash
 # infrastructure/scripts/deploy.sh
@@ -2286,6 +2317,7 @@ find $BACKUP_DIR -name "*.gz" -mtime +7 -delete
 | Storage | S3 | Spaces | Cloudflare R2 |
 
 **Benefits**:
+
 - Automatic backups and point-in-time recovery
 - High availability (replicas)
 - Managed security patches
@@ -2305,6 +2337,7 @@ find $BACKUP_DIR -name "*.gz" -mtime +7 -delete
 | AWS EKS / GKE | High | High | Enterprise, advanced features |
 
 **K8s Manifests Location**:
+
 ```
 infrastructure/k8s/
 ├── base/
@@ -2324,15 +2357,16 @@ infrastructure/k8s/
 
 #### IaC Tools by Phase (Finalized)
 
-| Phase | IaC Tool | Purpose |
-|-------|----------|---------|
-| Phase 1 | Docker Compose + Bash scripts | Container orchestration, deployment |
-| Phase 2 | Terraform (AWS provider) | Lightsail managed services provisioning |
-| Phase 3 | Terraform + Kubernetes manifests | EKS/ECS cluster + app deployment |
+| Phase   | IaC Tool                         | Purpose                                 |
+| ------- | -------------------------------- | --------------------------------------- |
+| Phase 1 | Docker Compose + Bash scripts    | Container orchestration, deployment     |
+| Phase 2 | Terraform (AWS provider)         | Lightsail managed services provisioning |
+| Phase 3 | Terraform + Kubernetes manifests | EKS/ECS cluster + app deployment        |
 
 **Note**: Ansible is optional for VM provisioning but Docker Compose handles most needs in Phase 1.
 
 **Terraform Example - AWS Lightsail** (Phase 2):
+
 ```hcl
 # infrastructure/terraform/lightsail/main.tf
 
@@ -2346,9 +2380,9 @@ resource "aws_lightsail_instance" "backend" {
   availability_zone = "us-east-1a"
   blueprint_id      = "amazon_linux_2"
   bundle_id         = "medium_2_0"  # 2 vCPU, 4GB RAM, $20/mo
-  
+
   user_data = file("${path.module}/cloud-init.yaml")
-  
+
   tags = {
     Environment = "production"
   }
@@ -2373,7 +2407,7 @@ resource "aws_lightsail_database" "postgres" {
   master_password          = var.db_password
   blueprint_id             = "postgres_16"
   bundle_id                = "micro_2_0"  # 1 vCPU, 1GB RAM, $15/mo
-  
+
   skip_final_snapshot = false
   final_snapshot_name = "solobueno-db-final"
 }
@@ -2392,6 +2426,7 @@ resource "aws_s3_bucket_versioning" "storage" {
 ```
 
 **Lightsail CLI Commands** (alternative to Terraform):
+
 ```bash
 # Create instance
 aws lightsail create-instances \
@@ -2416,52 +2451,54 @@ aws lightsail attach-static-ip --static-ip-name solobueno-ip --instance-name sol
 
 #### Cost Optimization Guidelines
 
-| Strategy | Savings | Implementation |
-|----------|---------|----------------|
-| Start with single VM | 80% | Docker Compose, all-in-one |
-| Use Hetzner/DigitalOcean vs AWS | 50-70% | Same Docker images work anywhere |
-| Reserved instances (when stable) | 30-40% | Commit to 1-year after MVP validated |
-| Managed DB only when needed | Variable | Self-host PostgreSQL until scaling pain |
-| S3-compatible (MinIO) | 100% storage | Self-host until egress costs justify S3 |
-| Compress backups | Storage cost | gzip all backups |
-| Right-size instances | Variable | Monitor and adjust monthly |
+| Strategy                         | Savings      | Implementation                          |
+| -------------------------------- | ------------ | --------------------------------------- |
+| Start with single VM             | 80%          | Docker Compose, all-in-one              |
+| Use Hetzner/DigitalOcean vs AWS  | 50-70%       | Same Docker images work anywhere        |
+| Reserved instances (when stable) | 30-40%       | Commit to 1-year after MVP validated    |
+| Managed DB only when needed      | Variable     | Self-host PostgreSQL until scaling pain |
+| S3-compatible (MinIO)            | 100% storage | Self-host until egress costs justify S3 |
+| Compress backups                 | Storage cost | gzip all backups                        |
+| Right-size instances             | Variable     | Monitor and adjust monthly              |
 
 #### Scaling Decision Matrix
 
-| Metric | Phase 1 OK | Consider Phase 2 | Consider Phase 3 |
-|--------|------------|------------------|------------------|
-| Tenants | 1-10 | 10-50 | 50+ |
-| Concurrent users | <100 | 100-500 | 500+ |
-| Database size | <20GB | 20-100GB | 100GB+ |
-| Requests/sec | <50 | 50-200 | 200+ |
-| Uptime requirement | 99% | 99.5% | 99.9% |
-| Team size | 1-2 | 2-5 | 5+ |
+| Metric             | Phase 1 OK | Consider Phase 2 | Consider Phase 3 |
+| ------------------ | ---------- | ---------------- | ---------------- |
+| Tenants            | 1-10       | 10-50            | 50+              |
+| Concurrent users   | <100       | 100-500          | 500+             |
+| Database size      | <20GB      | 20-100GB         | 100GB+           |
+| Requests/sec       | <50        | 50-200           | 200+             |
+| Uptime requirement | 99%        | 99.5%            | 99.9%            |
+| Team size          | 1-2        | 2-5              | 5+               |
 
 #### Monitoring (All Phases)
 
 Even on single VM, basic monitoring is essential:
 
 **Phase 1 (Free/Low-Cost)**:
+
 - Uptime: UptimeRobot (free), Healthchecks.io (free)
 - Logs: Docker logs + Loki (self-hosted) or Papertrail (free tier)
 - Metrics: Prometheus + Grafana (self-hosted, ~200MB RAM)
 
 **Phase 2+**:
+
 - Full observability stack or managed (Datadog, New Relic)
 
 ```yaml
 # Add to docker-compose for basic monitoring
-  prometheus:
-    image: prom/prometheus:latest
-    volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
-    profiles: ["monitoring"]  # Optional, enable with --profile monitoring
+prometheus:
+  image: prom/prometheus:latest
+  volumes:
+    - ./prometheus.yml:/etc/prometheus/prometheus.yml
+  profiles: ['monitoring'] # Optional, enable with --profile monitoring
 
-  grafana:
-    image: grafana/grafana:latest
-    volumes:
-      - grafana_data:/var/lib/grafana
-    profiles: ["monitoring"]
+grafana:
+  image: grafana/grafana:latest
+  volumes:
+    - grafana_data:/var/lib/grafana
+  profiles: ['monitoring']
 ```
 
 **Rationale**: Budget constraints require starting lean. A single well-configured VM can handle
@@ -2528,10 +2565,10 @@ backend/internal/shared/events/
 
 The project MUST use **golang-migrate** or **goose** for database migrations:
 
-| Tool | Pros | Recommendation |
-|------|------|----------------|
-| **golang-migrate** | Library + CLI, driver support, widely used | Default choice |
-| **goose** | Embedded Go migrations, simpler | Alternative if Go-based migrations preferred |
+| Tool               | Pros                                       | Recommendation                               |
+| ------------------ | ------------------------------------------ | -------------------------------------------- |
+| **golang-migrate** | Library + CLI, driver support, widely used | Default choice                               |
+| **goose**          | Embedded Go migrations, simpler            | Alternative if Go-based migrations preferred |
 
 ### Migration File Structure
 
@@ -2572,12 +2609,12 @@ make migrate-validate           # CI validation
 
 ### Environment Definitions
 
-| Environment | Purpose | Data | Access |
-|-------------|---------|------|--------|
-| **dev** | Local development | Seed/mock data | Developers only |
-| **test** | Automated testing, QA validation | Synthetic test data | Team + CI |
-| **staging** | Pre-production validation, UAT | Anonymized prod-like data | Team + stakeholders |
-| **prod** | Live production | Real customer data | End users |
+| Environment | Purpose                          | Data                      | Access              |
+| ----------- | -------------------------------- | ------------------------- | ------------------- |
+| **dev**     | Local development                | Seed/mock data            | Developers only     |
+| **test**    | Automated testing, QA validation | Synthetic test data       | Team + CI           |
+| **staging** | Pre-production validation, UAT   | Anonymized prod-like data | Team + stakeholders |
+| **prod**    | Live production                  | Real customer data        | End users           |
 
 ### Deployment Pipeline
 
@@ -2590,10 +2627,10 @@ Push → Build → Test → Deploy Test → Deploy Staging → [Approval] → De
 
 ### Promotion Rules
 
-| Promotion | Trigger | Gates |
-|-----------|---------|-------|
-| main → test | Automatic | Build passes, tests pass, migrations pass |
-| test → staging | Automatic | E2E tests pass, no critical bugs |
+| Promotion      | Trigger         | Gates                                         |
+| -------------- | --------------- | --------------------------------------------- |
+| main → test    | Automatic       | Build passes, tests pass, migrations pass     |
+| test → staging | Automatic       | E2E tests pass, no critical bugs              |
 | staging → prod | Manual approval | UAT sign-off, security review (if applicable) |
 
 ## Development Workflow
@@ -2662,57 +2699,57 @@ All technology choices have been finalized to eliminate ambiguity and enable con
 
 ### Core Stack
 
-| Category | Decision | Alternative Considered |
-|----------|----------|------------------------|
-| **Cloud Provider** | AWS Lightsail | Hetzner, DigitalOcean |
-| **Region** | us-east-1 | - |
-| **Backend Language** | Go 1.22+ | - |
-| **Frontend** | React Native + TypeScript | - |
-| **Database** | PostgreSQL 16 | - |
-| **Cache** | Redis 7 | - |
+| Category             | Decision                  | Alternative Considered |
+| -------------------- | ------------------------- | ---------------------- |
+| **Cloud Provider**   | AWS Lightsail             | Hetzner, DigitalOcean  |
+| **Region**           | us-east-1                 | -                      |
+| **Backend Language** | Go 1.22+                  | -                      |
+| **Frontend**         | React Native + TypeScript | -                      |
+| **Database**         | PostgreSQL 16             | -                      |
+| **Cache**            | Redis 7                   | -                      |
 
 ### Backend Libraries
 
-| Category | Decision | Alternative Considered |
-|----------|----------|------------------------|
-| **GraphQL** | gqlgen | - |
-| **REST Framework** | Chi | Echo |
-| **Migrations** | golang-migrate | goose |
-| **Logging** | zerolog | zap |
-| **Job Queue** | Asynq | custom |
+| Category           | Decision       | Alternative Considered |
+| ------------------ | -------------- | ---------------------- |
+| **GraphQL**        | gqlgen         | -                      |
+| **REST Framework** | Chi            | Echo                   |
+| **Migrations**     | golang-migrate | goose                  |
+| **Logging**        | zerolog        | zap                    |
+| **Job Queue**      | Asynq          | custom                 |
 
 ### Infrastructure
 
-| Category | Decision | Alternative Considered |
-|----------|----------|------------------------|
-| **Event Bus (Prod)** | NATS | Redis Streams, Kafka |
-| **File Storage** | AWS S3 | MinIO, GCS |
-| **Email** | AWS SES | SendGrid |
-| **Secrets** | AWS SSM Parameter Store | Vault, GCP Secret Manager |
-| **Container Registry** | Amazon ECR | GitHub, GitLab |
+| Category               | Decision                | Alternative Considered    |
+| ---------------------- | ----------------------- | ------------------------- |
+| **Event Bus (Prod)**   | NATS                    | Redis Streams, Kafka      |
+| **File Storage**       | AWS S3                  | MinIO, GCS                |
+| **Email**              | AWS SES                 | SendGrid                  |
+| **Secrets**            | AWS SSM Parameter Store | Vault, GCP Secret Manager |
+| **Container Registry** | Amazon ECR              | GitHub, GitLab            |
 
 ### Frontend / Mobile
 
-| Category | Decision | Alternative Considered |
-|----------|----------|------------------------|
-| **Offline Sync** | WatermelonDB | custom |
-| **i18n Strategy** | Package-driven | Database-driven |
-| **Monorepo Tool** | Turborepo | Nx |
+| Category          | Decision       | Alternative Considered |
+| ----------------- | -------------- | ---------------------- |
+| **Offline Sync**  | WatermelonDB   | custom                 |
+| **i18n Strategy** | Package-driven | Database-driven        |
+| **Monorepo Tool** | Turborepo      | Nx                     |
 
 ### DevOps
 
-| Category | Decision | Alternative Considered |
-|----------|----------|------------------------|
-| **CI/CD** | GitHub Actions | GitLab CI |
-| **Phase 1 Orchestration** | Docker Compose | - |
-| **Phase 2+ IaC** | Terraform | Pulumi |
-| **Search (Phase 1)** | PostgreSQL FTS | Meilisearch (later if needed) |
+| Category                  | Decision       | Alternative Considered        |
+| ------------------------- | -------------- | ----------------------------- |
+| **CI/CD**                 | GitHub Actions | GitLab CI                     |
+| **Phase 1 Orchestration** | Docker Compose | -                             |
+| **Phase 2+ IaC**          | Terraform      | Pulumi                        |
+| **Search (Phase 1)**      | PostgreSQL FTS | Meilisearch (later if needed) |
 
 ### Languages Supported
 
-| Language | Code | Status |
-|----------|------|--------|
-| Spanish (Latin America) | es-419 | Primary |
-| English | en | Secondary |
+| Language                | Code   | Status    |
+| ----------------------- | ------ | --------- |
+| Spanish (Latin America) | es-419 | Primary   |
+| English                 | en     | Secondary |
 
 **Version**: 1.7.0 | **Ratified**: 2025-01-29 | **Last Amended**: 2025-01-29

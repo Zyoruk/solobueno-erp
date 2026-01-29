@@ -5,7 +5,7 @@
 **Status**: Draft  
 **Dependencies**: 004-auth-module, 005-config-module
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Customer Browses Menu (Priority: P1)
 
@@ -109,7 +109,7 @@ As a restaurant manager, I want to organize menu categories and their display or
 - What happens when an item has 0 price? System allows it (for complimentary items) but flags for manager review.
 - What happens when search finds items across multiple categories? Results show category badge for each item.
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -147,7 +147,7 @@ As a restaurant manager, I want to organize menu categories and their display or
 - **ModifierGroup**: Collection of modifiers with selection rules (required, single-select, multi-select).
 - **MenuItemImage**: Image associated with a menu item; stored with multiple sizes.
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 
