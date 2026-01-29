@@ -5,7 +5,7 @@
 **Status**: Draft  
 **Dependencies**: 004-auth-module
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Waiter Receives Order Ready Alert (Priority: P1)
 
@@ -105,7 +105,7 @@ As a manager, I want to receive daily summary emails, so that I can review opera
 - What happens when user's device is offline? Push notification is delivered when device reconnects.
 - What happens when too many notifications would be sent? System batches and summarizes to prevent overload.
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -143,7 +143,7 @@ As a manager, I want to receive daily summary emails, so that I can review opera
 - **DeliveryAttempt**: Record of sending attempt; has status, error details if failed.
 - **NotificationChannel**: Delivery method (push, email, SMS, in-app).
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 

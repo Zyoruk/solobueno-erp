@@ -5,7 +5,7 @@
 **Status**: Draft  
 **Dependencies**: 009-orders-module
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Customer Submits Rating (Priority: P1)
 
@@ -109,7 +109,7 @@ As a manager, I want to track feedback by server, so that I can recognize good p
 - What happens when complaints are not addressed within SLA? Automatic escalation notification to higher management.
 - What happens when a customer submits multiple complaints? Each is tracked separately with reference to previous issues.
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -147,7 +147,7 @@ As a manager, I want to track feedback by server, so that I can recognize good p
 - **ComplaintCategory**: Type of issue (food_quality, service, wait_time, billing, cleanliness, other).
 - **StaffRating**: Aggregated feedback associated with a specific staff member.
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 

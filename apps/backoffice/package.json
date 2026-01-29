@@ -1,0 +1,22 @@
+{
+  "name": "@solobueno/backoffice",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "echo 'TODO: Vite dev server'",
+    "build": "echo 'TODO: Vite build'",
+    "test": "echo 'TODO: Tests'",
+    "lint": "eslint src/",
+    "clean": "rm -rf dist build"
+  },
+  "dependencies": {
+    "@solobueno/ui": "workspace:*",
+    "@solobueno/i18n": "workspace:*",
+    "@solobueno/types": "workspace:*",
+    "@solobueno/graphql": "workspace:*",
+    "@solobueno/analytics": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0"
+  }
+}

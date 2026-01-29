@@ -5,7 +5,7 @@
 **Status**: Draft  
 **Dependencies**: 001-init-monorepo
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Developer Starts Local Services (Priority: P1)
 
@@ -67,7 +67,7 @@ As a developer debugging an issue, I want to view logs from any service, so that
 - What happens when ports are already in use? Error message identifying the conflicting port and process.
 - What happens when disk space is low? Warning message before volumes fill up.
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -99,7 +99,7 @@ As a developer debugging an issue, I want to view logs from any service, so that
 - **Docker Network**: Shared network allowing containers to communicate by service name.
 - **Docker Volumes**: Named volumes for data persistence across container restarts.
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 

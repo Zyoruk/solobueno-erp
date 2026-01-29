@@ -1,0 +1,21 @@
+{
+  "name": "@solobueno/kitchen-display",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "echo 'TODO: React Native dev server'",
+    "build": "echo 'TODO: React Native build'",
+    "test": "echo 'TODO: Tests'",
+    "lint": "eslint src/",
+    "clean": "rm -rf dist build"
+  },
+  "dependencies": {
+    "@solobueno/ui": "workspace:*",
+    "@solobueno/i18n": "workspace:*",
+    "@solobueno/types": "workspace:*",
+    "@solobueno/graphql": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0"
+  }
+}

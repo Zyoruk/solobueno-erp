@@ -5,7 +5,7 @@
 **Status**: Draft  
 **Dependencies**: All previous modules (009, 010, 011, 012, 014, 015)
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Owner Views Daily Sales Report (Priority: P1)
 
@@ -111,7 +111,7 @@ As a restaurant chain owner, I want to compare performance across locations, so 
 - What happens when data is incomplete? Report shows available data with clear indication of missing periods.
 - What happens when export file is very large? Report is generated asynchronously and download link sent via email.
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -151,7 +151,7 @@ As a restaurant chain owner, I want to compare performance across locations, so 
 - **ReportExport**: Downloaded file from a report; has format, file path, expiration.
 - **ReportPermission**: Access control for reports; defines who can view which reports.
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 

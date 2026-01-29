@@ -5,7 +5,7 @@
 **Status**: Draft  
 **Dependencies**: 007-menu-module, 008-tables-module
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Waiter Takes an Order (Priority: P1)
 
@@ -127,7 +127,7 @@ As a waiter or manager, I want to view past orders for a table or time period, s
 - What happens when an item is cancelled after preparation started? Manager approval required; item is tracked as waste.
 - What happens with very large orders (50+ items)? Order can be split into multiple kitchen tickets for manageability.
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -167,7 +167,7 @@ As a waiter or manager, I want to view past orders for a table or time period, s
 - **OrderModification**: Audit record of changes made to an order after creation.
 - **Check**: Payment grouping of order items for split bill scenarios.
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 

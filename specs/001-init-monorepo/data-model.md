@@ -57,7 +57,7 @@ This feature does not introduce database entities. Instead, it defines the confi
   "$schema": "https://turbo.build/schema.json",
   "globalDependencies": ["**/.env.*local", ".env"],
   "globalEnv": ["NODE_ENV"],
-  "pipeline": {
+  "tasks": {
     "build": {
       "dependsOn": ["^build"],
       "outputs": ["dist/**", ".next/**", "build/**", "*.tsbuildinfo"],
@@ -154,7 +154,7 @@ services:
     container_name: solobueno-postgres
     restart: unless-stopped
     ports:
-      - "5432:5432"
+      - '5432:5432'
     environment:
       POSTGRES_USER: solobueno
       POSTGRES_PASSWORD: solobueno_dev
@@ -162,7 +162,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U solobueno"]
+      test: ['CMD-SHELL', 'pg_isready -U solobueno']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -172,12 +172,12 @@ services:
     container_name: solobueno-redis
     restart: unless-stopped
     ports:
-      - "6379:6379"
+      - '6379:6379'
     volumes:
       - redis_data:/data
     command: redis-server --appendonly yes
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ['CMD', 'redis-cli', 'ping']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -187,8 +187,8 @@ services:
     container_name: solobueno-minio
     restart: unless-stopped
     ports:
-      - "9000:9000"
-      - "9001:9001"
+      - '9000:9000'
+      - '9001:9001'
     environment:
       MINIO_ROOT_USER: solobueno
       MINIO_ROOT_PASSWORD: solobueno_dev
@@ -196,7 +196,7 @@ services:
       - minio_data:/data
     command: server /data --console-address ":9001"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:9000/minio/health/live']
       interval: 30s
       timeout: 20s
       retries: 3
@@ -301,22 +301,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - uses: pnpm/action-setup@v3
         with:
           version: 8
-          
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'pnpm'
-          
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-        
+
       - name: Lint
         run: pnpm lint
-        
+
       - name: Format check
         run: pnpm format:check
 
@@ -325,28 +325,28 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - uses: pnpm/action-setup@v3
         with:
           version: 8
-          
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'pnpm'
-          
+
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
           go-version: '1.22'
           cache-dependency-path: backend/go.sum
-          
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-        
+
       - name: Build
         run: pnpm build
-        
+
       - name: Build Go backend
         working-directory: backend
         run: go build -v ./...
@@ -357,28 +357,28 @@ jobs:
     needs: build
     steps:
       - uses: actions/checkout@v4
-      
+
       - uses: pnpm/action-setup@v3
         with:
           version: 8
-          
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'pnpm'
-          
+
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
           go-version: '1.22'
           cache-dependency-path: backend/go.sum
-          
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-        
+
       - name: Test
         run: pnpm test
-        
+
       - name: Test Go backend
         working-directory: backend
         run: go test -v ./...
