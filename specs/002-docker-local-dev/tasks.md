@@ -51,9 +51,10 @@
 
 - [ ] T009 [US1] Enhance docker-up target with Docker installation check in `Makefile`
 - [ ] T010 [US1] Enhance docker-up target with Docker daemon running check in `Makefile`
-- [ ] T011 [US1] Add docker-status target that shows `docker compose ps` output in `Makefile`
-- [ ] T012 [US1] Add docker-health target that runs health-check.sh in `Makefile`
-- [ ] T013 [US1] Update docker-up target to call docker-status after starting services in `Makefile`
+- [ ] T011 [US1] Add port availability check (5432, 6379, 9000, 9001) with helpful error messages in `Makefile`
+- [ ] T012 [US1] Add docker-status target that shows `docker compose ps` output in `Makefile`
+- [ ] T013 [US1] Add docker-health target that runs health-check.sh in `Makefile`
+- [ ] T014 [US1] Update docker-up target to call docker-status after starting services in `Makefile`
 
 **Checkpoint**: User Story 1 complete - developers can start all services with `make docker-up`
 
@@ -67,9 +68,9 @@
 
 ### Implementation for User Story 2
 
-- [ ] T014 [US2] Add docker-restart target that restarts all services in `Makefile`
-- [ ] T015 [US2] Enhance docker-reset target with warning message and 3-second delay in `Makefile`
-- [ ] T016 [US2] Update docker-reset to output confirmation message after reset in `Makefile`
+- [ ] T015 [US2] Add docker-restart target that restarts all services in `Makefile`
+- [ ] T016 [US2] Enhance docker-reset target with warning message and 3-second delay in `Makefile`
+- [ ] T017 [US2] Update docker-reset to output confirmation message after reset in `Makefile`
 
 **Checkpoint**: User Story 2 complete - developers can manage service lifecycle with `make docker-down/restart/reset`
 
@@ -83,9 +84,9 @@
 
 ### Implementation for User Story 3
 
-- [ ] T017 [P] [US3] Add docker-logs-postgres target for PostgreSQL logs in `Makefile`
-- [ ] T018 [P] [US3] Add docker-logs-redis target for Redis logs in `Makefile`
-- [ ] T019 [P] [US3] Add docker-logs-minio target for MinIO logs in `Makefile`
+- [ ] T018 [P] [US3] Add docker-logs-postgres target for PostgreSQL logs in `Makefile`
+- [ ] T019 [P] [US3] Add docker-logs-redis target for Redis logs in `Makefile`
+- [ ] T020 [P] [US3] Add docker-logs-minio target for MinIO logs in `Makefile`
 
 **Checkpoint**: User Story 3 complete - developers can view logs with `make docker-logs[-service]`
 
@@ -95,11 +96,11 @@
 
 **Purpose**: Additional convenience features and documentation
 
-- [ ] T020 [P] Add docker-shell-postgres target to open psql shell in `Makefile`
-- [ ] T021 [P] Update .PHONY declaration with all new targets in `Makefile`
-- [ ] T022 Update infrastructure/config/dev.env.example with connection strings for all services
-- [ ] T023 Run quickstart.md validation (verify all documented commands work)
-- [ ] T024 Test data persistence across 3 stop/start cycles
+- [ ] T021 [P] Add docker-shell-postgres target to open psql shell in `Makefile`
+- [ ] T022 [P] Update .PHONY declaration with all new targets in `Makefile`
+- [ ] T023 Update infrastructure/config/dev.env.example with connection strings for all services
+- [ ] T024 Run quickstart.md validation (verify all documented commands work)
+- [ ] T025 Test data persistence across 10 stop/start cycles per SC-003
 
 ---
 
@@ -124,8 +125,8 @@
 
 - Foundational tasks T002-T005 all modify same file (docker-compose.yml) - do sequentially
 - T006-T007 (health-check.sh) can run parallel to docker-compose.yml updates
-- US3 tasks T017-T019 are all parallelizable (different targets, no dependencies)
-- Polish tasks T020-T021 are parallelizable (different targets/sections)
+- US3 tasks T018-T020 are all parallelizable (different targets, no dependencies)
+- Polish tasks T021-T022 are parallelizable (different targets/sections)
 
 ### Parallel Opportunities
 
@@ -136,10 +137,10 @@ Phase 2 (Foundational):
               T008 (separate file, can run parallel)
 
 Phase 5 (US3):
-  Parallel: T017, T018, T019 (all different Makefile targets)
+  Parallel: T018, T019, T020 (all different Makefile targets)
 
 Phase 6 (Polish):
-  Parallel: T020, T021 (different targets/sections)
+  Parallel: T021, T022 (different targets/sections)
 ```
 
 ---
@@ -150,7 +151,7 @@ Phase 6 (Polish):
 
 1. Complete Phase 1: Setup (T001)
 2. Complete Phase 2: Foundational (T002-T008)
-3. Complete Phase 3: User Story 1 (T009-T013)
+3. Complete Phase 3: User Story 1 (T009-T014)
 4. **STOP and VALIDATE**: Run `make docker-up` and verify:
    - All containers start within 60 seconds
    - PostgreSQL accessible on port 5432
@@ -172,11 +173,11 @@ Phase 6 (Polish):
 | ------------ | ------ | ------------------------------------------------------------------- |
 | Setup        | 1      | Directory creation                                                  |
 | Foundational | 7      | docker-compose.yml enhancements, health-check.sh, Makefile variable |
-| US1 (P1)     | 5      | Start services with pre-flight checks                               |
+| US1 (P1)     | 6      | Start services with pre-flight checks, port availability            |
 | US2 (P2)     | 3      | Lifecycle management (restart, reset)                               |
 | US3 (P3)     | 3      | Log viewing commands                                                |
 | Polish       | 5      | Shell access, documentation, validation                             |
-| **Total**    | **24** |                                                                     |
+| **Total**    | **25** |                                                                     |
 
 ---
 
