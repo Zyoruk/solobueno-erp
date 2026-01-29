@@ -128,10 +128,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Test TypeScript
-        run: pnpm test
-        # TODO: Enable coverage when vitest is configured
-        # run: pnpm test -- --coverage
+      - name: Test TypeScript with coverage
+        run: pnpm test:coverage
 
       - name: Test Go with coverage
         working-directory: backend

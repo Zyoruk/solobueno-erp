@@ -1,4 +1,6 @@
 {
+  "app.name": "Solobueno ERP",
+  "common.welcome": "Bienvenido, {{name}}",
   "common.save": "Guardar",
   "common.cancel": "Cancelar",
   "common.delete": "Eliminar",
