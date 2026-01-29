@@ -5,7 +5,7 @@
 **Status**: Draft  
 **Dependencies**: 004-auth-module, 005-config-module
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Waiter Selects a Table to Start Order (Priority: P1)
 
@@ -109,7 +109,7 @@ As a waiter, I want to transfer an order to another table or merge tables, so th
 - What happens when reservations overlap? Prevent booking and suggest alternative times.
 - What happens when a server's shift ends? Tables can be reassigned to another server.
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -147,7 +147,7 @@ As a waiter, I want to transfer an order to another table or merge tables, so th
 - **Section**: Area of the restaurant (patio, main floor, bar); contains tables.
 - **ServerAssignment**: Mapping of server (user) to tables for their shift.
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 

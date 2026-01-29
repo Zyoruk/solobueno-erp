@@ -5,7 +5,7 @@
 **Status**: Draft  
 **Dependencies**: 004-auth-module
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Manager Sees Best-Selling Items (Priority: P1)
 
@@ -105,7 +105,7 @@ As a manager on shift, I want to see real-time metrics, so that I can respond qu
 - What happens with incomplete data? Reports clearly indicate data gaps and affected metrics.
 - What happens when user denies analytics tracking? Core business metrics still collected; behavior tracking disabled.
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -143,7 +143,7 @@ As a manager on shift, I want to see real-time metrics, so that I can respond qu
 - **Dashboard**: Collection of widgets displaying metrics; configurable per user role.
 - **Report**: Generated output with specific metrics and filters; can be scheduled or on-demand.
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 

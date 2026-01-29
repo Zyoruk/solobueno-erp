@@ -5,7 +5,7 @@
 **Status**: Draft  
 **Dependencies**: 009-orders-module, 011-payments-module
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Customer Receives Invoice (Priority: P1)
 
@@ -107,7 +107,7 @@ As a manager, I want to void an invoice when an order is cancelled or incorrectl
 - What happens when tax rates change? New rate applies to new orders; historical invoices retain original rate.
 - What happens when generating invoice for international customer? System supports invoices without local tax ID.
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -148,7 +148,7 @@ As a manager, I want to void an invoice when an order is cancelled or incorrectl
 - **CreditNote**: Document reversing part or all of an invoice; linked to original invoice.
 - **BillingPlugin**: Integration with fiscal authority (Costa Rica Hacienda, generic, etc.).
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 

@@ -5,7 +5,7 @@
 **Status**: Draft  
 **Dependencies**: 007-menu-module
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Manager Tracks Stock Levels (Priority: P1)
 
@@ -105,7 +105,7 @@ As a customer or waiter, I want menu items to automatically show as unavailable 
 - What happens when negative stock is possible? System allows it but generates critical alert (possible data issue).
 - What happens when stock is adjusted during service? Changes apply immediately but alert kitchen of newly unavailable items.
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -144,7 +144,7 @@ As a customer or waiter, I want menu items to automatically show as unavailable 
 - **Supplier**: Vendor providing ingredients; has contact info, delivery schedule.
 - **IngredientCategory**: Grouping for ingredients (proteins, dairy, produce, etc.).
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 

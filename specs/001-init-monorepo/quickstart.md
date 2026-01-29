@@ -7,18 +7,19 @@
 
 Before you begin, ensure you have the following installed:
 
-| Tool | Required Version | Check Command |
-|------|------------------|---------------|
-| Node.js | 20.x or higher | `node --version` |
-| pnpm | 8.x or higher | `pnpm --version` |
-| Go | 1.22 or higher | `go version` |
-| Docker | Latest | `docker --version` |
+| Tool           | Required Version                     | Check Command            |
+| -------------- | ------------------------------------ | ------------------------ |
+| Node.js        | 20.x or higher                       | `node --version`         |
+| pnpm           | 8.x or higher                        | `pnpm --version`         |
+| Go             | 1.22 or higher                       | `go version`             |
+| Docker         | Latest                               | `docker --version`       |
 | Docker Compose | Latest (bundled with Docker Desktop) | `docker compose version` |
-| Git | Latest | `git --version` |
+| Git            | Latest                               | `git --version`          |
 
 ### Installing Prerequisites
 
 **Node.js** (via nvm recommended):
+
 ```bash
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
 nvm install 20
@@ -26,16 +27,19 @@ nvm use 20
 ```
 
 **pnpm**:
+
 ```bash
 npm install -g pnpm@8
 ```
 
 **Go**:
+
 - macOS: `brew install go`
 - Linux: Download from https://go.dev/dl/
 - Windows: Download installer from https://go.dev/dl/
 
 **Docker Desktop**:
+
 - Download from https://www.docker.com/products/docker-desktop
 
 ## Quick Setup (5 minutes)
@@ -93,14 +97,14 @@ pnpm test
 
 ### Root Commands (from repository root)
 
-| Command | Description |
-|---------|-------------|
-| `pnpm dev` | Start all apps in development mode |
-| `pnpm build` | Build all packages and apps |
-| `pnpm test` | Run all tests |
-| `pnpm lint` | Lint all code |
-| `pnpm format` | Format all code with Prettier |
-| `pnpm clean` | Remove all build artifacts and node_modules |
+| Command       | Description                                 |
+| ------------- | ------------------------------------------- |
+| `pnpm dev`    | Start all apps in development mode          |
+| `pnpm build`  | Build all packages and apps                 |
+| `pnpm test`   | Run all tests                               |
+| `pnpm lint`   | Lint all code                               |
+| `pnpm format` | Format all code with Prettier               |
+| `pnpm clean`  | Remove all build artifacts and node_modules |
 
 ### Filtered Commands (specific packages)
 
@@ -183,11 +187,13 @@ solobueno-erp/
 ### Adding a New Package
 
 1. Create the package directory:
+
    ```bash
    mkdir -p packages/my-package/src
    ```
 
 2. Create `package.json`:
+
    ```json
    {
      "name": "@solobueno/my-package",
@@ -202,6 +208,7 @@ solobueno-erp/
    ```
 
 3. Create `src/index.ts`:
+
    ```typescript
    export const hello = () => 'Hello from my-package';
    ```
@@ -215,11 +222,13 @@ solobueno-erp/
 ### Adding a Backend Module
 
 1. Create the module directory:
+
    ```bash
    mkdir -p backend/internal/my-module/{domain,ports,adapters,application}
    ```
 
 2. Create the module entry point `backend/internal/my-module/module.go`:
+
    ```go
    package mymodule
 
@@ -252,11 +261,13 @@ go run cmd/migrate/main.go down 1
 ### Common Issues
 
 **pnpm install fails with peer dependency errors**
+
 ```bash
 pnpm install --shamefully-hoist
 ```
 
 **Docker containers won't start**
+
 ```bash
 # Check if ports are already in use
 lsof -i :5432  # PostgreSQL
@@ -267,6 +278,7 @@ lsof -i :9000  # MinIO
 ```
 
 **Go module issues**
+
 ```bash
 cd backend
 go mod tidy
@@ -274,6 +286,7 @@ go mod download
 ```
 
 **Turborepo cache issues**
+
 ```bash
 pnpm clean
 rm -rf .turbo

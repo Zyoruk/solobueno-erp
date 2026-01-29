@@ -5,7 +5,7 @@
 **Status**: Draft  
 **Input**: User description: "Initialize monorepo structure with Turborepo for Solobueno ERP"
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Developer Clones and Runs Project (Priority: P1)
 
@@ -65,7 +65,7 @@ As a developer creating a new module or shared library, I want to add new packag
 - What happens when dependencies fail to install due to network issues? The setup should provide clear error messages and retry instructions.
 - What happens when the developer's machine runs a different operating system? The setup should work on macOS, Linux, and Windows (via WSL).
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -104,7 +104,7 @@ As a developer creating a new module or shared library, I want to add new packag
 - Node.js 20+ is required for frontend development.
 - The initial setup focuses on structure; actual application code will be added in subsequent features.
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 

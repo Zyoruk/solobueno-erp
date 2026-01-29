@@ -41,10 +41,7 @@ export function t(key: string, params?: Record<string, string>): string {
 
   if (!params) return value;
 
-  return Object.entries(params).reduce(
-    (acc, [k, v]) => acc.replace(`{{${k}}}`, v),
-    value
-  );
+  return Object.entries(params).reduce((acc, [k, v]) => acc.replace(`{{${k}}}`, v), value);
 }
 
 export { es419, en };

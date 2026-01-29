@@ -21,22 +21,22 @@ Initialize the Solobueno ERP monorepo with Turborepo, establishing the complete 
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+_GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 
-| Principle | Status | Notes |
-|-----------|--------|-------|
-| I. Mobile-First | ✅ Pass | Structure includes `apps/mobile/` as primary app |
-| II. Domain-Driven Design | ✅ Pass | Backend structure follows module pattern from constitution |
-| III. API-First | ✅ Pass | Includes `backend/api/graphql/` and `backend/api/rest/` |
-| IV. Offline-First | ✅ Pass | Dev environment works offline after setup |
-| V. Plugin-Driven | ✅ Pass | Includes `backend/plugins/` directory |
-| VI. White-Label & Multi-Tenant | ✅ Pass | Structure supports; implementation in future features |
-| VII. Type Safety | ✅ Pass | TypeScript strict mode, Go native typing |
-| VIII. Test-Driven | ✅ Pass | Test directories included in structure |
-| IX. Internationalization | ✅ Pass | Includes `packages/i18n/` |
-| X. User-Centric | N/A | UX not applicable to project structure |
-| XI. Observability | ✅ Pass | Includes `shared/observability/` |
-| XII. Security | N/A | Security implementation in future features |
+| Principle                      | Status  | Notes                                                      |
+| ------------------------------ | ------- | ---------------------------------------------------------- |
+| I. Mobile-First                | ✅ Pass | Structure includes `apps/mobile/` as primary app           |
+| II. Domain-Driven Design       | ✅ Pass | Backend structure follows module pattern from constitution |
+| III. API-First                 | ✅ Pass | Includes `backend/api/graphql/` and `backend/api/rest/`    |
+| IV. Offline-First              | ✅ Pass | Dev environment works offline after setup                  |
+| V. Plugin-Driven               | ✅ Pass | Includes `backend/plugins/` directory                      |
+| VI. White-Label & Multi-Tenant | ✅ Pass | Structure supports; implementation in future features      |
+| VII. Type Safety               | ✅ Pass | TypeScript strict mode, Go native typing                   |
+| VIII. Test-Driven              | ✅ Pass | Test directories included in structure                     |
+| IX. Internationalization       | ✅ Pass | Includes `packages/i18n/`                                  |
+| X. User-Centric                | N/A     | UX not applicable to project structure                     |
+| XI. Observability              | ✅ Pass | Includes `shared/observability/`                           |
+| XII. Security                  | N/A     | Security implementation in future features                 |
 
 **Gate Status**: ✅ PASSED - All applicable principles satisfied
 
