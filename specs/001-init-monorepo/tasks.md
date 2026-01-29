@@ -151,6 +151,10 @@
   - SC-005: Folder structure matches constitution
   - SC-006: Lint/format pass with zero config
 - [ ] T053 Final README review and documentation polish
+- [ ] T054 Document edge cases in README.md:
+  - Version mismatch detection (Node/Go version checks)
+  - Network failure recovery (retry instructions for pnpm install)
+  - Cross-OS compatibility (WSL2 requirements for Windows)
 
 ---
 
@@ -235,4 +239,4 @@ With 2+ developers after Foundational phase:
 - [Story] label maps task to specific user story for traceability
 - Commit after each task or logical group
 - Verify builds work after each checkpoint
-- Total: 53 tasks across 6 phases
+- Total: 54 tasks across 6 phases

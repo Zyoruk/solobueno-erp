@@ -1,4 +1,4 @@
-.PHONY: help install dev build test lint clean docker-up docker-down docker-logs docker-reset
+.PHONY: help check-versions install dev build test lint clean docker-up docker-down docker-logs docker-reset
 
 # Colors
 BLUE=\033[0;34m
@@ -8,6 +8,18 @@ help: ## Show this help message
 	@echo "Solobueno ERP - Available Commands"
 	@echo ""
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "$(BLUE)%-20s$(NC) %s\n", $$1, $$2}'
+
+# =============================================================================
+# Version Checks
+# =============================================================================
+
+check-versions: ## Verify required tool versions
+	@echo "Checking required versions..."
+	@command -v node >/dev/null 2>&1 || (echo "Error: Node.js not found. Install Node.js 20+" && exit 1)
+	@command -v pnpm >/dev/null 2>&1 || (echo "Error: pnpm not found. Install pnpm 8+" && exit 1)
+	@command -v go >/dev/null 2>&1 || (echo "Warning: Go not found. Install Go 1.22+ for backend development")
+	@command -v docker >/dev/null 2>&1 || (echo "Warning: Docker not found. Install Docker for local services")
+	@echo "✓ Version check complete"
 
 # =============================================================================
 # Development
@@ -85,7 +97,7 @@ migrate-status: ## Show migration status
 # Setup
 # =============================================================================
 
-setup: install docker-up ## Full development setup
+setup: check-versions install docker-up ## Full development setup
 	@echo ""
 	@echo "✅ Setup complete!"
 	@echo ""
