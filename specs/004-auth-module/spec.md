@@ -5,6 +5,16 @@
 **Status**: Draft  
 **Dependencies**: 002-docker-local-dev
 
+## Clarifications
+
+### Session 2026-01-29
+
+- Q: Password hashing algorithm choice (bcrypt vs argon2)? → A: Argon2id (most secure, modern)
+- Q: Email uniqueness scope (global vs per-tenant)? → A: Globally unique (one account per email, can belong to multiple tenants)
+- Q: JWT signing algorithm? → A: RS256 (asymmetric, public/private key pair)
+- Q: MFA scope? → A: Deferred to future feature (out of scope for 004)
+- Q: Session storage strategy? → A: Database-backed (refresh tokens stored in DB, revocable)
+
 ## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Staff Member Logs In (Priority: P1)
@@ -109,7 +119,7 @@ As a staff member ending my shift, I want to log out securely, so that the next 
 
 - **FR-001**: System MUST authenticate users with email and password.
 
-- **FR-002**: System MUST issue JWT access tokens upon successful authentication.
+- **FR-002**: System MUST issue JWT access tokens signed with RS256 (asymmetric) upon successful authentication.
 
 - **FR-003**: Access tokens MUST expire within 60 minutes.
 
@@ -123,7 +133,7 @@ As a staff member ending my shift, I want to log out securely, so that the next 
 
 - **FR-008**: System MUST enforce role-based access control on all API endpoints.
 
-- **FR-009**: System MUST hash passwords using bcrypt or argon2.
+- **FR-009**: System MUST hash passwords using Argon2id with secure parameters.
 
 - **FR-010**: System MUST log all authentication events (login, logout, failed attempts).
 
@@ -137,9 +147,9 @@ As a staff member ending my shift, I want to log out securely, so that the next 
 
 ### Key Entities
 
-- **User**: Person with access to the system; has email, hashed password, role, tenant association.
+- **User**: Person with access to the system; has globally unique email, hashed password, and can have roles in multiple tenants.
 - **Role**: Permission set (owner, admin, manager, cashier, waiter, kitchen, viewer).
-- **Session**: Active authentication represented by access and refresh tokens.
+- **Session**: Active authentication represented by access and refresh tokens; refresh tokens stored in database for revocation support.
 - **Tenant**: Restaurant business; users belong to exactly one tenant.
 - **AuthEvent**: Audit log of authentication actions (login, logout, failed attempt).
 
