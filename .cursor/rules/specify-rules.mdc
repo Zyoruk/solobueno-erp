@@ -1,0 +1,30 @@
+# solobueno-erp Development Guidelines
+
+Auto-generated from all feature plans. Last updated: 2026-01-29
+
+## Active Technologies
+
+- Go 1.22+ (backend), TypeScript 5.x (frontend), Node.js 20+ + Turborepo, pnpm (workspace management), Docker Compose (001-init-monorepo)
+
+## Project Structure
+
+```text
+backend/
+frontend/
+tests/
+```
+
+## Commands
+
+npm test && npm run lint
+
+## Code Style
+
+Go 1.22+ (backend), TypeScript 5.x (frontend), Node.js 20+: Follow standard conventions
+
+## Recent Changes
+
+- 001-init-monorepo: Added Go 1.22+ (backend), TypeScript 5.x (frontend), Node.js 20+ + Turborepo, pnpm (workspace management), Docker Compose
+
+<!-- MANUAL ADDITIONS START -->
+<!-- MANUAL ADDITIONS END -->
