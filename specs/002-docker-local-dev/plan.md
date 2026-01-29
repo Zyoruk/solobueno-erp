@@ -58,8 +58,7 @@ specs/002-docker-local-dev/
 ```text
 infrastructure/
 ├── docker/
-│   ├── docker-compose.yml      # Service definitions (enhance)
-│   └── docker-compose.test.yml # Test overrides (new)
+│   └── docker-compose.yml      # Service definitions (enhance)
 ├── scripts/
 │   └── health-check.sh         # Service health verification (new)
 └── config/
