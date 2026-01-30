@@ -19,7 +19,7 @@
 
 **Purpose**: Initialize module structure and add required dependencies
 
-- [ ] T001 Add Go dependencies to `backend/go.mod`: github.com/golang-jwt/jwt/v5, github.com/alexedwards/argon2id, github.com/google/uuid, github.com/go-chi/chi/v5, github.com/jackc/pgx/v5
+- [ ] T001 Add Go dependencies to `backend/go.mod`: gorm.io/gorm, gorm.io/driver/postgres, github.com/golang-jwt/jwt/v5, github.com/alexedwards/argon2id, github.com/google/uuid, github.com/go-chi/chi/v5
 - [ ] T002 [P] Create auth module directory structure at `backend/internal/auth/` with domain/, repository/, service/, handler/ subdirectories
 - [ ] T003 [P] Create JWT utilities directory at `backend/pkg/jwt/`
 
@@ -27,22 +27,20 @@
 
 ---
 
-## Phase 2: Database Migrations
+## Phase 2: Database Setup with GORM
 
-**Purpose**: Create database schema for auth entities
+**Purpose**: Set up GORM connection and auto-migration
 
-**⚠️ CRITICAL**: Migrations must be created before any repository code
+**Note**: GORM AutoMigrate handles schema creation from struct definitions
 
-- [ ] T004 Create migration `backend/migrations/001_create_users.up.sql` with users and tenants tables per data-model.md
-- [ ] T005 Create migration `backend/migrations/001_create_users.down.sql` with DROP TABLE statements
-- [ ] T006 Create migration `backend/migrations/002_create_user_tenant_roles.up.sql` with user_role enum and user_tenant_roles table
-- [ ] T007 Create migration `backend/migrations/002_create_user_tenant_roles.down.sql` with DROP statements
-- [ ] T008 Create migration `backend/migrations/003_create_sessions.up.sql` with sessions and password_reset_tokens tables
-- [ ] T009 Create migration `backend/migrations/003_create_sessions.down.sql` with DROP statements
-- [ ] T010 Create migration `backend/migrations/004_create_auth_events.up.sql` with auth_event_type enum and auth_events table
-- [ ] T011 Create migration `backend/migrations/004_create_auth_events.down.sql` with DROP statements
+- [ ] T004 Create GORM database connection helper at `backend/internal/shared/database/postgres.go` with connection config
+- [ ] T005 Create AutoMigrate function at `backend/internal/auth/migrate.go` that registers all auth models
+- [ ] T006 Add database connection to main server startup at `backend/cmd/server/main.go`
+- [ ] T007 Create migration CLI command at `backend/cmd/migrate/main.go` to run GORM AutoMigrate
+- [ ] T008 [P] Create SQL migration `backend/migrations/001_auth_tables.up.sql` for production (explicit control)
+- [ ] T009 [P] Create SQL migration `backend/migrations/001_auth_tables.down.sql` for rollback
 
-**Checkpoint**: All migrations created, can run `make migrate-up`
+**Checkpoint**: GORM connected, AutoMigrate works for dev, SQL migrations for prod
 
 ---
 
@@ -50,12 +48,14 @@
 
 **Purpose**: Define domain entities, errors, and events
 
-- [ ] T012 [P] Create Role type with constants and Level()/CanManage() methods at `backend/internal/auth/domain/role.go`
-- [ ] T013 [P] Create User entity struct at `backend/internal/auth/domain/user.go`
-- [ ] T014 [P] Create UserTenantRole entity struct at `backend/internal/auth/domain/user_tenant_role.go`
-- [ ] T015 [P] Create Session entity struct with IsValid() method at `backend/internal/auth/domain/session.go`
-- [ ] T016 [P] Create AuthEvent entity with AuthEventType constants at `backend/internal/auth/domain/auth_event.go`
-- [ ] T017 [P] Create TokenPair and Claims structs at `backend/internal/auth/domain/token.go`
+- [ ] T010 [P] Create Role type with constants and Level()/CanManage() methods at `backend/internal/auth/domain/role.go`
+- [ ] T011 [P] Create User entity struct with GORM tags at `backend/internal/auth/domain/user.go`
+- [ ] T012 [P] Create Tenant entity struct with GORM tags at `backend/internal/auth/domain/tenant.go`
+- [ ] T013 [P] Create UserTenantRole entity struct with GORM tags at `backend/internal/auth/domain/user_tenant_role.go`
+- [ ] T014 [P] Create Session entity struct with GORM tags and IsValid() method at `backend/internal/auth/domain/session.go`
+- [ ] T015 [P] Create PasswordResetToken entity struct with GORM tags at `backend/internal/auth/domain/password_reset_token.go`
+- [ ] T016 [P] Create AuthEvent entity with GORM tags and AuthEventType constants at `backend/internal/auth/domain/auth_event.go`
+- [ ] T017 [P] Create TokenPair and Claims structs (DTOs) at `backend/internal/auth/domain/token.go`
 - [ ] T018 [P] Create domain errors (ErrInvalidCredentials, ErrAccountDisabled, ErrTokenExpired, etc.) at `backend/internal/auth/domain/errors.go`
 - [ ] T019 Create domain events (UserCreated, LoginSucceeded, LoginFailed, etc.) at `backend/internal/auth/events.go`
 
@@ -63,25 +63,22 @@
 
 ---
 
-## Phase 4: Repository Layer
+## Phase 4: Repository Layer (GORM)
 
-**Purpose**: Define repository interfaces and PostgreSQL implementations
+**Purpose**: Define repository interfaces and GORM implementations
 
-### Repository Interfaces
+**Note**: GORM simplifies repository implementations significantly
 
-- [ ] T020 [P] Create UserRepository interface at `backend/internal/auth/repository/user_repo.go` with FindByEmail, FindByID, Create, Update methods
-- [ ] T021 [P] Create SessionRepository interface at `backend/internal/auth/repository/session_repo.go` with Create, FindByToken, Revoke, RevokeAllForUser methods
-- [ ] T022 [P] Create AuthEventRepository interface at `backend/internal/auth/repository/event_repo.go` with Create, FindByUser methods
-- [ ] T023 [P] Create PasswordResetRepository interface at `backend/internal/auth/repository/password_reset_repo.go` with Create, FindByToken, MarkUsed methods
+### Repository Interfaces & Implementations
 
-### PostgreSQL Implementations
+- [ ] T020 [P] Create UserRepository interface and GORM implementation at `backend/internal/auth/repository/user_repo.go` with FindByEmail, FindByID, Create, Update methods
+- [ ] T021 [P] Create SessionRepository interface and GORM implementation at `backend/internal/auth/repository/session_repo.go` with Create, FindByToken, Revoke, RevokeAllForUser methods
+- [ ] T022 [P] Create AuthEventRepository interface and GORM implementation at `backend/internal/auth/repository/event_repo.go` with Create, FindByUser methods
+- [ ] T023 [P] Create PasswordResetRepository interface and GORM implementation at `backend/internal/auth/repository/password_reset_repo.go` with Create, FindByToken, MarkUsed methods
+- [ ] T024 Create TenantRepository interface and GORM implementation at `backend/internal/auth/repository/tenant_repo.go` with FindByID, FindBySlug methods
+- [ ] T025 Create repository tests at `backend/internal/auth/repository/repository_test.go` using GORM with SQLite in-memory for fast tests
 
-- [ ] T024 Implement PostgreSQL UserRepository at `backend/internal/auth/repository/postgres/user.go`
-- [ ] T025 Implement PostgreSQL SessionRepository at `backend/internal/auth/repository/postgres/session.go`
-- [ ] T026 Implement PostgreSQL AuthEventRepository at `backend/internal/auth/repository/postgres/event.go`
-- [ ] T027 Implement PostgreSQL PasswordResetRepository at `backend/internal/auth/repository/postgres/password_reset.go`
-
-**Checkpoint**: Repository layer complete, database access implemented
+**Checkpoint**: Repository layer complete with GORM, tests passing
 
 ---
 
@@ -91,16 +88,16 @@
 
 ### JWT & Password Services
 
-- [ ] T028 Create JWT key loading and management at `backend/pkg/jwt/keys.go` with LoadPrivateKey, LoadPublicKey
-- [ ] T029 Create JWT generation and validation at `backend/pkg/jwt/jwt.go` with GenerateToken, ValidateToken, ParseClaims
-- [ ] T030 Add unit tests for JWT utilities at `backend/pkg/jwt/jwt_test.go`
-- [ ] T031 Create Argon2id password hashing service at `backend/internal/auth/service/password.go` with Hash, Verify methods
-- [ ] T032 Add unit tests for password service at `backend/internal/auth/service/password_test.go`
+- [ ] T026 Create JWT key loading and management at `backend/pkg/jwt/keys.go` with LoadPrivateKey, LoadPublicKey
+- [ ] T027 Create JWT generation and validation at `backend/pkg/jwt/jwt.go` with GenerateToken, ValidateToken, ParseClaims
+- [ ] T028 Add unit tests for JWT utilities at `backend/pkg/jwt/jwt_test.go`
+- [ ] T029 Create Argon2id password hashing service at `backend/internal/auth/service/password.go` with Hash, Verify methods
+- [ ] T030 Add unit tests for password service at `backend/internal/auth/service/password_test.go`
 
 ### Token Service
 
-- [ ] T033 Create TokenService at `backend/internal/auth/service/token_service.go` that wraps JWT package with domain types
-- [ ] T034 Add unit tests for TokenService at `backend/internal/auth/service/token_service_test.go`
+- [ ] T031 Create TokenService at `backend/internal/auth/service/token_service.go` that wraps JWT package with domain types
+- [ ] T032 Add unit tests for TokenService at `backend/internal/auth/service/token_service_test.go`
 
 **Checkpoint**: Core crypto services implemented and tested
 
@@ -114,17 +111,17 @@
 
 ### Implementation
 
-- [ ] T035 [US1] Create AuthService at `backend/internal/auth/service/auth_service.go` with Login method
-- [ ] T036 [US1] Implement Login: validate credentials, check account active, generate tokens, create session, log event
-- [ ] T037 [US1] Add rate limiting interface at `backend/internal/auth/service/rate_limiter.go`
-- [ ] T038 [US1] Implement in-memory rate limiter at `backend/internal/auth/service/rate_limiter_memory.go`
-- [ ] T039 [US1] Add unit tests for AuthService.Login at `backend/internal/auth/service/auth_service_test.go`
+- [ ] T033 [US1] Create AuthService at `backend/internal/auth/service/auth_service.go` with Login method
+- [ ] T034 [US1] Implement Login: validate credentials, check account active, generate tokens, create session, log event
+- [ ] T035 [US1] Add rate limiting interface at `backend/internal/auth/service/rate_limiter.go`
+- [ ] T036 [US1] Implement in-memory rate limiter at `backend/internal/auth/service/rate_limiter_memory.go`
+- [ ] T037 [US1] Add unit tests for AuthService.Login at `backend/internal/auth/service/auth_service_test.go`
 
 ### REST Handler
 
-- [ ] T040 [US1] Create auth handler at `backend/internal/auth/handler/auth_handler.go` with POST /login endpoint
-- [ ] T041 [US1] Add request/response DTOs for login at `backend/internal/auth/handler/dto.go`
-- [ ] T042 [US1] Add integration tests for login endpoint at `backend/internal/auth/handler/auth_handler_test.go`
+- [ ] T038 [US1] Create auth handler at `backend/internal/auth/handler/auth_handler.go` with POST /login endpoint
+- [ ] T039 [US1] Add request/response DTOs for login at `backend/internal/auth/handler/dto.go`
+- [ ] T040 [US1] Add integration tests for login endpoint at `backend/internal/auth/handler/auth_handler_test.go`
 
 **Checkpoint**: User Story 1 complete - Users can log in and receive tokens
 
@@ -138,14 +135,14 @@
 
 ### Implementation
 
-- [ ] T043 [US2] Add Refresh method to AuthService at `backend/internal/auth/service/auth_service.go`
-- [ ] T044 [US2] Implement Refresh: validate refresh token, check not revoked, generate new token pair, rotate refresh token
-- [ ] T045 [US2] Add unit tests for AuthService.Refresh at `backend/internal/auth/service/auth_service_test.go`
+- [ ] T041 [US2] Add Refresh method to AuthService at `backend/internal/auth/service/auth_service.go`
+- [ ] T042 [US2] Implement Refresh: validate refresh token, check not revoked, generate new token pair, rotate refresh token
+- [ ] T043 [US2] Add unit tests for AuthService.Refresh at `backend/internal/auth/service/auth_service_test.go`
 
 ### REST Handler
 
-- [ ] T046 [US2] Add POST /refresh endpoint to auth handler at `backend/internal/auth/handler/auth_handler.go`
-- [ ] T047 [US2] Add integration tests for refresh endpoint at `backend/internal/auth/handler/auth_handler_test.go`
+- [ ] T044 [US2] Add POST /refresh endpoint to auth handler at `backend/internal/auth/handler/auth_handler.go`
+- [ ] T045 [US2] Add integration tests for refresh endpoint at `backend/internal/auth/handler/auth_handler_test.go`
 
 **Checkpoint**: User Story 2 complete - Tokens can be refreshed
 
@@ -159,15 +156,15 @@
 
 ### Implementation
 
-- [ ] T048 [US4] Create auth middleware at `backend/internal/auth/handler/middleware.go` with RequireAuth, RequireRole
-- [ ] T049 [US4] Implement RequireAuth: extract token, validate, inject user context
-- [ ] T050 [US4] Implement RequireRole: check user role meets minimum requirement
-- [ ] T051 [US4] Add unit tests for middleware at `backend/internal/auth/handler/middleware_test.go`
+- [ ] T046 [US4] Create auth middleware at `backend/internal/auth/handler/middleware.go` with RequireAuth, RequireRole
+- [ ] T047 [US4] Implement RequireAuth: extract token, validate, inject user context
+- [ ] T048 [US4] Implement RequireRole: check user role meets minimum requirement
+- [ ] T049 [US4] Add unit tests for middleware at `backend/internal/auth/handler/middleware_test.go`
 
 ### Endpoint Protection
 
-- [ ] T052 [US4] Add GET /me endpoint to return current user info at `backend/internal/auth/handler/auth_handler.go`
-- [ ] T053 [US4] Add integration tests for /me endpoint at `backend/internal/auth/handler/auth_handler_test.go`
+- [ ] T050 [US4] Add GET /me endpoint to return current user info at `backend/internal/auth/handler/auth_handler.go`
+- [ ] T051 [US4] Add integration tests for /me endpoint at `backend/internal/auth/handler/auth_handler_test.go`
 
 **Checkpoint**: User Story 4 complete - RBAC middleware working
 
@@ -181,17 +178,17 @@
 
 ### Implementation
 
-- [ ] T054 [US3] Create UserService at `backend/internal/auth/service/user_service.go` with Create, GetByID, Update, List methods
-- [ ] T055 [US3] Implement CreateUser: validate role hierarchy, generate temp password, create user and tenant role, log event
-- [ ] T056 [US3] Implement UpdateUser: validate permissions, update fields, log event
-- [ ] T057 [US3] Implement UpdateRole: validate role hierarchy, update role, log event
-- [ ] T058 [US3] Add unit tests for UserService at `backend/internal/auth/service/user_service_test.go`
+- [ ] T052 [US3] Create UserService at `backend/internal/auth/service/user_service.go` with Create, GetByID, Update, List methods
+- [ ] T053 [US3] Implement CreateUser: validate role hierarchy, generate temp password, create user and tenant role, log event
+- [ ] T054 [US3] Implement UpdateUser: validate permissions, update fields, log event
+- [ ] T055 [US3] Implement UpdateRole: validate role hierarchy, update role, log event
+- [ ] T056 [US3] Add unit tests for UserService at `backend/internal/auth/service/user_service_test.go`
 
 ### REST Handler
 
-- [ ] T059 [US3] Create user handler at `backend/internal/auth/handler/user_handler.go` with POST /users, GET /users, GET /users/{id}, PATCH /users/{id}, PATCH /users/{id}/role
-- [ ] T060 [US3] Add request/response DTOs for user management at `backend/internal/auth/handler/dto.go`
-- [ ] T061 [US3] Add integration tests for user endpoints at `backend/internal/auth/handler/user_handler_test.go`
+- [ ] T057 [US3] Create user handler at `backend/internal/auth/handler/user_handler.go` with POST /users, GET /users, GET /users/{id}, PATCH /users/{id}, PATCH /users/{id}/role
+- [ ] T058 [US3] Add request/response DTOs for user management at `backend/internal/auth/handler/dto.go`
+- [ ] T059 [US3] Add integration tests for user endpoints at `backend/internal/auth/handler/user_handler_test.go`
 
 **Checkpoint**: User Story 3 complete - Managers can create/manage staff
 
@@ -205,14 +202,14 @@
 
 ### Implementation
 
-- [ ] T062 [US5] Add Logout method to AuthService at `backend/internal/auth/service/auth_service.go`
-- [ ] T063 [US5] Implement Logout: revoke session, log event
-- [ ] T064 [US5] Add unit tests for AuthService.Logout at `backend/internal/auth/service/auth_service_test.go`
+- [ ] T060 [US5] Add Logout method to AuthService at `backend/internal/auth/service/auth_service.go`
+- [ ] T061 [US5] Implement Logout: revoke session, log event
+- [ ] T062 [US5] Add unit tests for AuthService.Logout at `backend/internal/auth/service/auth_service_test.go`
 
 ### REST Handler
 
-- [ ] T065 [US5] Add POST /logout endpoint to auth handler at `backend/internal/auth/handler/auth_handler.go`
-- [ ] T066 [US5] Add integration tests for logout endpoint at `backend/internal/auth/handler/auth_handler_test.go`
+- [ ] T063 [US5] Add POST /logout endpoint to auth handler at `backend/internal/auth/handler/auth_handler.go`
+- [ ] T064 [US5] Add integration tests for logout endpoint at `backend/internal/auth/handler/auth_handler_test.go`
 
 **Checkpoint**: User Story 5 complete - Users can log out
 
@@ -224,18 +221,18 @@
 
 ### Password Change
 
-- [ ] T067 Add ChangePassword method to UserService at `backend/internal/auth/service/user_service.go`
-- [ ] T068 Implement ChangePassword: verify current password, update hash, revoke all sessions (FR-014), log event
-- [ ] T069 Add POST /change-password endpoint at `backend/internal/auth/handler/auth_handler.go`
-- [ ] T070 Add unit and integration tests for password change
+- [ ] T065 Add ChangePassword method to UserService at `backend/internal/auth/service/user_service.go`
+- [ ] T066 Implement ChangePassword: verify current password, update hash, revoke all sessions (FR-014), log event
+- [ ] T067 Add POST /change-password endpoint at `backend/internal/auth/handler/auth_handler.go`
+- [ ] T068 Add unit and integration tests for password change
 
 ### Password Reset
 
-- [ ] T071 Add RequestPasswordReset, CompletePasswordReset methods to UserService
-- [ ] T072 Implement RequestPasswordReset: generate token, hash and store, send email (stub for now)
-- [ ] T073 Implement CompletePasswordReset: validate token, update password, revoke sessions, mark token used
-- [ ] T074 Add POST /password-reset/request, POST /password-reset/complete endpoints
-- [ ] T075 Add unit and integration tests for password reset
+- [ ] T069 Add RequestPasswordReset, CompletePasswordReset methods to UserService
+- [ ] T070 Implement RequestPasswordReset: generate token, hash and store, send email (stub for now)
+- [ ] T071 Implement CompletePasswordReset: validate token, update password, revoke sessions, mark token used
+- [ ] T072 Add POST /password-reset/request, POST /password-reset/complete endpoints
+- [ ] T073 Add unit and integration tests for password reset
 
 **Checkpoint**: Password management complete
 
@@ -245,9 +242,9 @@
 
 **Purpose**: Create public module interface and wire up routes
 
-- [ ] T076 Create public module interface at `backend/internal/auth/service.go` exposing AuthService, UserService
-- [ ] T077 Create router setup at `backend/internal/auth/router.go` that registers all auth routes with Chi
-- [ ] T078 Add module initialization function at `backend/internal/auth/module.go` that wires dependencies
+- [ ] T074 Create public module interface at `backend/internal/auth/service.go` exposing AuthService, UserService
+- [ ] T075 Create router setup at `backend/internal/auth/router.go` that registers all auth routes with Chi
+- [ ] T076 Add module initialization function at `backend/internal/auth/module.go` that wires GORM and dependencies
 
 **Checkpoint**: Module ready for integration with main application
 
@@ -257,12 +254,12 @@
 
 **Purpose**: Finalize, validate, and document
 
-- [ ] T079 [P] Verify all auth events are logged per FR-010
-- [ ] T080 [P] Verify rate limiting works per FR-011 (5/min/IP)
-- [ ] T081 [P] Add seed script for test users at `backend/scripts/seed_users.sql`
-- [ ] T082 Run all tests and verify coverage meets threshold
-- [ ] T083 Update quickstart.md with any implementation changes
-- [ ] T084 Manual testing: complete login→use→refresh→logout flow
+- [ ] T077 [P] Verify all auth events are logged per FR-010
+- [ ] T078 [P] Verify rate limiting works per FR-011 (5/min/IP)
+- [ ] T079 [P] Add seed data function at `backend/internal/auth/seed.go` for test users
+- [ ] T080 Run all tests and verify coverage meets threshold
+- [ ] T081 Update quickstart.md with any implementation changes
+- [ ] T082 Manual testing: complete login→use→refresh→logout flow
 
 ---
 
@@ -349,7 +346,9 @@ Phase 13:
 
 - All code in `backend/internal/auth/` follows modular monolith pattern
 - JWT utilities in `backend/pkg/jwt/` for reuse by other modules
-- Tests required for all services (unit) and handlers (integration)
+- **GORM** used for all database operations - simplifies repository layer
+- GORM AutoMigrate for development, SQL migrations for production
+- Tests use GORM with SQLite in-memory for fast execution
 - Rate limiter abstracted for Redis upgrade path
 - Domain events published but not consumed (consumers in future modules)
 - Password reset email sending is stubbed (AWS SES integration in future feature)

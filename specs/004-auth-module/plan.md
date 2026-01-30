@@ -10,7 +10,7 @@ Implement a complete authentication and authorization module for Solobueno ERP u
 ## Technical Context
 
 **Language/Version**: Go 1.22+  
-**Primary Dependencies**: Chi (REST), golang-jwt/jwt, alexedwards/argon2id, jackc/pgx (PostgreSQL)  
+**Primary Dependencies**: Chi (REST), GORM (ORM), golang-jwt/jwt, alexedwards/argon2id  
 **Storage**: PostgreSQL 16 (users, sessions, auth_events tables)  
 **Testing**: go test with table-driven tests  
 **Target Platform**: Linux server (Docker/ubuntu-latest)  

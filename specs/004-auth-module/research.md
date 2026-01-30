@@ -222,6 +222,41 @@ users (globally unique email)
 | Password Reset   | Hashed time-limited token via email                  |
 | RBAC             | 7-role hierarchy with middleware enforcement         |
 
+### 8. ORM Selection
+
+**Decision**: Use GORM as the ORM for database operations
+
+**Rationale**:
+
+- Most widely adopted Go ORM with excellent PostgreSQL support
+- Struct-based model definitions align with DDD entities
+- Built-in support for hooks, associations, and transactions
+- Auto-migration for development, explicit migrations for production
+- Active community and extensive documentation
+
+**Configuration**:
+
+| Setting              | Value           | Rationale                       |
+| -------------------- | --------------- | ------------------------------- |
+| Logger               | zerolog adapter | Consistent with project logging |
+| Naming Strategy      | snake_case      | PostgreSQL convention           |
+| PrepareStmt          | true            | Better performance              |
+| DisableAutomaticPing | false           | Connection health checks        |
+
+**Library**: `gorm.io/gorm`, `gorm.io/driver/postgres`
+
+**Migration Strategy**:
+
+- Use GORM's AutoMigrate for development convenience
+- Use golang-migrate for production deployments (explicit SQL control)
+- Keep migration SQL files for audit trail and rollback capability
+
+**Alternatives Considered**:
+
+- Ent: More type-safe but steeper learning curve
+- sqlc: Requires writing raw SQL, less abstraction
+- sqlboiler: Requires running DB to generate code
+
 ## Deferred Decisions
 
 ### Service-to-Service Authentication

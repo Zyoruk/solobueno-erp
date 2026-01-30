@@ -147,21 +147,41 @@ CREATE INDEX idx_auth_events_type ON auth_events(event_type);
 CREATE INDEX idx_auth_events_created ON auth_events(created_at DESC);
 ```
 
-## Domain Entities (Go)
+## Domain Entities (Go with GORM)
 
 ### User
 
 ```go
 type User struct {
-    ID           uuid.UUID  `json:"id"`
-    Email        string     `json:"email"`
-    PasswordHash string     `json:"-"` // Never serialize
-    FirstName    string     `json:"first_name"`
-    LastName     string     `json:"last_name"`
-    IsActive     bool       `json:"is_active"`
-    MustResetPwd bool       `json:"must_reset_password"`
-    CreatedAt    time.Time  `json:"created_at"`
-    UpdatedAt    time.Time  `json:"updated_at"`
+    ID           uuid.UUID  `gorm:"type:uuid;primaryKey;default:gen_random_uuid()" json:"id"`
+    Email        string     `gorm:"uniqueIndex;size:255;not null" json:"email"`
+    PasswordHash string     `gorm:"size:255;not null" json:"-"`
+    FirstName    string     `gorm:"size:100;not null" json:"first_name"`
+    LastName     string     `gorm:"size:100;not null" json:"last_name"`
+    IsActive     bool       `gorm:"default:true;not null;index" json:"is_active"`
+    MustResetPwd bool       `gorm:"default:false;not null" json:"must_reset_password"`
+    CreatedAt    time.Time  `gorm:"autoCreateTime" json:"created_at"`
+    UpdatedAt    time.Time  `gorm:"autoUpdateTime" json:"updated_at"`
+
+    // Associations
+    TenantRoles []UserTenantRole `gorm:"foreignKey:UserID" json:"tenant_roles,omitempty"`
+    Sessions    []Session        `gorm:"foreignKey:UserID" json:"-"`
+}
+```
+
+### Tenant
+
+```go
+type Tenant struct {
+    ID        uuid.UUID `gorm:"type:uuid;primaryKey;default:gen_random_uuid()" json:"id"`
+    Name      string    `gorm:"size:255;not null" json:"name"`
+    Slug      string    `gorm:"uniqueIndex;size:100;not null" json:"slug"`
+    IsActive  bool      `gorm:"default:true;not null" json:"is_active"`
+    CreatedAt time.Time `gorm:"autoCreateTime" json:"created_at"`
+    UpdatedAt time.Time `gorm:"autoUpdateTime" json:"updated_at"`
+
+    // Associations
+    UserRoles []UserTenantRole `gorm:"foreignKey:TenantID" json:"-"`
 }
 ```
 
@@ -196,18 +216,27 @@ func (r Role) Level() int {
 func (r Role) CanManage(other Role) bool {
     return r.Level() > other.Level()
 }
+
+// GormDataType implements GORM's custom type interface
+func (r Role) GormDataType() string {
+    return "varchar(20)"
+}
 ```
 
 ### UserTenantRole
 
 ```go
 type UserTenantRole struct {
-    ID        uuid.UUID `json:"id"`
-    UserID    uuid.UUID `json:"user_id"`
-    TenantID  uuid.UUID `json:"tenant_id"`
-    Role      Role      `json:"role"`
-    CreatedAt time.Time `json:"created_at"`
-    UpdatedAt time.Time `json:"updated_at"`
+    ID        uuid.UUID `gorm:"type:uuid;primaryKey;default:gen_random_uuid()" json:"id"`
+    UserID    uuid.UUID `gorm:"type:uuid;not null;index;uniqueIndex:idx_user_tenant" json:"user_id"`
+    TenantID  uuid.UUID `gorm:"type:uuid;not null;index;uniqueIndex:idx_user_tenant" json:"tenant_id"`
+    Role      Role      `gorm:"size:20;not null;index" json:"role"`
+    CreatedAt time.Time `gorm:"autoCreateTime" json:"created_at"`
+    UpdatedAt time.Time `gorm:"autoUpdateTime" json:"updated_at"`
+
+    // Associations
+    User   User   `gorm:"foreignKey:UserID" json:"-"`
+    Tenant Tenant `gorm:"foreignKey:TenantID" json:"-"`
 }
 ```
 
@@ -215,19 +244,44 @@ type UserTenantRole struct {
 
 ```go
 type Session struct {
-    ID           uuid.UUID  `json:"id"`
-    UserID       uuid.UUID  `json:"user_id"`
-    TenantID     uuid.UUID  `json:"tenant_id"`
-    RefreshToken string     `json:"-"` // Hashed, never expose
-    DeviceInfo   string     `json:"device_info,omitempty"`
-    IPAddress    string     `json:"ip_address,omitempty"`
-    CreatedAt    time.Time  `json:"created_at"`
-    ExpiresAt    time.Time  `json:"expires_at"`
-    RevokedAt    *time.Time `json:"revoked_at,omitempty"`
+    ID           uuid.UUID  `gorm:"type:uuid;primaryKey;default:gen_random_uuid()" json:"id"`
+    UserID       uuid.UUID  `gorm:"type:uuid;not null;index" json:"user_id"`
+    TenantID     uuid.UUID  `gorm:"type:uuid;not null;index" json:"tenant_id"`
+    RefreshToken string     `gorm:"uniqueIndex;size:255;not null" json:"-"`
+    DeviceInfo   string     `gorm:"size:500" json:"device_info,omitempty"`
+    IPAddress    string     `gorm:"size:45" json:"ip_address,omitempty"` // IPv6 max length
+    CreatedAt    time.Time  `gorm:"autoCreateTime" json:"created_at"`
+    ExpiresAt    time.Time  `gorm:"not null;index" json:"expires_at"`
+    RevokedAt    *time.Time `gorm:"index" json:"revoked_at,omitempty"`
+
+    // Associations
+    User   User   `gorm:"foreignKey:UserID" json:"-"`
+    Tenant Tenant `gorm:"foreignKey:TenantID" json:"-"`
 }
 
 func (s *Session) IsValid() bool {
     return s.RevokedAt == nil && time.Now().Before(s.ExpiresAt)
+}
+
+// TableName sets custom table name
+func (Session) TableName() string {
+    return "sessions"
+}
+```
+
+### PasswordResetToken
+
+```go
+type PasswordResetToken struct {
+    ID        uuid.UUID  `gorm:"type:uuid;primaryKey;default:gen_random_uuid()" json:"id"`
+    UserID    uuid.UUID  `gorm:"type:uuid;not null;index" json:"user_id"`
+    TokenHash string     `gorm:"uniqueIndex;size:255;not null" json:"-"`
+    CreatedAt time.Time  `gorm:"autoCreateTime" json:"created_at"`
+    ExpiresAt time.Time  `gorm:"not null" json:"expires_at"`
+    UsedAt    *time.Time `json:"used_at,omitempty"`
+
+    // Associations
+    User User `gorm:"foreignKey:UserID" json:"-"`
 }
 ```
 
@@ -252,18 +306,18 @@ const (
 )
 
 type AuthEvent struct {
-    ID        uuid.UUID              `json:"id"`
-    UserID    *uuid.UUID             `json:"user_id,omitempty"`
-    TenantID  *uuid.UUID             `json:"tenant_id,omitempty"`
-    EventType AuthEventType          `json:"event_type"`
-    IPAddress string                 `json:"ip_address,omitempty"`
-    UserAgent string                 `json:"user_agent,omitempty"`
-    Metadata  map[string]interface{} `json:"metadata,omitempty"`
-    CreatedAt time.Time              `json:"created_at"`
+    ID        uuid.UUID              `gorm:"type:uuid;primaryKey;default:gen_random_uuid()" json:"id"`
+    UserID    *uuid.UUID             `gorm:"type:uuid;index" json:"user_id,omitempty"`
+    TenantID  *uuid.UUID             `gorm:"type:uuid;index" json:"tenant_id,omitempty"`
+    EventType AuthEventType          `gorm:"size:50;not null;index" json:"event_type"`
+    IPAddress string                 `gorm:"size:45" json:"ip_address,omitempty"`
+    UserAgent string                 `gorm:"size:500" json:"user_agent,omitempty"`
+    Metadata  datatypes.JSON         `gorm:"type:jsonb" json:"metadata,omitempty"`
+    CreatedAt time.Time              `gorm:"autoCreateTime;index" json:"created_at"`
 }
 ```
 
-### TokenPair
+### TokenPair (DTO, not persisted)
 
 ```go
 type TokenPair struct {
@@ -275,7 +329,7 @@ type TokenPair struct {
 }
 ```
 
-### Claims (JWT Payload)
+### Claims (JWT Payload, not persisted)
 
 ```go
 type Claims struct {
@@ -283,6 +337,23 @@ type Claims struct {
     TenantID uuid.UUID `json:"tenant_id"`
     Role     Role      `json:"role"`
     Email    string    `json:"email"`
+}
+```
+
+## GORM AutoMigrate
+
+For development, GORM can auto-migrate the schema:
+
+```go
+func AutoMigrate(db *gorm.DB) error {
+    return db.AutoMigrate(
+        &User{},
+        &Tenant{},
+        &UserTenantRole{},
+        &Session{},
+        &PasswordResetToken{},
+        &AuthEvent{},
+    )
 }
 ```
 
