@@ -150,7 +150,7 @@ As a staff member ending my shift, I want to log out securely, so that the next 
 - **User**: Person with access to the system; has globally unique email, hashed password, and can have roles in multiple tenants.
 - **Role**: Permission set (owner, admin, manager, cashier, waiter, kitchen, viewer).
 - **Session**: Active authentication represented by access and refresh tokens; refresh tokens stored in database for revocation support.
-- **Tenant**: Restaurant business; users belong to exactly one tenant.
+- **Tenant**: Restaurant business; users can have roles in multiple tenants.
 - **AuthEvent**: Audit log of authentication actions (login, logout, failed attempt).
 
 ## Success Criteria _(mandatory)_

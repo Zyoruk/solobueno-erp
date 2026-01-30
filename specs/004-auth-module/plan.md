@@ -84,12 +84,8 @@ backend/
 │       ├── events.go             # Domain events (UserCreated, LoginSucceeded, etc.)
 │       └── service.go            # Public module interface
 ├── migrations/
-│   ├── 001_create_users.up.sql
-│   ├── 001_create_users.down.sql
-│   ├── 002_create_sessions.up.sql
-│   ├── 002_create_sessions.down.sql
-│   ├── 003_create_auth_events.up.sql
-│   └── 003_create_auth_events.down.sql
+│   ├── 001_auth_tables.up.sql
+│   └── 001_auth_tables.down.sql
 └── pkg/
     └── jwt/
         ├── jwt.go                # JWT utilities (RS256)
