@@ -258,10 +258,28 @@ curl -X POST http://localhost:8080/api/v1/auth/login \
 
 ## File Locations
 
-| File                           | Purpose            |
-| ------------------------------ | ------------------ |
-| `backend/internal/auth/`       | Auth module code   |
-| `backend/migrations/001_*.sql` | User/tenant schema |
-| `backend/migrations/002_*.sql` | Sessions schema    |
-| `backend/migrations/003_*.sql` | Auth events schema |
-| `backend/pkg/jwt/`             | JWT utilities      |
+| File                                        | Purpose                               |
+| ------------------------------------------- | ------------------------------------- |
+| `backend/internal/auth/`                    | Auth module code                      |
+| `backend/internal/auth/domain/`             | Domain entities and errors            |
+| `backend/internal/auth/repository/`         | Repository interfaces + GORM impl     |
+| `backend/internal/auth/service/`            | Business logic services               |
+| `backend/internal/auth/handler/`            | HTTP handlers and middleware          |
+| `backend/migrations/001_auth_tables.up.sql` | Database schema (users, tenants, etc) |
+| `backend/pkg/jwt/`                          | JWT utilities (RS256)                 |
+
+## Running Tests
+
+```bash
+# Run all auth tests
+cd backend && go test ./internal/auth/... -v
+
+# Run with coverage
+cd backend && go test ./internal/auth/... -cover
+
+# Current coverage:
+# - domain: 88.8%
+# - service: 85.3%
+# - handler: 26.9%
+# - repository: 14.0%
+```
