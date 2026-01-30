@@ -222,6 +222,19 @@ users (globally unique email)
 | Password Reset   | Hashed time-limited token via email                  |
 | RBAC             | 7-role hierarchy with middleware enforcement         |
 
+## Deferred Decisions
+
+### Service-to-Service Authentication
+
+**Status**: Deferred to microservice extraction phase
+
+**Context**: Current modular monolith uses in-process calls between modules. No network-level auth needed.
+
+**Future Options**:
+
+- Phase 2 (Scale): Internal JWT with service accounts
+- Phase 3 (Microservices): mTLS via service mesh (Istio/Linkerd)
+
 ## Open Questions Resolved
 
-All technical decisions made. No outstanding questions.
+All technical decisions made for current scope. Service-to-service auth deferred.
