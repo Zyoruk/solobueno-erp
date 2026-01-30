@@ -14,7 +14,6 @@ func Router(authService *service.AuthService, userService *service.UserService) 
 	r := chi.NewRouter()
 
 	authHandler := handler.NewAuthHandler(authService)
-	userHandler := handler.NewUserHandler(userService)
 	middleware := handler.NewAuthMiddleware(authService)
 
 	// Public routes (no auth required)
