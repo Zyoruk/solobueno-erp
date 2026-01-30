@@ -19,7 +19,7 @@
 
 **Purpose**: Initialize module structure and add required dependencies
 
-- [ ] T001 Add Go dependencies to `backend/go.mod`: gorm.io/gorm, gorm.io/driver/postgres, github.com/golang-jwt/jwt/v5, github.com/alexedwards/argon2id, github.com/google/uuid, github.com/go-chi/chi/v5
+- [ ] T001 Add Go dependencies to `backend/go.mod`: gorm.io/gorm, gorm.io/driver/postgres, gorm.io/datatypes, github.com/golang-jwt/jwt/v5, github.com/alexedwards/argon2id, github.com/google/uuid, github.com/go-chi/chi/v5
 - [ ] T002 [P] Create auth module directory structure at `backend/internal/auth/` with domain/, repository/, service/, handler/ subdirectories
 - [ ] T003 [P] Create JWT utilities directory at `backend/pkg/jwt/`
 
@@ -323,22 +323,22 @@ Phase 13:
 
 ### Estimated Task Counts
 
-| Phase         | Tasks  | Description               |
-| ------------- | ------ | ------------------------- |
-| Setup         | 3      | Dependencies, directories |
-| Migrations    | 8      | Database schema           |
-| Domain        | 8      | Entities, errors, events  |
-| Repository    | 8      | Interfaces + PostgreSQL   |
-| Core Services | 7      | JWT, Password, Token      |
-| US1 (Login)   | 8      | Login flow + handler      |
-| US2 (Refresh) | 5      | Token refresh             |
-| US4 (RBAC)    | 6      | Middleware + /me          |
-| US3 (Users)   | 8      | User CRUD                 |
-| US5 (Logout)  | 5      | Logout flow               |
-| Passwords     | 9      | Change + Reset            |
-| Module        | 3      | Interface, router, wiring |
-| Polish        | 6      | Validation, testing       |
-| **Total**     | **84** |                           |
+| Phase             | Tasks  | Description                         |
+| ----------------- | ------ | ----------------------------------- |
+| Setup             | 3      | Dependencies, directories           |
+| Database (GORM)   | 6      | Connection, AutoMigrate, SQL backup |
+| Domain            | 10     | Entities with GORM tags, errors     |
+| Repository (GORM) | 6      | Interfaces + GORM implementations   |
+| Core Services     | 7      | JWT, Password, Token                |
+| US1 (Login)       | 8      | Login flow + handler                |
+| US2 (Refresh)     | 5      | Token refresh                       |
+| US4 (RBAC)        | 6      | Middleware + /me                    |
+| US3 (Users)       | 8      | User CRUD                           |
+| US5 (Logout)      | 5      | Logout flow                         |
+| Passwords         | 9      | Change + Reset                      |
+| Module            | 3      | Interface, router, wiring           |
+| Polish            | 6      | Validation, testing                 |
+| **Total**         | **82** |                                     |
 
 ---
 

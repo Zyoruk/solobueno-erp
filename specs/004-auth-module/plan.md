@@ -67,13 +67,12 @@ backend/
 │       │   ├── auth_event.go     # Audit log entity
 │       │   └── errors.go         # Domain errors
 │       ├── repository/
-│       │   ├── user_repo.go      # User repository interface
-│       │   ├── session_repo.go   # Session repository interface
-│       │   ├── event_repo.go     # Auth event repository interface
-│       │   └── postgres/         # PostgreSQL implementations
-│       │       ├── user.go
-│       │       ├── session.go
-│       │       └── event.go
+│       │   ├── user_repo.go           # User repository (interface + GORM impl)
+│       │   ├── session_repo.go        # Session repository (interface + GORM impl)
+│       │   ├── event_repo.go          # Auth event repository (interface + GORM impl)
+│       │   ├── tenant_repo.go         # Tenant repository (interface + GORM impl)
+│       │   ├── password_reset_repo.go # Password reset repository (interface + GORM impl)
+│       │   └── repository_test.go     # Repository tests (SQLite in-memory)
 │       ├── service/
 │       │   ├── auth_service.go   # Login, logout, refresh
 │       │   ├── user_service.go   # User CRUD, password reset
@@ -97,7 +96,7 @@ backend/
         └── keys.go               # Key management
 ```
 
-**Structure Decision**: Following constitution's modular monolith pattern with `internal/auth` as the bounded context. JWT utilities in `pkg/` for potential reuse by other modules.
+**Structure Decision**: Following constitution's modular monolith pattern with `internal/auth` as the bounded context. JWT utilities in `pkg/` for potential reuse by other modules. GORM implementations co-located with interfaces (no separate `postgres/` directory) for simplicity.
 
 ## Complexity Tracking
 
