@@ -19,18 +19,18 @@
     "prepare": "husky install"
   },
   "devDependencies": {
-    "@types/node": "^20.0.0",
+    "@types/node": "^25.5.0",
     "@typescript-eslint/eslint-plugin": "7",
     "@typescript-eslint/parser": "7",
     "@vitest/coverage-v8": "^4.0.18",
-    "eslint": "^8.57.0",
+    "eslint": "^10.0.3",
     "eslint-config-prettier": "^10.1.8",
     "husky": "^9.0.0",
     "lint-staged": "^15.0.0",
     "prettier": "^3.2.0",
     "turbo": "^2.0.0",
     "typescript": "^5.4.0",
-    "vitest": "^4.0.18"
+    "vitest": "^4.1.0"
   },
   "lint-staged": {
     "*.{ts,tsx,js,jsx}": [
