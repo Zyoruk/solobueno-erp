@@ -48,13 +48,7 @@ export interface MenuCategory extends TenantEntity {
 
 // Order types
 export type OrderStatus =
-  | 'draft'
-  | 'sent'
-  | 'in_progress'
-  | 'ready'
-  | 'served'
-  | 'paid'
-  | 'cancelled';
+  'draft' | 'sent' | 'in_progress' | 'ready' | 'served' | 'paid' | 'cancelled';
 
 export interface Order extends TenantEntity {
   tableId?: string;

@@ -2127,14 +2127,15 @@ cost-effective on minimal infrastructure and scale progressively as demand grows
 **Target**: MVP, early customers, 1-10 tenants, <100 concurrent users
 
 **VM Specifications**:
-| Provider | Instance | vCPU | RAM | Storage | Est. Cost | Notes |
-|----------|----------|------|-----|---------|-----------|-------|
-| **AWS Lightsail** | 4GB | 2 | 4GB | 80GB SSD | **$20/mo** | Recommended - AWS ecosystem, easy upgrade |
-| AWS Lightsail | 8GB | 2 | 8GB | 160GB SSD | $40/mo | If more RAM needed |
-| Hetzner | CX31 | 2 | 8GB | 80GB SSD | €8/mo | Best price, EU data centers |
-| DigitalOcean | Basic Droplet | 2 | 4GB | 80GB SSD | $24/mo | Good UX, simple |
-| Linode | Linode 4GB | 2 | 4GB | 80GB SSD | $24/mo | Good performance |
-| AWS EC2 | t3.medium | 2 | 4GB | 80GB EBS | ~$35/mo | Only if need full AWS features |
+
+| Provider          | Instance      | vCPU | RAM | Storage   | Est. Cost  | Notes                                     |
+| ----------------- | ------------- | ---- | --- | --------- | ---------- | ----------------------------------------- |
+| **AWS Lightsail** | 4GB           | 2    | 4GB | 80GB SSD  | **$20/mo** | Recommended - AWS ecosystem, easy upgrade |
+| AWS Lightsail     | 8GB           | 2    | 8GB | 160GB SSD | $40/mo     | If more RAM needed                        |
+| Hetzner           | CX31          | 2    | 8GB | 80GB SSD  | €8/mo      | Best price, EU data centers               |
+| DigitalOcean      | Basic Droplet | 2    | 4GB | 80GB SSD  | $24/mo     | Good UX, simple                           |
+| Linode            | Linode 4GB    | 2    | 4GB | 80GB SSD  | $24/mo     | Good performance                          |
+| AWS EC2           | t3.medium     | 2    | 4GB | 80GB EBS  | ~$35/mo    | Only if need full AWS features            |
 
 **Why AWS Lightsail is Recommended**:
 
@@ -2301,20 +2302,22 @@ find $BACKUP_DIR -name "*.gz" -mtime +7 -delete
 **Trigger to move**: Database >50GB, need HA, >50 concurrent users
 
 **AWS Lightsail Managed Services** (recommended upgrade path):
-| Component | Self-Hosted (Phase 1) | Lightsail Managed | Est. Cost |
-|-----------|----------------------|-------------------|-----------|
-| PostgreSQL | Docker | Lightsail Database | $15/mo (1GB) |
-| Redis | Docker | Lightsail Database | $10/mo |
-| Storage | MinIO | S3 | ~$5/mo |
-| Load Balancer | Caddy | Lightsail LB | $18/mo |
-| Backend | Single container | Multiple Lightsail instances | $20/mo each |
+
+| Component     | Self-Hosted (Phase 1) | Lightsail Managed            | Est. Cost    |
+| ------------- | --------------------- | ---------------------------- | ------------ |
+| PostgreSQL    | Docker                | Lightsail Database           | $15/mo (1GB) |
+| Redis         | Docker                | Lightsail Database           | $10/mo       |
+| Storage       | MinIO                 | S3                           | ~$5/mo       |
+| Load Balancer | Caddy                 | Lightsail LB                 | $18/mo       |
+| Backend       | Single container      | Multiple Lightsail instances | $20/mo each  |
 
 **Alternative Managed Options**:
-| Component | AWS (Full) | DigitalOcean | Other |
-|-----------|------------|--------------|-------|
-| PostgreSQL | RDS | Managed DB | PlanetScale, Supabase |
-| Redis | ElastiCache | Managed Redis | Upstash (serverless) |
-| Storage | S3 | Spaces | Cloudflare R2 |
+
+| Component  | AWS (Full)  | DigitalOcean  | Other                 |
+| ---------- | ----------- | ------------- | --------------------- |
+| PostgreSQL | RDS         | Managed DB    | PlanetScale, Supabase |
+| Redis      | ElastiCache | Managed Redis | Upstash (serverless)  |
+| Storage    | S3          | Spaces        | Cloudflare R2         |
 
 **Benefits**:
 
@@ -2329,12 +2332,13 @@ find $BACKUP_DIR -name "*.gz" -mtime +7 -delete
 **Trigger to move**: Need auto-scaling, >100 concurrent users, multiple services
 
 **Options** (cost-effective to enterprise):
-| Option | Cost | Complexity | Best For |
-|--------|------|------------|----------|
-| Docker Swarm | Low | Low | Simple scaling, small team |
-| k3s (lightweight K8s) | Low | Medium | Edge, single-node to small cluster |
-| DigitalOcean K8s | Medium | Medium | Managed, predictable cost |
-| AWS EKS / GKE | High | High | Enterprise, advanced features |
+
+| Option                | Cost   | Complexity | Best For                           |
+| --------------------- | ------ | ---------- | ---------------------------------- |
+| Docker Swarm          | Low    | Low        | Simple scaling, small team         |
+| k3s (lightweight K8s) | Low    | Medium     | Edge, single-node to small cluster |
+| DigitalOcean K8s      | Medium | Medium     | Managed, predictable cost          |
+| AWS EKS / GKE         | High   | High       | Enterprise, advanced features      |
 
 **K8s Manifests Location**:
 
