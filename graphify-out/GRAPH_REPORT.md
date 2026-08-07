@@ -151,9 +151,9 @@
 
 ## Hyperedges (group relationships)
 
-- **Caveman toolkit skill family** — _agents_skills_caveman_readme_caveman, _agents_skills_caveman_commit_readme_caveman_commit, _agents_skills_caveman_compress_readme_caveman_compress, _agents_skills_caveman_help_readme_caveman_help, _agents_skills_caveman_review_readme_caveman_review, _agents_skills_caveman_stats_readme_caveman_stats, _agents_skills_cavecrew_readme_cavecrew [INFERRED 0.85]
-- **cavecrew locate-fix-verify delegation chain** — _agents_skills_cavecrew_readme_cavecrew_investigator, _agents_skills_cavecrew_readme_cavecrew_builder, _agents_skills_cavecrew_readme_cavecrew_reviewer [EXTRACTED 1.00]
-- **speckit spec-driven development pipeline** — _cursor_commands_speckit_constitution_speckit_constitution, _cursor_commands_speckit_clarify_speckit_clarify, _cursor_commands_speckit_checklist_speckit_checklist, _cursor_commands_speckit_analyze_speckit_analyze, _cursor_commands_speckit_implement_speckit_implement [INFERRED 0.85]
+- **Caveman toolkit skill family** — \_agents_skills_caveman_readme_caveman, \_agents_skills_caveman_commit_readme_caveman_commit, \_agents_skills_caveman_compress_readme_caveman_compress, \_agents_skills_caveman_help_readme_caveman_help, \_agents_skills_caveman_review_readme_caveman_review, \_agents_skills_caveman_stats_readme_caveman_stats, \_agents_skills_cavecrew_readme_cavecrew [INFERRED 0.85]
+- **cavecrew locate-fix-verify delegation chain** — \_agents_skills_cavecrew_readme_cavecrew_investigator, \_agents_skills_cavecrew_readme_cavecrew_builder, \_agents_skills_cavecrew_readme_cavecrew_reviewer [EXTRACTED 1.00]
+- **speckit spec-driven development pipeline** — \_cursor_commands_speckit_constitution_speckit_constitution, \_cursor_commands_speckit_clarify_speckit_clarify, \_cursor_commands_speckit_checklist_speckit_checklist, \_cursor_commands_speckit_analyze_speckit_analyze, \_cursor_commands_speckit_implement_speckit_implement [INFERRED 0.85]
 - **Frontline Operations UX Pattern** — specify_memory_constitution_mobilefirstforoperations, specify_memory_constitution_offlinefirstoperations, specify_memory_constitution_usercentricinterfacedesign [INFERRED 0.85]
 - **Multi-Country Expansion Strategy** — specify_memory_constitution_plugindrivenarchitecture, specify_memory_constitution_i18npluggablecompliance, specify_memory_constitution_whitelabelmultitenant [INFERRED 0.85]
 - **001-init-monorepo Feature Artifact Bundle** — specs_001_init_monorepo_checklists_requirements_speckitchecklist, specs_001_init_monorepo_contracts_readme_contractsoverview, specs_001_init_monorepo_data_model_datamodeldoc [EXTRACTED 1.00]
@@ -184,7 +184,7 @@ Nodes (33): main(), print_usage(), backup_dir_for(), build_compress_prompt(), bu
 ### Community 3 - "Turborepo Task Config"
 
 Cohesion: 0.07
-Nodes (31): .env, **/.env.\*local, .next/**, NODE_ENV, *.tsbuildinfo, dependsOn, env, outputs (+23 more)
+Nodes (31): .env, **/.env.\*local, .next/**, NODE_ENV, \*.tsbuildinfo, dependsOn, env, outputs (+23 more)
 
 ### Community 4 - "Caveman Commit & Compress Skills"
 
@@ -219,12 +219,12 @@ Nodes (23): dependencies, @solobueno/analytics, @solobueno/graphql, @solobueno/i
 ### Community 10 - "Docker Local Dev Services"
 
 Cohesion: 0.17
-Nodes (24): Named Volume Data Persistence Strategy, Simple Development Credentials, Enhanced docker-compose.yml (002), solobueno-network Docker Network, Named Docker Volumes (postgres/redis/minio data), health-check.sh Script, Native Docker Health Check Strategy, Makefile docker-* Targets (+16 more)
+Nodes (24): Named Volume Data Persistence Strategy, Simple Development Credentials, Enhanced docker-compose.yml (002), solobueno-network Docker Network, Named Docker Volumes (postgres/redis/minio data), health-check.sh Script, Native Docker Health Check Strategy, Makefile docker-\* Targets (+16 more)
 
 ### Community 11 - "Root Workspace Package Config"
 
 Cohesion: 0.09
-Nodes (22): engines, node, pnpm, lint-staged, *.{json,md,yml,yaml}, *.{ts,tsx,js,jsx}, name, packageManager (+14 more)
+Nodes (22): engines, node, pnpm, lint-staged, _.{json,md,yml,yaml}, _.{ts,tsx,js,jsx}, name, packageManager (+14 more)
 
 ### Community 12 - "Admin App Package"
 
