@@ -121,7 +121,7 @@ func TestMemoryRateLimiter_GetResetTime(t *testing.T) {
 	key := "time-key"
 
 	// Before any requests
-	resetTime, err := rl.GetResetTime(ctx, key)
+	_, err := rl.GetResetTime(ctx, key)
 	if err != nil {
 		t.Fatalf("GetResetTime() error: %v", err)
 	}
@@ -129,7 +129,7 @@ func TestMemoryRateLimiter_GetResetTime(t *testing.T) {
 	// Make a request
 	rl.Allow(ctx, key)
 
-	resetTime, _ = rl.GetResetTime(ctx, key)
+	resetTime, _ := rl.GetResetTime(ctx, key)
 
 	// Reset time should be in the future
 	if resetTime.Before(time.Now()) {

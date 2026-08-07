@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/google/uuid"
@@ -160,20 +161,24 @@ func GetClaims(ctx context.Context) (*domain.Claims, bool) {
 	return claims, ok
 }
 
-// GetClientIP extracts the client IP address from the request.
+// GetClientIP extracts the client IP address from the request. Forwarded
+// headers (X-Forwarded-For, X-Real-IP) are client-controlled and are only
+// trusted when the server sits behind a known reverse proxy, since IP is
+// used as a rate-limit key for login/password-reset and a spoofed header
+// would let an attacker bypass that limit entirely.
 func GetClientIP(r *http.Request) string {
-	// Check X-Forwarded-For header (for proxies)
-	xff := r.Header.Get("X-Forwarded-For")
-	if xff != "" {
-		// Take the first IP in the list
-		parts := strings.Split(xff, ",")
-		return strings.TrimSpace(parts[0])
-	}
+	// ponytail: single env toggle, no per-proxy CIDR allowlist yet; add one
+	// if multiple untrusted networks can reach the app directly.
+	if os.Getenv("TRUST_PROXY_HEADERS") == "true" {
+		if xff := r.Header.Get("X-Forwarded-For"); xff != "" {
+			// Take the first IP in the list
+			parts := strings.Split(xff, ",")
+			return strings.TrimSpace(parts[0])
+		}
 
-	// Check X-Real-IP header
-	xri := r.Header.Get("X-Real-IP")
-	if xri != "" {
-		return xri
+		if xri := r.Header.Get("X-Real-IP"); xri != "" {
+			return xri
+		}
 	}
 
 	// Fall back to RemoteAddr

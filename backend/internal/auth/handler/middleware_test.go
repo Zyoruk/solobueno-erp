@@ -71,28 +71,39 @@ func TestExtractBearerToken(t *testing.T) {
 func TestGetClientIP(t *testing.T) {
 	tests := []struct {
 		name       string
+		trustProxy bool
 		xff        string
 		xRealIP    string
 		remoteAddr string
 		want       string
 	}{
 		{
-			name:       "X-Forwarded-For single",
+			name:       "X-Forwarded-For single, proxy trusted",
+			trustProxy: true,
 			xff:        "192.168.1.1",
 			remoteAddr: "10.0.0.1:12345",
 			want:       "192.168.1.1",
 		},
 		{
-			name:       "X-Forwarded-For multiple",
+			name:       "X-Forwarded-For multiple, proxy trusted",
+			trustProxy: true,
 			xff:        "192.168.1.1, 10.0.0.2, 172.16.0.1",
 			remoteAddr: "10.0.0.1:12345",
 			want:       "192.168.1.1",
 		},
 		{
-			name:       "X-Real-IP",
+			name:       "X-Real-IP, proxy trusted",
+			trustProxy: true,
 			xRealIP:    "192.168.1.2",
 			remoteAddr: "10.0.0.1:12345",
 			want:       "192.168.1.2",
+		},
+		{
+			name:       "X-Forwarded-For ignored when proxy not trusted",
+			trustProxy: false,
+			xff:        "192.168.1.1",
+			remoteAddr: "10.0.0.1:12345",
+			want:       "10.0.0.1",
 		},
 		{
 			name:       "RemoteAddr only",
@@ -108,6 +119,9 @@ func TestGetClientIP(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			if tt.trustProxy {
+				t.Setenv("TRUST_PROXY_HEADERS", "true")
+			}
 			req := httptest.NewRequest("GET", "/", nil)
 			if tt.xff != "" {
 				req.Header.Set("X-Forwarded-For", tt.xff)
