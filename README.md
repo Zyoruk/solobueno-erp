@@ -88,6 +88,47 @@ solobueno-erp/
 - [Feature Specifications](specs/)
 - [API Documentation](docs/api/)
 
+## Knowledge Graph (graphify)
+
+This repo can be explored as a knowledge graph instead of raw grep/browsing.
+[graphify](https://github.com/safishamsi/graphify) extracts code (AST) and
+docs/specs (semantic) into a graph with community detection, "god node"
+analysis, and cross-file relationship queries.
+
+### Install
+
+```bash
+pip install graphifyy
+# or, with uv:
+uv tool install graphifyy
+```
+
+If you use [Claude Code](https://claude.com/claude-code), the
+[graphify skill](https://github.com/safishamsi/graphify) is available as a
+slash command — no separate install step needed beyond the skill itself.
+
+### Build and query
+
+```bash
+# Build the graph for the whole repo (writes to graphify-out/, gitignored)
+graphify .
+
+# Ask a question - returns a scoped subgraph instead of a full-text dump
+graphify query "How does the auth module handle token refresh?"
+
+# Trace a relationship between two concepts
+graphify path "AuthModule" "OrdersModule"
+
+# Explain a single concept
+graphify explain "Saga Pattern"
+```
+
+In Claude Code, use `/graphify` (build) and `/graphify query "<question>"`
+(ask) directly - see [CLAUDE.md](CLAUDE.md) for the project's rules on when
+to query the graph vs. read source directly. After changing code, run
+`graphify update .` to refresh the graph incrementally (AST-only, no LLM
+cost).
+
 ## License
 
 Proprietary - All rights reserved

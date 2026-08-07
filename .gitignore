@@ -69,3 +69,6 @@ ios/build/
 # Generated files
 generated/
 __generated__/
+
+# Graphify knowledge graph (regenerate with `graphify .`)
+graphify-out/
