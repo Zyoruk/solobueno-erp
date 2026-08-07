@@ -93,7 +93,10 @@ solobueno-erp/
 This repo can be explored as a knowledge graph instead of raw grep/browsing.
 [graphify](https://github.com/safishamsi/graphify) extracts code (AST) and
 docs/specs (semantic) into a graph with community detection, "god node"
-analysis, and cross-file relationship queries.
+analysis, and cross-file relationship queries. The built graph is checked
+into [`graphify-out/`](graphify-out/) (`graph.json`, `graph.html`,
+`GRAPH_REPORT.md`) so it's queryable without a build step; `graphify-out/cache/`
+and `cost.json` are local bookkeeping and stay gitignored.
 
 ### Install
 
@@ -110,7 +113,7 @@ slash command — no separate install step needed beyond the skill itself.
 ### Build and query
 
 ```bash
-# Build the graph for the whole repo (writes to graphify-out/, gitignored)
+# Build/refresh the graph for the whole repo (writes to graphify-out/, committed)
 graphify .
 
 # Ask a question - returns a scoped subgraph instead of a full-text dump
@@ -127,7 +130,7 @@ In Claude Code, use `/graphify` (build) and `/graphify query "<question>"`
 (ask) directly - see [CLAUDE.md](CLAUDE.md) for the project's rules on when
 to query the graph vs. read source directly. After changing code, run
 `graphify update .` to refresh the graph incrementally (AST-only, no LLM
-cost).
+cost) and commit the updated `graphify-out/` files with your change.
 
 ## License
 

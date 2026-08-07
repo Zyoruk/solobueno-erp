@@ -70,5 +70,7 @@ ios/build/
 generated/
 __generated__/
 
-# Graphify knowledge graph (regenerate with `graphify .`)
-graphify-out/
+# Graphify local bookkeeping (not shared repo content)
+graphify-out/cache/
+graphify-out/cost.json
+graphify-out/.graphify_*
