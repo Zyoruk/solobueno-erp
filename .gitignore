@@ -69,3 +69,8 @@ ios/build/
 # Generated files
 generated/
 __generated__/
+
+# Graphify local bookkeeping (not shared repo content)
+graphify-out/cache/
+graphify-out/cost.json
+graphify-out/.graphify_*
