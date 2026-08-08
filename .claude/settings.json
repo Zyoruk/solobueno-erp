@@ -1,0 +1,24 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|Grep",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/zyoruk/.pyenv/versions/3.14.2/bin/graphify hook-guard search"
+          }
+        ]
+      },
+      {
+        "matcher": "Read|Glob",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/zyoruk/.pyenv/versions/3.14.2/bin/graphify hook-guard read"
+          }
+        ]
+      }
+    ]
+  }
+}
