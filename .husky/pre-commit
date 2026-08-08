@@ -1,1 +1,8 @@
 pnpm lint-staged
+
+# Keep the graphify-out/ knowledge graph in sync with committed code.
+# No-ops if graphify isn't installed (optional dev tool).
+if command -v graphify >/dev/null 2>&1; then
+  graphify update . >/dev/null 2>&1 || true
+  git add graphify-out/
+fi

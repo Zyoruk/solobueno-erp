@@ -116,6 +116,9 @@ backend-build: ## Build Go backend
 backend-test: ## Test Go backend
 	cd backend && go test -v ./...
 
+backend-test-e2e: ## Run e2e tests repeatedly (MODULE=name for one module, default all; COUNT=N default 1)
+	cd backend && go test ./internal/$${MODULE:-...} -run TestE2E -count=$${COUNT:-1} -v
+
 backend-run: ## Run Go backend server
 	cd backend && go run ./cmd/server
 
