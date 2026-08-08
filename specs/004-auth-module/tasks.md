@@ -330,7 +330,7 @@ Phase 13:
 ### Estimated Task Counts
 
 | Phase             | Tasks  | Description                         |
-| ----------------- | ------ | ------------------------------------ |
+| ----------------- | ------ | ----------------------------------- |
 | Setup             | 3      | Dependencies, directories           |
 | Database (GORM)   | 6      | Connection, AutoMigrate, SQL backup |
 | Domain            | 10     | Entities with GORM tags, errors     |
@@ -358,3 +358,38 @@ Phase 13:
 - Rate limiter abstracted for Redis upgrade path
 - Domain events published but not consumed (consumers in future modules)
 - Password reset email sending is stubbed (AWS SES integration in future feature)
+
+---
+
+## Phase 14: Convergence
+
+**Purpose**: Close gaps between the 2026-08-08 clarify-session spec/plan/contracts updates and the current codebase (see convergence findings F1-F6)
+
+### Account Lockout (FR-011a)
+
+- [x] T087 Add `FailedLoginCount int` and `LockedUntil *time.Time` fields + `IsLocked()` method to `backend/internal/auth/domain/user.go` per FR-011a (missing)
+- [x] T088 Add `EventAccountLocked`/`EventAccountUnlocked` AuthEventType constants to `backend/internal/auth/domain/auth_event.go` per FR-011a (missing)
+- [x] T089 Add `ErrAccountLocked` domain error at `backend/internal/auth/domain/errors.go` per FR-011a (missing)
+- [x] T090 Implement lockout check/increment/reset in `AuthService.Login` at `backend/internal/auth/service/auth_service.go`: reject with `ErrAccountLocked` if `user.IsLocked()`, increment `FailedLoginCount` and set `LockedUntil` (now+15min) after the 5th consecutive failure within 15 minutes, reset `FailedLoginCount` to 0 on success, log `account_locked` event when triggered per FR-011a (missing)
+- [x] T091 Add unit tests for lockout behavior at `backend/internal/auth/service/auth_service_test.go` (5 fails locks, 15-min window, reset on success) per FR-011a (missing)
+- [x] T092 Map `ErrAccountLocked` to `423 account_locked` (with `locked_until`) in `backend/internal/auth/handler/auth_handler.go`, plus a handler test, per contracts/auth-api.md (missing)
+- [x] T093 Add `Unlock` method to `UserService` at `backend/internal/auth/service/user_service.go` (clears `FailedLoginCount`/`LockedUntil`, logs `account_unlocked`) with unit test per FR-011a (missing)
+- [x] T094 Add `POST /users/{id}/unlock` (Manager+) handler + route in `backend/internal/auth/handler/user_handler.go` and `backend/internal/auth/router.go`, with test, per contracts/auth-api.md (missing)
+
+### Temp Password & Existing-User Linking (FR-012)
+
+- [x] T095 Remove `TemporaryPassword` from the API response in `backend/internal/auth/handler/dto.go` and `user_handler.go` per contracts/auth-api.md (contradicts)
+- [x] T096 Add an `Emailer` port (interface) and a logging/stub adapter (matching the existing Cache/Logger adapter pattern) wired into `UserServiceConfig`, per FR-012 (missing)
+- [x] T097 Wire `UserService.Create` to email the generated temp password to the new user via the `Emailer` port instead of returning it, with unit test (mock emailer) per FR-012 (missing)
+- [x] T098 Change `UserService.Create` at `backend/internal/auth/service/user_service.go:77` to link a new `UserTenantRole` (instead of `ErrEmailExists`) when the email already has a global account, log `tenant_role_added`, email the existing user, and return a distinct "linked" result; update `user_handler.go` to return `200` (linked) vs `201` (new) per contracts/auth-api.md (missing)
+- [x] T099 Add unit tests for the existing-user-tenant-link path in `backend/internal/auth/service/user_service_test.go` and `backend/internal/auth/handler/user_handler_test.go` per FR-012 (missing)
+
+### Server Startup (plan: Project Structure, T006)
+
+- [x] T100 Wire `backend/cmd/server/main.go` to load config from env, connect to Postgres via `database.MustConnect`, load JWT keys via `jwt.KeyManager.LoadKeysFromEnv`, build `auth.NewModule`, mount its routes on a `chi.Router`, and start `http.ListenAndServe` with graceful shutdown, per plan.md Project Structure and T006 (contradicts)
+
+### Migration Sync (data-model.md)
+
+- [x] T101 Add `failed_login_count`/`locked_until` columns to `backend/migrations/001_auth_tables.up.sql` (and drop in `.down.sql`) and the 3 new `auth_event_type` enum values, to match `data-model.md` per data-model.md (partial)
+
+**Checkpoint**: Codebase matches the 2026-08-08 clarified spec/plan/contracts. Verified: `go build ./...` clean, `go vet ./...` clean, full `go test ./...` passes, coverage gate met (domain 87.8%, handler 80.7%, repository 83.6%, service 85.7% — all ≥80%), and the wired `cmd/server` was run live against real Postgres + generated JWT keys with `curl` (login, /me with RBAC middleware, and the new account-lockout path confirmed via DB state after 5 failed attempts).

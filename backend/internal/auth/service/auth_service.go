@@ -3,11 +3,18 @@ package service
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/solobueno/erp/internal/auth/domain"
 	"github.com/solobueno/erp/internal/auth/repository"
 )
+
+// maxFailedLoginAttempts is the number of consecutive failed logins that locks an account.
+const maxFailedLoginAttempts = 5
+
+// accountLockDuration is how long an account stays locked after hitting maxFailedLoginAttempts.
+const accountLockDuration = 15 * time.Minute
 
 // AuthService handles authentication operations.
 type AuthService struct {
@@ -63,6 +70,8 @@ type LoginResponse struct {
 	Role      domain.Role
 	// Tenants is set when user needs to select a tenant
 	Tenants []TenantInfo
+	// LockedUntil is set when the account is currently locked out
+	LockedUntil *time.Time
 }
 
 // TenantInfo contains basic tenant information.
@@ -103,12 +112,35 @@ func (s *AuthService) Login(ctx context.Context, req LoginRequest) (*LoginRespon
 		return nil, err
 	}
 
+	// Check account lockout (independent of the IP rate limit above)
+	if user.IsLocked() {
+		s.logEvent(ctx, domain.EventLoginFailed, &user.ID, nil, req.IPAddress, req.UserAgent, map[string]interface{}{
+			"reason": "account_locked",
+		})
+		return &LoginResponse{LockedUntil: user.LockedUntil}, domain.ErrAccountLocked
+	}
+
 	// Verify password
 	match, err := s.passwordSvc.Verify(req.Password, user.PasswordHash)
 	if err != nil {
 		return nil, err
 	}
 	if !match {
+		user.FailedLoginCount++
+		var lockedUntil *time.Time
+		if user.FailedLoginCount >= maxFailedLoginAttempts {
+			until := time.Now().Add(accountLockDuration)
+			user.LockedUntil = &until
+			lockedUntil = &until
+		}
+		if err := s.userRepo.Update(ctx, user); err != nil {
+			return nil, err
+		}
+		if lockedUntil != nil {
+			s.logEvent(ctx, domain.EventAccountLocked, &user.ID, nil, req.IPAddress, req.UserAgent, map[string]interface{}{
+				"failed_login_count": user.FailedLoginCount,
+			})
+		}
 		s.logEvent(ctx, domain.EventLoginFailed, &user.ID, nil, req.IPAddress, req.UserAgent, map[string]interface{}{
 			"reason": "invalid_password",
 		})
@@ -121,6 +153,15 @@ func (s *AuthService) Login(ctx context.Context, req LoginRequest) (*LoginRespon
 			"reason": "account_disabled",
 		})
 		return nil, domain.ErrAccountDisabled
+	}
+
+	// Successful credential check - reset lockout counter
+	if user.FailedLoginCount != 0 || user.LockedUntil != nil {
+		user.FailedLoginCount = 0
+		user.LockedUntil = nil
+		if err := s.userRepo.Update(ctx, user); err != nil {
+			return nil, err
+		}
 	}
 
 	// Handle tenant selection

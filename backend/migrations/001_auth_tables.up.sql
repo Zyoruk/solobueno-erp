@@ -14,12 +14,15 @@ CREATE TABLE IF NOT EXISTS users (
     last_name       VARCHAR(100) NOT NULL,
     is_active       BOOLEAN NOT NULL DEFAULT true,
     must_reset_pwd  BOOLEAN NOT NULL DEFAULT false,
+    failed_login_count INTEGER NOT NULL DEFAULT 0,
+    locked_until    TIMESTAMPTZ,
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 CREATE INDEX IF NOT EXISTS idx_users_active ON users(is_active) WHERE is_active = true;
+CREATE INDEX IF NOT EXISTS idx_users_locked ON users(locked_until) WHERE locked_until IS NOT NULL;
 
 -- Tenants table
 CREATE TABLE IF NOT EXISTS tenants (
@@ -92,6 +95,7 @@ CREATE TABLE IF NOT EXISTS auth_events (
         'login_success', 'login_failed', 'logout', 'token_refresh',
         'password_changed', 'password_reset_requested', 'password_reset_completed',
         'account_created', 'account_disabled', 'account_enabled',
+        'account_locked', 'account_unlocked', 'tenant_role_added',
         'role_changed', 'session_revoked'
     )),
     ip_address      VARCHAR(45),

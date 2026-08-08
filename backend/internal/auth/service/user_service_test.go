@@ -82,24 +82,63 @@ func TestUserService_Create_CannotAssignRole(t *testing.T) {
 	}
 }
 
-func TestUserService_Create_EmailExists(t *testing.T) {
+func TestUserService_Create_EmailExistsInSameTenant(t *testing.T) {
 	userSvc, userRepo, _, _, _ := setupUserService(t)
 	ctx := context.Background()
 
-	// Add existing user
+	tenantID := uuid.New()
+	existingID := uuid.New()
 	userRepo.AddUser(&domain.User{
-		ID:    uuid.New(),
+		ID:    existingID,
 		Email: "existing@example.com",
+		TenantRoles: []domain.UserTenantRole{
+			{UserID: existingID, TenantID: tenantID, Role: domain.RoleWaiter},
+		},
 	})
 
 	_, err := userSvc.Create(ctx, CreateUserRequest{
 		Email:    "existing@example.com",
-		TenantID: uuid.New(),
+		TenantID: tenantID,
 		Role:     domain.RoleWaiter,
 	}, domain.RoleManager)
 
 	if err != domain.ErrEmailExists {
 		t.Errorf("Expected ErrEmailExists, got %v", err)
+	}
+}
+
+func TestUserService_Create_LinksExistingUserToNewTenant(t *testing.T) {
+	userSvc, userRepo, _, _, _ := setupUserService(t)
+	ctx := context.Background()
+
+	existingID := uuid.New()
+	otherTenantID := uuid.New()
+	userRepo.AddUser(&domain.User{
+		ID:    existingID,
+		Email: "existing@example.com",
+		TenantRoles: []domain.UserTenantRole{
+			{UserID: existingID, TenantID: otherTenantID, Role: domain.RoleWaiter},
+		},
+	})
+
+	newTenantID := uuid.New()
+	resp, err := userSvc.Create(ctx, CreateUserRequest{
+		Email:    "existing@example.com",
+		TenantID: newTenantID,
+		Role:     domain.RoleManager,
+	}, domain.RoleAdmin)
+
+	if err != nil {
+		t.Fatalf("Create failed: %v", err)
+	}
+	if !resp.LinkedExistingAccount {
+		t.Error("expected LinkedExistingAccount to be true")
+	}
+	if resp.TemporaryPassword != "" {
+		t.Error("linked existing user must not get a new temporary password")
+	}
+	if resp.User.ID != existingID {
+		t.Errorf("expected the same existing user, got a different ID")
 	}
 }
 
@@ -240,6 +279,67 @@ func TestUserService_Update_Deactivate(t *testing.T) {
 
 	if user.IsActive {
 		t.Error("User should be deactivated")
+	}
+}
+
+func TestUserService_Unlock_Success(t *testing.T) {
+	userSvc, userRepo, _, _, _ := setupUserService(t)
+	ctx := context.Background()
+
+	userID := uuid.New()
+	tenantID := uuid.New()
+	lockedUntil := time.Now().Add(10 * time.Minute)
+
+	userRepo.AddUser(&domain.User{
+		ID:               userID,
+		Email:            "locked@example.com",
+		IsActive:         true,
+		FailedLoginCount: 5,
+		LockedUntil:      &lockedUntil,
+		TenantRoles: []domain.UserTenantRole{
+			{TenantID: tenantID, Role: domain.RoleWaiter},
+		},
+	})
+
+	user, err := userSvc.Unlock(ctx, UnlockRequest{
+		UserID:   userID,
+		TenantID: tenantID,
+	}, domain.RoleManager)
+
+	if err != nil {
+		t.Fatalf("Unlock failed: %v", err)
+	}
+	if user.IsLocked() {
+		t.Error("User should not be locked")
+	}
+	if user.FailedLoginCount != 0 {
+		t.Errorf("FailedLoginCount = %d, want 0", user.FailedLoginCount)
+	}
+}
+
+func TestUserService_Unlock_CannotManage(t *testing.T) {
+	userSvc, userRepo, _, _, _ := setupUserService(t)
+	ctx := context.Background()
+
+	userID := uuid.New()
+	tenantID := uuid.New()
+
+	userRepo.AddUser(&domain.User{
+		ID:       userID,
+		Email:    "test@example.com",
+		IsActive: true,
+		TenantRoles: []domain.UserTenantRole{
+			{TenantID: tenantID, Role: domain.RoleManager},
+		},
+	})
+
+	_, err := userSvc.Unlock(ctx, UnlockRequest{
+		UserID:   userID,
+		TenantID: tenantID,
+	}, domain.RoleWaiter)
+
+	if err != domain.ErrCannotManageRole {
+		t.Errorf("Expected ErrCannotManageRole, got %v", err)
 	}
 }
 

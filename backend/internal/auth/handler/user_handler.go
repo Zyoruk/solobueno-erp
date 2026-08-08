@@ -75,14 +75,29 @@ func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	if resp.LinkedExistingAccount {
+		writeJSON(w, http.StatusOK, CreateUserResponse{
+			ID:                    resp.User.ID,
+			Email:                 resp.User.Email,
+			FirstName:             resp.User.FirstName,
+			LastName:              resp.User.LastName,
+			Role:                  string(createReq.Role),
+			MustResetPassword:     false,
+			LinkedExistingAccount: true,
+			Message:               "Existing account linked to this tenant. User notified by email.",
+			CreatedAt:             resp.User.CreatedAt,
+		})
+		return
+	}
+
 	writeJSON(w, http.StatusCreated, CreateUserResponse{
 		ID:                resp.User.ID,
 		Email:             resp.User.Email,
 		FirstName:         resp.User.FirstName,
 		LastName:          resp.User.LastName,
 		Role:              string(createReq.Role),
-		TemporaryPassword: resp.TemporaryPassword,
 		MustResetPassword: true,
+		Message:           "Account created. Temporary password sent to user's email.",
 		CreatedAt:         resp.User.CreatedAt,
 	})
 }
@@ -191,6 +206,49 @@ func (h *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user, err := h.userService.Update(r.Context(), updateReq, callerRole)
+	if err != nil {
+		switch {
+		case errors.Is(err, domain.ErrUserNotFound):
+			writeError(w, http.StatusNotFound, "not_found", "User not found")
+			return
+		case errors.Is(err, domain.ErrCannotManageRole):
+			writeError(w, http.StatusForbidden, "insufficient_role", "Cannot manage users with this role")
+			return
+		default:
+			writeError(w, http.StatusInternalServerError, "internal_error", "An unexpected error occurred")
+			return
+		}
+	}
+
+	writeJSON(w, http.StatusOK, ToUserResponse(user))
+}
+
+// Unlock handles POST /users/{id}/unlock.
+func (h *UserHandler) Unlock(w http.ResponseWriter, r *http.Request) {
+	callerRole, ok := GetRole(r.Context())
+	if !ok {
+		writeError(w, http.StatusUnauthorized, "unauthorized", "Authentication required")
+		return
+	}
+
+	callerID, _ := GetUserID(r.Context())
+	tenantID, _ := GetTenantID(r.Context())
+
+	userIDStr := chi.URLParam(r, "id")
+	userID, err := uuid.Parse(userIDStr)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "invalid_id", "Invalid user ID format")
+		return
+	}
+
+	unlockReq := service.UnlockRequest{
+		UserID:    userID,
+		TenantID:  tenantID,
+		UpdatedBy: callerID,
+		IPAddress: GetClientIP(r),
+	}
+
+	user, err := h.userService.Unlock(r.Context(), unlockReq, callerRole)
 	if err != nil {
 		switch {
 		case errors.Is(err, domain.ErrUserNotFound):

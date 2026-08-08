@@ -62,6 +62,17 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		case errors.Is(err, domain.ErrAccountDisabled):
 			writeError(w, http.StatusUnauthorized, "account_disabled", "Account is disabled")
 			return
+		case errors.Is(err, domain.ErrAccountLocked):
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusLocked)
+			json.NewEncoder(w).Encode(ErrorResponse{
+				Error: ErrorDetail{
+					Code:        "account_locked",
+					Message:     "Account locked after 5 failed login attempts. Try again later.",
+					LockedUntil: resp.LockedUntil,
+				},
+			})
+			return
 		case errors.Is(err, domain.ErrRateLimitExceeded):
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusTooManyRequests)

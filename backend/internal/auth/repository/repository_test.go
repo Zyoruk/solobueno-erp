@@ -41,6 +41,8 @@ func setupTestDB(t *testing.T) *gorm.DB {
 			last_name TEXT,
 			is_active INTEGER DEFAULT 1,
 			must_reset_pwd INTEGER DEFAULT 0,
+			failed_login_count INTEGER DEFAULT 0,
+			locked_until DATETIME,
 			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 			updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 		);

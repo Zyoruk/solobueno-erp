@@ -136,6 +136,41 @@ func TestAuthHandler_Login_AccountDisabled(t *testing.T) {
 	}
 }
 
+func TestAuthHandler_Login_AccountLocked(t *testing.T) {
+	h, _, _, userRepo, tenantRepo, _, _ := setupWiredAuthHandler(t)
+
+	passwordHash, _ := service.NewPasswordService().Hash("CorrectPassword123!")
+	tenantID := uuid.New()
+	userID := uuid.New()
+	user := &domain.User{
+		ID: userID, Email: "locked@example.com", PasswordHash: passwordHash, IsActive: true,
+		TenantRoles: []domain.UserTenantRole{{ID: uuid.New(), UserID: userID, TenantID: tenantID, Role: domain.RoleManager}},
+	}
+	userRepo.AddUser(user)
+	tenantRepo.AddTenant(&domain.Tenant{ID: tenantID, Name: "Acme", Slug: "acme", IsActive: true})
+
+	for i := 0; i < 5; i++ {
+		body, _ := json.Marshal(LoginRequest{Email: "locked@example.com", Password: "WrongPassword!"})
+		req := httptest.NewRequest("POST", "/login", bytes.NewReader(body))
+		w := httptest.NewRecorder()
+		h.Login(w, req)
+	}
+
+	body, _ := json.Marshal(LoginRequest{Email: "locked@example.com", Password: "CorrectPassword123!"})
+	req := httptest.NewRequest("POST", "/login", bytes.NewReader(body))
+	w := httptest.NewRecorder()
+	h.Login(w, req)
+
+	if w.Code != http.StatusLocked {
+		t.Fatalf("Status = %d, want %d, body=%s", w.Code, http.StatusLocked, w.Body.String())
+	}
+	var resp ErrorResponse
+	json.NewDecoder(w.Body).Decode(&resp)
+	if resp.Error.Code != "account_locked" || resp.Error.LockedUntil == nil {
+		t.Errorf("unexpected error response: %+v", resp.Error)
+	}
+}
+
 func TestAuthHandler_Refresh_Success(t *testing.T) {
 	h, _, tokenSvc, userRepo, tenantRepo, _, sessionRepo := setupWiredAuthHandler(t)
 

@@ -62,6 +62,7 @@ func UserRouter(authService *service.AuthService, userService *service.UserServi
 		r.Get("/{id}", userHandler.Get)
 		r.Patch("/{id}", userHandler.Update)
 		r.Patch("/{id}/role", userHandler.UpdateRole)
+		r.Post("/{id}/unlock", userHandler.Unlock)
 	})
 
 	return r

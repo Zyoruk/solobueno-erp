@@ -9,31 +9,32 @@ var (
 	ErrInvalidCredentials = errors.New("invalid email or password")
 	ErrAccountDisabled    = errors.New("account is disabled")
 	ErrAccountNotFound    = errors.New("account not found")
+	ErrAccountLocked      = errors.New("account is locked due to too many failed login attempts")
 
 	// Token errors
-	ErrTokenExpired       = errors.New("token has expired")
-	ErrTokenInvalid       = errors.New("token is invalid")
-	ErrTokenMalformed     = errors.New("token is malformed")
-	ErrSessionRevoked     = errors.New("session has been revoked")
-	ErrSessionNotFound    = errors.New("session not found")
+	ErrTokenExpired        = errors.New("token has expired")
+	ErrTokenInvalid        = errors.New("token is invalid")
+	ErrTokenMalformed      = errors.New("token is malformed")
+	ErrSessionRevoked      = errors.New("session has been revoked")
+	ErrSessionNotFound     = errors.New("session not found")
 	ErrRefreshTokenInvalid = errors.New("refresh token is invalid")
 
 	// Authorization errors
-	ErrInsufficientRole   = errors.New("insufficient role for this operation")
-	ErrUnauthorized       = errors.New("unauthorized")
-	ErrForbidden          = errors.New("forbidden")
+	ErrInsufficientRole = errors.New("insufficient role for this operation")
+	ErrUnauthorized     = errors.New("unauthorized")
+	ErrForbidden        = errors.New("forbidden")
 
 	// Tenant errors
-	ErrTenantRequired     = errors.New("tenant selection required")
-	ErrTenantNotFound     = errors.New("tenant not found")
-	ErrTenantInactive     = errors.New("tenant is inactive")
-	ErrUserNotInTenant    = errors.New("user does not belong to this tenant")
+	ErrTenantRequired  = errors.New("tenant selection required")
+	ErrTenantNotFound  = errors.New("tenant not found")
+	ErrTenantInactive  = errors.New("tenant is inactive")
+	ErrUserNotInTenant = errors.New("user does not belong to this tenant")
 
 	// User management errors
-	ErrEmailExists        = errors.New("email already registered")
-	ErrUserNotFound       = errors.New("user not found")
-	ErrCannotManageRole   = errors.New("cannot manage users with this role")
-	ErrCannotAssignRole   = errors.New("cannot assign this role")
+	ErrEmailExists      = errors.New("email already registered")
+	ErrUserNotFound     = errors.New("user not found")
+	ErrCannotManageRole = errors.New("cannot manage users with this role")
+	ErrCannotAssignRole = errors.New("cannot assign this role")
 
 	// Password errors
 	ErrPasswordWeak         = errors.New("password does not meet requirements")
