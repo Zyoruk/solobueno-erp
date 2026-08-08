@@ -15,6 +15,14 @@
 - Q: MFA scope? → A: Deferred to future feature (out of scope for 004)
 - Q: Session storage strategy? → A: Database-backed (refresh tokens stored in DB, revocable)
 
+### Session 2026-08-08
+
+- Q: User can hold roles in multiple tenants, but a token carries one tenant_id — how does the system pick which tenant's context goes into the token at login? → A: Prompt user to pick tenant. If user has roles in >1 tenant, login response lists tenants; user selects one before token issued. Single-tenant users skip this step.
+- Q: FR-011 rate-limits login attempts by IP only — should the system also lock out a specific account after repeated failed attempts regardless of source IP? → A: Yes, add per-account lockout after 5 failed attempts within 15 minutes, independent of the IP rate limit.
+- Q: FR-013 says password reset uses "a secure token" but doesn't state its expiration — how long should the token stay valid? → A: 1 hour.
+- Q: US3 says a manager creates a staff account and "a temporary password is generated" — how does the new staff member receive it? → A: Emailed to the user's account email address.
+- Q: If a manager creates a staff account using an email that already has a global account in a different tenant, what happens? → A: System links a new role for this tenant to the existing user and notifies them by email; no new account or password is created.
+
 ## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Staff Member Logs In (Priority: P1)
@@ -34,6 +42,10 @@ As a restaurant staff member, I want to log in with my credentials, so that I ca
 3. **Given** a staff member's account is disabled, **When** they attempt to login, **Then** they see an "account disabled" message.
 
 4. **Given** a staff member is logged in, **When** their session is active, **Then** they can access features allowed by their role.
+
+5. **Given** a staff member has roles in more than one tenant, **When** they submit valid credentials, **Then** they are shown a list of their tenants and must select one before a token is issued.
+
+6. **Given** a staff member has a role in only one tenant, **When** they submit valid credentials, **Then** a token for that tenant is issued immediately without a selection step.
 
 ---
 
@@ -65,11 +77,13 @@ As a restaurant manager, I want to create accounts for my staff, so that they ca
 
 **Acceptance Scenarios**:
 
-1. **Given** a manager is logged in, **When** they create a new staff account with email and role, **Then** the account is created and a temporary password is generated.
+1. **Given** a manager is logged in, **When** they create a new staff account with email and role, **Then** the account is created, a temporary password is generated, and it is emailed to the new account's email address.
 
 2. **Given** a new account is created, **When** the staff member first logs in, **Then** they are prompted to set their own password.
 
 3. **Given** a manager creates an account, **When** they assign a role (waiter, kitchen, cashier), **Then** that user has only the permissions for that role.
+
+4. **Given** a manager creates a staff account using an email that already has a global account in a different tenant, **When** the account is created, **Then** the system links a new role for this tenant to the existing user, notifies them by email, and does not create a duplicate account or temporary password.
 
 ---
 
@@ -112,6 +126,7 @@ As a staff member ending my shift, I want to log out securely, so that the next 
 - What happens when the same user logs in from multiple devices? All sessions should remain valid independently.
 - What happens during a password reset? Current sessions should remain valid until password is changed.
 - What happens if a user's role changes while they're logged in? Changes take effect on next token refresh.
+- What happens after 5 consecutive failed login attempts on the same account within 15 minutes (regardless of source IP)? The account is locked and further login attempts are rejected until the lockout expires or an authorized user unlocks it.
 
 ## Requirements _(mandatory)_
 
@@ -127,7 +142,7 @@ As a staff member ending my shift, I want to log out securely, so that the next 
 
 - **FR-005**: System MUST support token refresh without re-entering credentials.
 
-- **FR-006**: System MUST include tenant context (tenant_id) in all tokens.
+- **FR-006**: System MUST include tenant context (tenant_id) in all tokens. If a user holds roles in more than one tenant, the system MUST prompt them to select a tenant after credential verification and before issuing a token; users with a role in only one tenant skip this step.
 
 - **FR-007**: System MUST support these roles: owner, admin, manager, cashier, waiter, kitchen, viewer.
 
@@ -139,9 +154,11 @@ As a staff member ending my shift, I want to log out securely, so that the next 
 
 - **FR-011**: System MUST rate-limit login attempts to 5 per minute per IP.
 
-- **FR-012**: System MUST support account creation by managers for their tenant.
+- **FR-011a**: System MUST lock a user account after 5 consecutive failed login attempts within 15 minutes, independent of source IP, and reject further login attempts on that account until the lockout expires or an authorized user unlocks it.
 
-- **FR-013**: System MUST support password reset via secure token.
+- **FR-012**: System MUST support account creation by managers for their tenant. Upon creation, the system MUST email the generated temporary password to the new account's email address. If the email already has a global account in a different tenant, the system MUST link a new role for this tenant to the existing user and notify them by email, instead of creating a duplicate account or temporary password.
+
+- **FR-013**: System MUST support password reset via a secure token that expires 1 hour after issuance.
 
 - **FR-014**: System MUST invalidate all sessions when password is changed.
 

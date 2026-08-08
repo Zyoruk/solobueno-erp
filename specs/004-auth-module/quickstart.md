@@ -114,7 +114,7 @@ curl -X POST http://localhost:8080/api/v1/auth/logout \
 ### Role Hierarchy
 
 | Role    | Level | Capabilities                     |
-| ------- | ----- | --------------------------------- |
+| ------- | ----- | -------------------------------- |
 | owner   | 100   | Everything including billing     |
 | admin   | 90    | All except billing settings      |
 | manager | 70    | Staff, menu, reports, operations |
@@ -141,13 +141,14 @@ router.With(auth.RequireRole(auth.RoleManager)).
 ## Error Responses
 
 | Code | Error               | Description                      |
-| ---- | ------------------- | --------------------------------- |
+| ---- | ------------------- | -------------------------------- |
 | 401  | invalid_credentials | Email/password incorrect         |
 | 401  | account_disabled    | User account is disabled         |
 | 401  | token_expired       | Access token has expired         |
 | 401  | token_invalid       | Token signature invalid          |
 | 401  | session_revoked     | Refresh token was revoked        |
 | 403  | insufficient_role   | User role cannot access resource |
+| 423  | account_locked      | 5 failed attempts within 15 min  |
 | 429  | rate_limit_exceeded | Too many login attempts          |
 
 **Error Response Format:**
@@ -223,7 +224,7 @@ Authorization: Bearer <manager-token>
 }
 ```
 
-Response includes temporary password that user must change on first login.
+Temporary password is emailed to the new user (never returned in the API response); they must change it on first login. If the email already has an account in a different tenant, no new password is created — the existing user is linked to this tenant and notified by email (`200` response instead of `201`).
 
 ### Update User Role
 
@@ -233,6 +234,15 @@ Authorization: Bearer <manager-token>
 {
   "role": "cashier"
 }
+```
+
+## Account Lockout
+
+After 5 consecutive failed login attempts on the same account within 15 minutes, the account is locked (independent of the per-IP rate limit). Login returns `423 account_locked` with a `locked_until` timestamp until it clears automatically, or a Manager+ clears it early:
+
+```bash
+POST /api/v1/users/{id}/unlock
+Authorization: Bearer <manager-token>
 ```
 
 ## Testing Locally
@@ -259,7 +269,7 @@ curl -X POST http://localhost:8080/api/v1/auth/login \
 ## File Locations
 
 | File                                        | Purpose                               |
-| -------------------------------------------- | -------------------------------------- |
+| ------------------------------------------- | ------------------------------------- |
 | `backend/internal/auth/`                    | Auth module code                      |
 | `backend/internal/auth/domain/`             | Domain entities and errors            |
 | `backend/internal/auth/repository/`         | Repository interfaces + GORM impl     |

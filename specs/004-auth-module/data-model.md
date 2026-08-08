@@ -22,12 +22,15 @@ CREATE TABLE users (
     last_name       VARCHAR(100) NOT NULL,
     is_active       BOOLEAN NOT NULL DEFAULT true,
     must_reset_pwd  BOOLEAN NOT NULL DEFAULT false,
+    failed_login_count INTEGER NOT NULL DEFAULT 0,
+    locked_until    TIMESTAMPTZ,
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_users_active ON users(is_active) WHERE is_active = true;
+CREATE INDEX idx_users_locked ON users(locked_until) WHERE locked_until IS NOT NULL;
 ```
 
 ### Table: tenants
@@ -108,7 +111,7 @@ CREATE TABLE password_reset_tokens (
     user_id         UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     token_hash      VARCHAR(255) NOT NULL UNIQUE,
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    expires_at      TIMESTAMPTZ NOT NULL,
+    expires_at      TIMESTAMPTZ NOT NULL,  -- created_at + 1 hour
     used_at         TIMESTAMPTZ,
 
     CONSTRAINT valid_expiry CHECK (expires_at > created_at)
@@ -127,6 +130,7 @@ CREATE TYPE auth_event_type AS ENUM (
     'login_success', 'login_failed', 'logout', 'token_refresh',
     'password_changed', 'password_reset_requested', 'password_reset_completed',
     'account_created', 'account_disabled', 'account_enabled',
+    'account_locked', 'account_unlocked', 'tenant_role_added',
     'role_changed', 'session_revoked'
 );
 
@@ -160,12 +164,18 @@ type User struct {
     LastName     string     `gorm:"size:100;not null" json:"last_name"`
     IsActive     bool       `gorm:"default:true;not null;index" json:"is_active"`
     MustResetPwd bool       `gorm:"default:false;not null" json:"must_reset_password"`
+    FailedLoginCount int    `gorm:"default:0;not null" json:"-"`
+    LockedUntil  *time.Time `gorm:"index" json:"-"`
     CreatedAt    time.Time  `gorm:"autoCreateTime" json:"created_at"`
     UpdatedAt    time.Time  `gorm:"autoUpdateTime" json:"updated_at"`
 
     // Associations
     TenantRoles []UserTenantRole `gorm:"foreignKey:UserID" json:"tenant_roles,omitempty"`
     Sessions    []Session        `gorm:"foreignKey:UserID" json:"-"`
+}
+
+func (u *User) IsLocked() bool {
+    return u.LockedUntil != nil && time.Now().Before(*u.LockedUntil)
 }
 ```
 
@@ -301,6 +311,9 @@ const (
     EventAccountCreated         AuthEventType = "account_created"
     EventAccountDisabled        AuthEventType = "account_disabled"
     EventAccountEnabled         AuthEventType = "account_enabled"
+    EventAccountLocked          AuthEventType = "account_locked"
+    EventAccountUnlocked        AuthEventType = "account_unlocked"
+    EventTenantRoleAdded        AuthEventType = "tenant_role_added"
     EventRoleChanged            AuthEventType = "role_changed"
     EventSessionRevoked         AuthEventType = "session_revoked"
 )
