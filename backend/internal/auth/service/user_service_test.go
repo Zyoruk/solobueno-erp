@@ -7,17 +7,17 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/solobueno/erp/internal/auth/domain"
-	"github.com/solobueno/erp/internal/auth/repository"
+	"github.com/solobueno/erp/internal/auth/repository/mock"
 )
 
-func setupUserService(t *testing.T) (*UserService, *repository.MockUserRepository, *repository.MockUserTenantRoleRepository, *repository.MockSessionRepository, *repository.MockPasswordResetRepository) {
+func setupUserService(t *testing.T) (*UserService, *mock.MockUserRepository, *mock.MockUserTenantRoleRepository, *mock.MockSessionRepository, *mock.MockPasswordResetRepository) {
 	t.Helper()
 
-	userRepo := repository.NewMockUserRepository()
-	roleRepo := repository.NewMockUserTenantRoleRepository()
-	sessionRepo := repository.NewMockSessionRepository()
-	eventRepo := repository.NewMockAuthEventRepository()
-	passwordResetRepo := repository.NewMockPasswordResetRepository()
+	userRepo := mock.NewMockUserRepository()
+	roleRepo := mock.NewMockUserTenantRoleRepository()
+	sessionRepo := mock.NewMockSessionRepository()
+	eventRepo := mock.NewMockAuthEventRepository()
+	passwordResetRepo := mock.NewMockPasswordResetRepository()
 
 	userSvc := NewUserService(UserServiceConfig{
 		UserRepo:         userRepo,
@@ -486,11 +486,11 @@ func TestUserService_RequestPasswordReset_UserNotExists(t *testing.T) {
 }
 
 func TestUserService_RequestPasswordReset_RateLimited(t *testing.T) {
-	userRepo := repository.NewMockUserRepository()
-	roleRepo := repository.NewMockUserTenantRoleRepository()
-	sessionRepo := repository.NewMockSessionRepository()
-	eventRepo := repository.NewMockAuthEventRepository()
-	passwordResetRepo := repository.NewMockPasswordResetRepository()
+	userRepo := mock.NewMockUserRepository()
+	roleRepo := mock.NewMockUserTenantRoleRepository()
+	sessionRepo := mock.NewMockSessionRepository()
+	eventRepo := mock.NewMockAuthEventRepository()
+	passwordResetRepo := mock.NewMockPasswordResetRepository()
 
 	// Rate limiter that denies all
 	rateLimiter := NewMemoryRateLimiter(RateLimiterConfig{

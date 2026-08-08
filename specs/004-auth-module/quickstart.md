@@ -114,7 +114,7 @@ curl -X POST http://localhost:8080/api/v1/auth/logout \
 ### Role Hierarchy
 
 | Role    | Level | Capabilities                     |
-| ------- | ----- | -------------------------------- |
+| ------- | ----- | --------------------------------- |
 | owner   | 100   | Everything including billing     |
 | admin   | 90    | All except billing settings      |
 | manager | 70    | Staff, menu, reports, operations |
@@ -141,7 +141,7 @@ router.With(auth.RequireRole(auth.RoleManager)).
 ## Error Responses
 
 | Code | Error               | Description                      |
-| ---- | ------------------- | -------------------------------- |
+| ---- | ------------------- | --------------------------------- |
 | 401  | invalid_credentials | Email/password incorrect         |
 | 401  | account_disabled    | User account is disabled         |
 | 401  | token_expired       | Access token has expired         |
@@ -259,7 +259,7 @@ curl -X POST http://localhost:8080/api/v1/auth/login \
 ## File Locations
 
 | File                                        | Purpose                               |
-| ------------------------------------------- | ------------------------------------- |
+| -------------------------------------------- | -------------------------------------- |
 | `backend/internal/auth/`                    | Auth module code                      |
 | `backend/internal/auth/domain/`             | Domain entities and errors            |
 | `backend/internal/auth/repository/`         | Repository interfaces + GORM impl     |

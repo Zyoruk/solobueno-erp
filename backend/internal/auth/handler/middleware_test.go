@@ -2,13 +2,219 @@ package handler
 
 import (
 	"context"
+	"crypto/rand"
+	"crypto/rsa"
+	"crypto/x509"
+	"encoding/pem"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/google/uuid"
 	"github.com/solobueno/erp/internal/auth/domain"
+	"github.com/solobueno/erp/internal/auth/repository/mock"
+	"github.com/solobueno/erp/internal/auth/service"
+	"github.com/solobueno/erp/pkg/jwt"
 )
+
+// setupAuthMiddleware builds a real AuthService (mock repos, in-memory RSA
+// keypair) so RequireAuth exercises actual token validation instead of nils.
+func setupAuthMiddleware(t *testing.T) (*AuthMiddleware, *service.TokenService) {
+	t.Helper()
+
+	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
+	if err != nil {
+		t.Fatalf("failed to generate key: %v", err)
+	}
+	privatePEM := pem.EncodeToMemory(&pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(privateKey)})
+	publicKeyBytes, err := x509.MarshalPKIXPublicKey(&privateKey.PublicKey)
+	if err != nil {
+		t.Fatalf("failed to marshal public key: %v", err)
+	}
+	publicPEM := pem.EncodeToMemory(&pem.Block{Type: "PUBLIC KEY", Bytes: publicKeyBytes})
+
+	km := jwt.NewKeyManager()
+	if err := km.LoadPrivateKeyFromPEM(privatePEM); err != nil {
+		t.Fatalf("failed to load private key: %v", err)
+	}
+	if err := km.LoadPublicKeyFromPEM(publicPEM); err != nil {
+		t.Fatalf("failed to load public key: %v", err)
+	}
+	tokenSvc := service.NewTokenService(km, jwt.DefaultTokenGeneratorConfig())
+
+	authSvc := service.NewAuthService(service.AuthServiceConfig{
+		UserRepo:     mock.NewMockUserRepository(),
+		SessionRepo:  mock.NewMockSessionRepository(),
+		EventRepo:    mock.NewMockAuthEventRepository(),
+		TenantRepo:   mock.NewMockTenantRepository(),
+		RoleRepo:     mock.NewMockUserTenantRoleRepository(),
+		TokenService: tokenSvc,
+	})
+
+	return NewAuthMiddleware(authSvc), tokenSvc
+}
+
+func TestAuthMiddleware_RequireAuth(t *testing.T) {
+	mw, tokenSvc := setupAuthMiddleware(t)
+
+	user := &domain.User{ID: uuid.New(), Email: "user@example.com"}
+	tenantID := uuid.New()
+	pair, _, err := tokenSvc.GenerateTokenPair(user, tenantID, domain.RoleManager)
+	if err != nil {
+		t.Fatalf("failed to generate token pair: %v", err)
+	}
+
+	called := false
+	next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		called = true
+		claims, ok := GetClaims(r.Context())
+		if !ok || claims.Email != "user@example.com" {
+			t.Error("expected claims in context")
+		}
+		w.WriteHeader(http.StatusOK)
+	})
+
+	req := httptest.NewRequest("GET", "/protected", nil)
+	req.Header.Set("Authorization", "Bearer "+pair.AccessToken)
+	w := httptest.NewRecorder()
+
+	mw.RequireAuth(next).ServeHTTP(w, req)
+
+	if !called {
+		t.Error("next handler should be called for a valid token")
+	}
+	if w.Code != http.StatusOK {
+		t.Errorf("Status = %d, want %d", w.Code, http.StatusOK)
+	}
+}
+
+func TestAuthMiddleware_RequireAuth_MissingToken(t *testing.T) {
+	mw, _ := setupAuthMiddleware(t)
+
+	called := false
+	next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { called = true })
+
+	req := httptest.NewRequest("GET", "/protected", nil)
+	w := httptest.NewRecorder()
+
+	mw.RequireAuth(next).ServeHTTP(w, req)
+
+	if called {
+		t.Error("next handler should not be called without a token")
+	}
+	if w.Code != http.StatusUnauthorized {
+		t.Errorf("Status = %d, want %d", w.Code, http.StatusUnauthorized)
+	}
+}
+
+func TestAuthMiddleware_RequireAuth_InvalidToken(t *testing.T) {
+	mw, _ := setupAuthMiddleware(t)
+
+	req := httptest.NewRequest("GET", "/protected", nil)
+	req.Header.Set("Authorization", "Bearer not-a-real-token")
+	w := httptest.NewRecorder()
+
+	mw.RequireAuth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})).ServeHTTP(w, req)
+
+	if w.Code != http.StatusUnauthorized {
+		t.Errorf("Status = %d, want %d", w.Code, http.StatusUnauthorized)
+	}
+}
+
+func TestAuthMiddleware_RequireRole(t *testing.T) {
+	mw, _ := setupAuthMiddleware(t)
+
+	tests := []struct {
+		name     string
+		role     domain.Role
+		minRole  domain.Role
+		wantCode int
+	}{
+		{"sufficient role", domain.RoleOwner, domain.RoleManager, http.StatusOK},
+		{"exact role", domain.RoleManager, domain.RoleManager, http.StatusOK},
+		{"insufficient role", domain.RoleWaiter, domain.RoleManager, http.StatusForbidden},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { w.WriteHeader(http.StatusOK) })
+			handler := mw.RequireRole(tt.minRole)(next)
+
+			ctx := context.WithValue(context.Background(), RoleContextKey, tt.role)
+			req := httptest.NewRequest("GET", "/admin", nil).WithContext(ctx)
+			w := httptest.NewRecorder()
+
+			handler.ServeHTTP(w, req)
+
+			if w.Code != tt.wantCode {
+				t.Errorf("Status = %d, want %d", w.Code, tt.wantCode)
+			}
+		})
+	}
+}
+
+func TestAuthMiddleware_RequireRole_Unauthenticated(t *testing.T) {
+	mw, _ := setupAuthMiddleware(t)
+
+	next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { w.WriteHeader(http.StatusOK) })
+	handler := mw.RequireRole(domain.RoleManager)(next)
+
+	req := httptest.NewRequest("GET", "/admin", nil)
+	w := httptest.NewRecorder()
+
+	handler.ServeHTTP(w, req)
+
+	if w.Code != http.StatusUnauthorized {
+		t.Errorf("Status = %d, want %d", w.Code, http.StatusUnauthorized)
+	}
+}
+
+func TestAuthMiddleware_RequireAnyRole(t *testing.T) {
+	mw, _ := setupAuthMiddleware(t)
+
+	tests := []struct {
+		name     string
+		role     domain.Role
+		wantCode int
+	}{
+		{"allowed role", domain.RoleCashier, http.StatusOK},
+		{"another allowed role", domain.RoleWaiter, http.StatusOK},
+		{"disallowed role", domain.RoleKitchen, http.StatusForbidden},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { w.WriteHeader(http.StatusOK) })
+			handler := mw.RequireAnyRole(domain.RoleCashier, domain.RoleWaiter)(next)
+
+			ctx := context.WithValue(context.Background(), RoleContextKey, tt.role)
+			req := httptest.NewRequest("GET", "/orders", nil).WithContext(ctx)
+			w := httptest.NewRecorder()
+
+			handler.ServeHTTP(w, req)
+
+			if w.Code != tt.wantCode {
+				t.Errorf("Status = %d, want %d", w.Code, tt.wantCode)
+			}
+		})
+	}
+}
+
+func TestAuthMiddleware_RequireAnyRole_Unauthenticated(t *testing.T) {
+	mw, _ := setupAuthMiddleware(t)
+
+	next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { w.WriteHeader(http.StatusOK) })
+	handler := mw.RequireAnyRole(domain.RoleCashier)(next)
+
+	req := httptest.NewRequest("GET", "/orders", nil)
+	w := httptest.NewRecorder()
+
+	handler.ServeHTTP(w, req)
+
+	if w.Code != http.StatusUnauthorized {
+		t.Errorf("Status = %d, want %d", w.Code, http.StatusUnauthorized)
+	}
+}
 
 func TestExtractBearerToken(t *testing.T) {
 	tests := []struct {

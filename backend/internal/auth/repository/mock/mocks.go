@@ -1,4 +1,8 @@
-package repository
+// Package mock provides in-memory mock implementations of the auth repository
+// interfaces for use in service-layer tests. It is kept out of the
+// repository package itself so repository test coverage measures only real
+// GORM implementations, not test doubles.
+package mock
 
 import (
 	"context"
@@ -7,6 +11,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/solobueno/erp/internal/auth/domain"
+	"github.com/solobueno/erp/internal/auth/repository"
 )
 
 // MockUserRepository is a mock implementation of UserRepository for testing.
@@ -123,22 +128,22 @@ func (m *MockUserRepository) AddUser(user *domain.User) {
 	m.users[user.ID] = user
 }
 
-var _ UserRepository = (*MockUserRepository)(nil)
+var _ repository.UserRepository = (*MockUserRepository)(nil)
 
 // MockSessionRepository is a mock implementation of SessionRepository.
 type MockSessionRepository struct {
 	mu       sync.RWMutex
 	sessions map[uuid.UUID]*domain.Session
 
-	CreateFunc                  func(ctx context.Context, session *domain.Session) error
-	FindByTokenFunc             func(ctx context.Context, tokenHash string) (*domain.Session, error)
-	FindByIDFunc                func(ctx context.Context, id uuid.UUID) (*domain.Session, error)
-	RevokeFunc                  func(ctx context.Context, id uuid.UUID) error
-	RevokeByTokenFunc           func(ctx context.Context, tokenHash string) error
-	RevokeAllForUserFunc        func(ctx context.Context, userID uuid.UUID) error
+	CreateFunc                   func(ctx context.Context, session *domain.Session) error
+	FindByTokenFunc              func(ctx context.Context, tokenHash string) (*domain.Session, error)
+	FindByIDFunc                 func(ctx context.Context, id uuid.UUID) (*domain.Session, error)
+	RevokeFunc                   func(ctx context.Context, id uuid.UUID) error
+	RevokeByTokenFunc            func(ctx context.Context, tokenHash string) error
+	RevokeAllForUserFunc         func(ctx context.Context, userID uuid.UUID) error
 	RevokeAllForUserInTenantFunc func(ctx context.Context, userID, tenantID uuid.UUID) error
-	DeleteExpiredFunc           func(ctx context.Context) (int64, error)
-	CountActiveForUserFunc      func(ctx context.Context, userID uuid.UUID) (int64, error)
+	DeleteExpiredFunc            func(ctx context.Context) (int64, error)
+	CountActiveForUserFunc       func(ctx context.Context, userID uuid.UUID) (int64, error)
 }
 
 func NewMockSessionRepository() *MockSessionRepository {
@@ -261,7 +266,7 @@ func (m *MockSessionRepository) CountActiveForUser(ctx context.Context, userID u
 	return count, nil
 }
 
-var _ SessionRepository = (*MockSessionRepository)(nil)
+var _ repository.SessionRepository = (*MockSessionRepository)(nil)
 
 // MockAuthEventRepository is a mock implementation of AuthEventRepository.
 type MockAuthEventRepository struct {
@@ -387,7 +392,7 @@ func (m *MockAuthEventRepository) GetEvents() []*domain.AuthEvent {
 	return m.events
 }
 
-var _ AuthEventRepository = (*MockAuthEventRepository)(nil)
+var _ repository.AuthEventRepository = (*MockAuthEventRepository)(nil)
 
 // MockTenantRepository is a mock implementation of TenantRepository.
 type MockTenantRepository struct {
@@ -461,7 +466,7 @@ func (m *MockTenantRepository) AddTenant(tenant *domain.Tenant) {
 	m.tenants[tenant.ID] = tenant
 }
 
-var _ TenantRepository = (*MockTenantRepository)(nil)
+var _ repository.TenantRepository = (*MockTenantRepository)(nil)
 
 // MockUserTenantRoleRepository is a mock implementation of UserTenantRoleRepository.
 type MockUserTenantRoleRepository struct {
@@ -566,7 +571,7 @@ func (m *MockUserTenantRoleRepository) AddRole(role *domain.UserTenantRole) {
 	m.roles[role.ID] = role
 }
 
-var _ UserTenantRoleRepository = (*MockUserTenantRoleRepository)(nil)
+var _ repository.UserTenantRoleRepository = (*MockUserTenantRoleRepository)(nil)
 
 // MockPasswordResetRepository is a mock implementation of PasswordResetRepository.
 type MockPasswordResetRepository struct {
@@ -659,4 +664,4 @@ func (m *MockPasswordResetRepository) AddToken(token *domain.PasswordResetToken)
 	m.tokens[token.ID] = token
 }
 
-var _ PasswordResetRepository = (*MockPasswordResetRepository)(nil)
+var _ repository.PasswordResetRepository = (*MockPasswordResetRepository)(nil)
