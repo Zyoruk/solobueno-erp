@@ -19,7 +19,9 @@ import (
 
 	_ "github.com/solobueno/erp/docs"
 	"github.com/solobueno/erp/internal/auth"
+	"github.com/solobueno/erp/internal/auth/handler"
 	"github.com/solobueno/erp/internal/shared/database"
+	"github.com/solobueno/erp/internal/shared/observability"
 	"github.com/solobueno/erp/pkg/jwt"
 )
 
@@ -36,6 +38,12 @@ func main() {
 	if port == "" {
 		port = "8080"
 	}
+
+	appEnv := os.Getenv("APP_ENV")
+	if appEnv == "" {
+		appEnv = "dev"
+	}
+	handler.SetLogger(observability.New(appEnv))
 
 	db := database.MustConnect(database.DefaultConfig())
 
@@ -58,6 +66,7 @@ func main() {
 	}
 
 	r := chi.NewRouter()
+	r.Use(middleware.RequestID)
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 	authModule.RegisterRoutes(r)

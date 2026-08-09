@@ -8,6 +8,41 @@ import (
 	"github.com/solobueno/erp/internal/auth/handler"
 )
 
+// TestE2E_Refresh_SucceedsForRealisticallySeededUser covers the real-HTTP
+// login -> refresh happy path for a user seeded via env.seedUser (roleRepo,
+// not a User struct with TenantRoles embedded directly).
+//
+// NOTE: this does NOT reliably catch a FindByID-vs-FindByIDWithTenants
+// regression (see TestAuthService_Refresh_UsesPreloadedTenantRoles in
+// service/auth_service_test.go for that) - MockUserRepository.RolesLookup
+// mutates the shared *domain.User pointer in place, so once login()'s
+// FindByEmailWithTenants populates TenantRoles on that object, a later plain
+// FindByID in the same test sees it too. Real Postgres has no such
+// cross-call leakage: a fresh FindByID never preloads regardless of what an
+// earlier query loaded. Keeping this test for its own value (proves the
+// wiring works end-to-end), just not as regression coverage for that bug class.
+func TestE2E_Refresh_SucceedsForRealisticallySeededUser(t *testing.T) {
+	env := setupE2E(t)
+	tenant := env.seedTenant("Acme Diner", "acme-diner")
+	env.seedUser("staff@example.com", "Password123!", tenant.ID, domain.RoleWaiter)
+
+	_, refreshToken, loginResp := env.login("staff@example.com", "Password123!")
+	if loginResp.StatusCode != http.StatusOK {
+		t.Fatalf("login status = %d, want %d", loginResp.StatusCode, http.StatusOK)
+	}
+	loginResp.Body.Close()
+
+	refreshResp := env.do(http.MethodPost, "/refresh", "", map[string]string{"refresh_token": refreshToken})
+	if refreshResp.StatusCode != http.StatusOK {
+		t.Fatalf("refresh status = %d, want %d, body=%s", refreshResp.StatusCode, http.StatusOK, refreshResp.Body)
+	}
+	var resp handler.TokenResponse
+	decodeBody(t, refreshResp, &resp)
+	if resp.AccessToken == "" {
+		t.Error("refresh did not return a new access token")
+	}
+}
+
 // TestE2E_ChangePassword_InvalidatesOtherSessions covers FR-014: changing
 // your password over real HTTP must revoke every session, including ones
 // from other devices, not just the one making the request.

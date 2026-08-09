@@ -83,7 +83,7 @@ func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) {
 			writeError(w, http.StatusBadRequest, "email_exists", "Email already registered")
 			return
 		default:
-			writeError(w, http.StatusInternalServerError, "internal_error", "An unexpected error occurred")
+			writeInternalError(w, r, err)
 			return
 		}
 	}
@@ -146,7 +146,7 @@ func (h *UserHandler) List(w http.ResponseWriter, r *http.Request) {
 
 	users, total, err := h.userService.List(r.Context(), tenantID, page, limit)
 	if err != nil {
-		writeError(w, http.StatusInternalServerError, "internal_error", "An unexpected error occurred")
+		writeInternalError(w, r, err)
 		return
 	}
 
@@ -199,7 +199,7 @@ func (h *UserHandler) Get(w http.ResponseWriter, r *http.Request) {
 			writeError(w, http.StatusNotFound, "not_found", "User not found")
 			return
 		}
-		writeError(w, http.StatusInternalServerError, "internal_error", "An unexpected error occurred")
+		writeInternalError(w, r, err)
 		return
 	}
 
@@ -264,7 +264,7 @@ func (h *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
 			writeError(w, http.StatusForbidden, "insufficient_role", "Cannot manage users with this role")
 			return
 		default:
-			writeError(w, http.StatusInternalServerError, "internal_error", "An unexpected error occurred")
+			writeInternalError(w, r, err)
 			return
 		}
 	}
@@ -319,7 +319,7 @@ func (h *UserHandler) Unlock(w http.ResponseWriter, r *http.Request) {
 			writeError(w, http.StatusForbidden, "insufficient_role", "Cannot manage users with this role")
 			return
 		default:
-			writeError(w, http.StatusInternalServerError, "internal_error", "An unexpected error occurred")
+			writeInternalError(w, r, err)
 			return
 		}
 	}
@@ -391,7 +391,7 @@ func (h *UserHandler) UpdateRole(w http.ResponseWriter, r *http.Request) {
 			writeError(w, http.StatusForbidden, "insufficient_role", "Cannot manage users with this role")
 			return
 		default:
-			writeError(w, http.StatusInternalServerError, "internal_error", "An unexpected error occurred")
+			writeInternalError(w, r, err)
 			return
 		}
 	}
@@ -399,7 +399,7 @@ func (h *UserHandler) UpdateRole(w http.ResponseWriter, r *http.Request) {
 	// Fetch updated user to return
 	user, err := h.userService.GetByID(r.Context(), userID)
 	if err != nil {
-		writeError(w, http.StatusInternalServerError, "internal_error", "An unexpected error occurred")
+		writeInternalError(w, r, err)
 		return
 	}
 

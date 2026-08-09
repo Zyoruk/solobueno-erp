@@ -484,6 +484,43 @@ func TestAuthService_Refresh_Success(t *testing.T) {
 	_ = sessionRepo // Session is managed internally
 }
 
+// TestAuthService_Refresh_UsesPreloadedTenantRoles is a regression test for a
+// bug found while investigating a reported "internal server error" on
+// refresh: Refresh called userRepo.FindByID (never preloads TenantRoles on
+// real Postgres) instead of FindByIDWithTenants, so GetRoleForTenant always
+// returned "" and every refresh failed with ErrUserNotInTenant - 100% of the
+// time in production, not an edge case. FindByIDFunc/FindByIDWithTenantsFunc
+// are set independently here (unlike embedding TenantRoles directly on the
+// User struct, which every other test in this file does and which masks the
+// bug regardless of which repo method is actually called).
+func TestAuthService_Refresh_UsesPreloadedTenantRoles(t *testing.T) {
+	authSvc, userRepo, sessionRepo, tenantRepo, _ := setupAuthService(t)
+	ctx := context.Background()
+
+	tenantID := uuid.New()
+	userID := uuid.New()
+
+	userRepo.FindByIDFunc = func(ctx context.Context, id uuid.UUID) (*domain.User, error) {
+		// Matches real GORM behavior: a bare FindByID never preloads associations.
+		return &domain.User{ID: id, Email: "staff@example.com", IsActive: true}, nil
+	}
+	userRepo.FindByIDWithTenantsFunc = func(ctx context.Context, id uuid.UUID) (*domain.User, error) {
+		return &domain.User{
+			ID: id, Email: "staff@example.com", IsActive: true,
+			TenantRoles: []domain.UserTenantRole{{UserID: id, TenantID: tenantID, Role: domain.RoleWaiter}},
+		}, nil
+	}
+	tenantRepo.AddTenant(&domain.Tenant{ID: tenantID, IsActive: true})
+	sessionRepo.FindByTokenFunc = func(ctx context.Context, tokenHash string) (*domain.Session, error) {
+		return &domain.Session{ID: uuid.New(), UserID: userID, TenantID: tenantID, ExpiresAt: time.Now().Add(time.Hour)}, nil
+	}
+
+	_, err := authSvc.Refresh(ctx, RefreshRequest{RefreshToken: "some-refresh-token"})
+	if err != nil {
+		t.Fatalf("Refresh failed: %v (would be ErrUserNotInTenant if FindByID were used instead of FindByIDWithTenants)", err)
+	}
+}
+
 func TestAuthService_Refresh_InvalidToken(t *testing.T) {
 	authSvc, _, _, _, _ := setupAuthService(t)
 	ctx := context.Background()

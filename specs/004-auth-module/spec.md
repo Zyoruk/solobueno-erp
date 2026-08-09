@@ -29,6 +29,10 @@
 - Q: FR-011a says a locked account can be cleared by "an authorized user" — who exactly? → A: Manager+ in that tenant (same role hierarchy already used for creating/managing staff).
 - Q: The code enforces that a user can't assign a role equal to or higher than their own when creating/promoting staff, but no FR states this ceiling — should it become a formal requirement? → A: Yes, formalize it as an FR.
 
+### Session 2026-08-09 (2)
+
+- Q: Should spec.md gain a formal requirement that unrecoverable/unexpected errors (5xx) must be logged with diagnostic detail server-side, while the client response stays generic? → A: Yes — this closes a gap `/speckit-analyze` found: 8 call sites across the auth/user handlers silently discard the real error with a generic 500, and no structured logger exists anywhere in the backend.
+
 ## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Staff Member Logs In (Priority: P1)
@@ -136,6 +140,7 @@ As a staff member ending my shift, I want to log out securely, so that the next 
 - What happens if a user's role changes while they're logged in? Changes take effect on next token refresh.
 - What happens after 5 consecutive failed login attempts on the same account within 15 minutes (regardless of source IP)? The account is locked and further login attempts are rejected until the lockout expires or an authorized user unlocks it.
 - What happens if the temp-password or password-reset email fails to send? The account/token is still created; the failure is logged at error level and recorded in the audit trail so a manager can notice and follow up.
+- What happens when an unexpected error occurs (e.g. a database connection failure) mid-request? The client receives a generic error response with no internal detail; the server logs the real error at error level with a request-correlation ID for troubleshooting.
 
 ## Requirements _(mandatory)_
 
@@ -173,6 +178,8 @@ As a staff member ending my shift, I want to log out securely, so that the next 
 
 - **FR-016**: System MUST NOT allow a user to create an account with, or promote an existing account to, a role equal to or higher than their own.
 
+- **FR-017**: System MUST log unrecoverable/unexpected errors (5xx) at error level with enough context to diagnose the failure (including a request-correlation ID), without exposing internal error details in the client-facing response.
+
 - **FR-014**: System MUST invalidate all sessions when password is changed.
 
 ### Key Entities
@@ -200,3 +207,5 @@ As a staff member ending my shift, I want to log out securely, so that the next 
 - **SC-006**: All authentication events are logged with timestamp, user, IP, and result.
 
 - **SC-007**: Password hashing uses Argon2id with 64MB memory, 3 iterations, and 4-way parallelism (OWASP-recommended parameters).
+
+- **SC-008**: 100% of unhandled 5xx errors produce a structured error-level log entry containing a request-correlation ID and the underlying error, while the client response contains only a generic message (no internal error detail).
