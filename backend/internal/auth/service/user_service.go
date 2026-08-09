@@ -197,7 +197,7 @@ type UpdateRequest struct {
 
 // Update updates a user's profile.
 func (s *UserService) Update(ctx context.Context, req UpdateRequest, callerRole domain.Role) (*domain.User, error) {
-	user, err := s.userRepo.FindByID(ctx, req.UserID)
+	user, err := s.userRepo.FindByIDWithTenants(ctx, req.UserID)
 	if err != nil {
 		return nil, err
 	}
@@ -291,7 +291,7 @@ type UnlockRequest struct {
 
 // Unlock clears a user's account lockout.
 func (s *UserService) Unlock(ctx context.Context, req UnlockRequest, callerRole domain.Role) (*domain.User, error) {
-	user, err := s.userRepo.FindByID(ctx, req.UserID)
+	user, err := s.userRepo.FindByIDWithTenants(ctx, req.UserID)
 	if err != nil {
 		return nil, err
 	}
@@ -431,9 +431,7 @@ func (s *UserService) RequestPasswordReset(ctx context.Context, email, ipAddress
 		"found": true,
 	})
 
-	// TODO: Send email with plainToken
-	// For now, we just store the token. Email sending will be added later.
-	_ = plainToken
+	_ = s.emailer.SendPasswordReset(ctx, user.Email, plainToken)
 
 	return nil
 }

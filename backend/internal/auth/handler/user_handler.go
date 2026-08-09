@@ -153,7 +153,7 @@ func (h *UserHandler) List(w http.ResponseWriter, r *http.Request) {
 	// Convert to response format
 	userResponses := make([]UserResponse, len(users))
 	for i, user := range users {
-		userResponses[i] = *ToUserResponse(user)
+		userResponses[i] = *ToUserResponse(user, tenantID)
 	}
 
 	totalPages := int(total) / limit
@@ -184,6 +184,8 @@ func (h *UserHandler) List(w http.ResponseWriter, r *http.Request) {
 // @Failure      404  {object}  ErrorResponse "not_found"
 // @Router       /users/{id} [get]
 func (h *UserHandler) Get(w http.ResponseWriter, r *http.Request) {
+	tenantID, _ := GetTenantID(r.Context())
+
 	userIDStr := chi.URLParam(r, "id")
 	userID, err := uuid.Parse(userIDStr)
 	if err != nil {
@@ -201,7 +203,7 @@ func (h *UserHandler) Get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	writeJSON(w, http.StatusOK, ToUserResponse(user))
+	writeJSON(w, http.StatusOK, ToUserResponse(user, tenantID))
 }
 
 // Update handles PATCH /users/{id}.
@@ -267,7 +269,7 @@ func (h *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	writeJSON(w, http.StatusOK, ToUserResponse(user))
+	writeJSON(w, http.StatusOK, ToUserResponse(user, tenantID))
 }
 
 // Unlock handles POST /users/{id}/unlock.
@@ -322,7 +324,7 @@ func (h *UserHandler) Unlock(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	writeJSON(w, http.StatusOK, ToUserResponse(user))
+	writeJSON(w, http.StatusOK, ToUserResponse(user, tenantID))
 }
 
 // UpdateRole handles PATCH /users/{id}/role.
@@ -401,5 +403,5 @@ func (h *UserHandler) UpdateRole(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	writeJSON(w, http.StatusOK, ToUserResponse(user))
+	writeJSON(w, http.StatusOK, ToUserResponse(user, tenantID))
 }

@@ -402,4 +402,23 @@ Phase 13:
 
 - [x] T102 Add swaggo/swag annotations to all 13 auth REST endpoints (`backend/internal/auth/handler/auth_handler.go`, `user_handler.go`) and general API info annotations in `backend/cmd/server/main.go`, generate the OpenAPI spec via `swag init`, and serve it at `/swagger/*` per Constitution III (missing, CRITICAL)
 
+**Checkpoint**: `/swagger/index.html` and `/swagger/doc.json` verified live, listing all 13 endpoints
+
+---
+
+## Phase 16: Complete E2E Test Suite
+
+**Purpose**: Real-HTTP e2e coverage for every auth/user endpoint (user request, 2026-08-08), not just the login/refresh/logout flow from T082
+
+- [x] T103 Fix a real authorization-bypass bug found while building this suite: `UserService.Update`/`Unlock` called `userRepo.FindByID` (no preload) then `user.GetRoleForTenant(...)`, which is always `""` against real Postgres (that repo method never preloads `TenantRoles`) - so the `CanManage` check silently never fired for anyone. Switched both to `FindByIDWithTenants`. Unit tests didn't catch this because the mocks pre-embed roles regardless of which `Find*` variant is called. (contradicts, CRITICAL)
+- [x] T104 Fix `ToUserResponse` never populating `Role`/`TenantID` despite the DTO advertising both fields - `GET/PATCH /users/{id}`, `PATCH /users/{id}/role`, `POST /users/{id}/unlock` responses always omitted them. Added a `tenantID` param and threaded it through all 5 call sites (`user_handler.go`); added `.Preload("TenantRoles")` to the real `ListByTenant` GORM query (same gap on the list endpoint). (missing)
+- [x] T105 Close a dangling TODO: `UserService.RequestPasswordReset` generated a reset token but never sent it anywhere (`// TODO: Send email with plainToken`). Added `Emailer.SendPasswordReset` and wired it in. (missing)
+- [x] T106 Add `RolesLookup` hook to `MockUserRepository` (`repository/mock/mocks.go`) so `*WithTenants` methods and the default `ListByTenant` can cross-reference `MockUserTenantRoleRepository` the way a real Postgres FK join would - additive, backward-compatible (existing tests all override `ListByTenantFunc` explicitly, confirmed via grep before changing the default)
+- [x] T107 Add `e2e_helpers_test.go`: shared `e2eEnv` (real chi router + mock repos wired via T106, real HTTP via `httptest.NewServer`) and `capturingEmailer` (test double for `service.Emailer` that records temp passwords/reset tokens/tenant-link notifications, since those only ever leave the system via email)
+- [x] T108 Add `e2e_users_test.go`: `TestE2E_ManagerCreatesAndManagesStaff` (create -> temp-password login -> change-password -> list -> get -> update -> promote, covering `POST/GET/PATCH /users`, `PATCH /users/{id}/role`), `TestE2E_CreateUser_LinksExistingAccountAcrossTenants` (FR-012 link vs. same-tenant conflict), `TestE2E_AccountLockoutAndUnlock` (FR-011a lockout -> `POST /users/{id}/unlock` -> re-login)
+- [x] T109 Add `e2e_password_test.go`: `TestE2E_ChangePassword_InvalidatesOtherSessions` (FR-014 across two "devices"), `TestE2E_PasswordResetFlow` (request -> capture token -> complete -> new/old password behavior -> single-use enforcement -> no-enumeration on unknown email)
+- [x] T110 Fix a double `w.WriteHeader` call in `RequestPasswordReset` (auth_handler.go) surfaced by the new e2e run's `httptest` warnings (harmless in practice - same status code both times - but noisy and sloppy)
+
+**Checkpoint**: All 13 auth/user REST endpoints now driven end-to-end over real HTTP (not just unit-tested in isolation). `go test ./internal/auth/ -run TestE2E -count=3` : 18/18 pass, no flakiness. Full suite still ≥80% coverage gate (domain 87.8%, handler 80.7%, repository 83.6%, service 85.8%).
+
 **Checkpoint**: Auth module REST endpoints have a machine-readable OpenAPI 3.0 spec, servable and browsable

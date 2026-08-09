@@ -28,6 +28,13 @@ type MockUserRepository struct {
 	UpdateFunc                 func(ctx context.Context, user *domain.User) error
 	ListByTenantFunc           func(ctx context.Context, tenantID uuid.UUID, offset, limit int) ([]*domain.User, int64, error)
 	ExistsByEmailFunc          func(ctx context.Context, email string) (bool, error)
+
+	// RolesLookup, if set, is used by the *WithTenants methods and the
+	// default ListByTenant to populate TenantRoles from a
+	// MockUserTenantRoleRepository - so e2e tests see accurate role state
+	// after Create/UpdateRole/etc. without manually re-embedding roles on
+	// the User object (which real Postgres reflects automatically via FK join).
+	RolesLookup func(userID uuid.UUID) []domain.UserTenantRole
 }
 
 // NewMockUserRepository creates a new MockUserRepository.
@@ -67,14 +74,28 @@ func (m *MockUserRepository) FindByEmailWithTenants(ctx context.Context, email s
 	if m.FindByEmailWithTenantsFunc != nil {
 		return m.FindByEmailWithTenantsFunc(ctx, email)
 	}
-	return m.FindByEmail(ctx, email)
+	u, err := m.FindByEmail(ctx, email)
+	if err != nil {
+		return nil, err
+	}
+	if m.RolesLookup != nil {
+		u.TenantRoles = m.RolesLookup(u.ID)
+	}
+	return u, nil
 }
 
 func (m *MockUserRepository) FindByIDWithTenants(ctx context.Context, id uuid.UUID) (*domain.User, error) {
 	if m.FindByIDWithTenantsFunc != nil {
 		return m.FindByIDWithTenantsFunc(ctx, id)
 	}
-	return m.FindByID(ctx, id)
+	u, err := m.FindByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if m.RolesLookup != nil {
+		u.TenantRoles = m.RolesLookup(u.ID)
+	}
+	return u, nil
 }
 
 func (m *MockUserRepository) Create(ctx context.Context, user *domain.User) error {
@@ -104,7 +125,34 @@ func (m *MockUserRepository) ListByTenant(ctx context.Context, tenantID uuid.UUI
 	if m.ListByTenantFunc != nil {
 		return m.ListByTenantFunc(ctx, tenantID, offset, limit)
 	}
-	return []*domain.User{}, 0, nil
+	if m.RolesLookup == nil {
+		return []*domain.User{}, 0, nil
+	}
+
+	m.mu.RLock()
+	var matched []*domain.User
+	for _, u := range m.users {
+		roles := m.RolesLookup(u.ID)
+		for _, r := range roles {
+			if r.TenantID == tenantID {
+				u.TenantRoles = roles
+				matched = append(matched, u)
+				break
+			}
+		}
+	}
+	m.mu.RUnlock()
+
+	total := int64(len(matched))
+	start := offset
+	if start > len(matched) {
+		start = len(matched)
+	}
+	end := start + limit
+	if end > len(matched) {
+		end = len(matched)
+	}
+	return matched[start:end], total, nil
 }
 
 func (m *MockUserRepository) ExistsByEmail(ctx context.Context, email string) (bool, error) {

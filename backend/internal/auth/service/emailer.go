@@ -17,6 +17,9 @@ type Emailer interface {
 
 	// SendTenantLinked notifies an existing user that a new tenant role was added to their account.
 	SendTenantLinked(ctx context.Context, toEmail string, tenantID uuid.UUID) error
+
+	// SendPasswordReset sends the plaintext reset token to a user who requested a password reset.
+	SendPasswordReset(ctx context.Context, toEmail, resetToken string) error
 }
 
 // LogEmailer is a stub Emailer that logs instead of sending real email.
@@ -35,6 +38,11 @@ func (e *LogEmailer) SendTemporaryPassword(ctx context.Context, toEmail, tempPas
 
 func (e *LogEmailer) SendTenantLinked(ctx context.Context, toEmail string, tenantID uuid.UUID) error {
 	log.Printf("[email stub] %s was added to tenant %s", toEmail, tenantID)
+	return nil
+}
+
+func (e *LogEmailer) SendPasswordReset(ctx context.Context, toEmail, resetToken string) error {
+	log.Printf("[email stub] password reset token for %s: %s", toEmail, resetToken)
 	return nil
 }
 

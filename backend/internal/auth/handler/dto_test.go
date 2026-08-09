@@ -84,6 +84,7 @@ func TestToUserResponse(t *testing.T) {
 	userID := uuid.New()
 	now := time.Now()
 
+	tenantID := uuid.New()
 	user := &domain.User{
 		ID:           userID,
 		Email:        "user@example.com",
@@ -93,9 +94,12 @@ func TestToUserResponse(t *testing.T) {
 		MustResetPwd: true,
 		CreatedAt:    now,
 		UpdatedAt:    now,
+		TenantRoles: []domain.UserTenantRole{
+			{TenantID: tenantID, Role: domain.RoleWaiter},
+		},
 	}
 
-	result := ToUserResponse(user)
+	result := ToUserResponse(user, tenantID)
 
 	if result.ID != userID {
 		t.Error("ID mismatch")
@@ -114,6 +118,12 @@ func TestToUserResponse(t *testing.T) {
 	}
 	if !result.MustResetPassword {
 		t.Error("MustResetPassword should be true")
+	}
+	if result.Role != string(domain.RoleWaiter) {
+		t.Errorf("Role = %q, want %q", result.Role, domain.RoleWaiter)
+	}
+	if result.TenantID != tenantID {
+		t.Error("TenantID mismatch")
 	}
 }
 
