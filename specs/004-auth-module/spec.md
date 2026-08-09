@@ -33,6 +33,10 @@
 
 - Q: Should spec.md gain a formal requirement that unrecoverable/unexpected errors (5xx) must be logged with diagnostic detail server-side, while the client response stays generic? → A: Yes — this closes a gap `/speckit-analyze` found: 8 call sites across the auth/user handlers silently discard the real error with a generic 500, and no structured logger exists anywhere in the backend.
 
+### Session 2026-08-09 (3)
+
+- Q: FR-017/SC-008 only cover unhandled 5xx errors — expected auth-rejection outcomes (revoked/expired token, wrong password, locked/disabled account, insufficient role, rate-limited) currently produce no structured log at all, only a bare unstructured access-log line with no user/tenant/reason. Should every request get a structured completion log regardless of outcome, not just 5xxs? → A: Yes — one structured "request completed" log line per request (info level for 2xx/4xx, error level for 5xx), carrying request_id, method, path, status, duration_ms, and user_id/tenant_id when resolved by that point in the request; never email, password, or token values.
+
 ## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Staff Member Logs In (Priority: P1)
@@ -180,6 +184,8 @@ As a staff member ending my shift, I want to log out securely, so that the next 
 
 - **FR-017**: System MUST log unrecoverable/unexpected errors (5xx) at error level with enough context to diagnose the failure (including a request-correlation ID), without exposing internal error details in the client-facing response.
 
+- **FR-018**: System MUST log one structured completion entry for every request regardless of outcome (2xx, 4xx, or 5xx) - not only unhandled 5xxs - containing at minimum: request-correlation ID, method, path, status code, duration, and the authenticated user_id/tenant_id when resolved by that point in the request. Sensitive values (password, tokens, full email) MUST NOT appear in this log entry.
+
 - **FR-014**: System MUST invalidate all sessions when password is changed.
 
 ### Key Entities
@@ -209,3 +215,5 @@ As a staff member ending my shift, I want to log out securely, so that the next 
 - **SC-007**: Password hashing uses Argon2id with 64MB memory, 3 iterations, and 4-way parallelism (OWASP-recommended parameters).
 
 - **SC-008**: 100% of unhandled 5xx errors produce a structured error-level log entry containing a request-correlation ID and the underlying error, while the client response contains only a generic message (no internal error detail).
+
+- **SC-009**: 100% of requests (all status codes, not only 5xx) produce a structured completion log entry with request-correlation ID, status, and duration, so any rejected request - expected or not - is traceable server-side.

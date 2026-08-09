@@ -67,7 +67,7 @@ func main() {
 
 	r := chi.NewRouter()
 	r.Use(middleware.RequestID)
-	r.Use(middleware.Logger)
+	r.Use(handler.AccessLog)
 	r.Use(middleware.Recoverer)
 	authModule.RegisterRoutes(r)
 	r.Get("/swagger/*", httpSwagger.WrapHandler)

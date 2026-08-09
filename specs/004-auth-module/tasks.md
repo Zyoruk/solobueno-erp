@@ -453,3 +453,16 @@ Phase 13:
 **Checkpoint**: `go build ./... && go vet ./... && go test ./... -count=1` green, coverage gate intact; live repro (temporarily bad `DB_HOST` against the containerized server) shows a clean generic 500 on the wire and a structured JSON error log with `request_id` in `docker logs solobueno-backend`
 
 **Checkpoint**: Email delivery failures are observable (logged + audited) instead of silent
+
+---
+
+## Phase 19: Convergence
+
+**Purpose**: Close the request/response access-logging gap surfaced by the 2026-08-09 user report ("a revoked token returns an error but nothing is logged - this is an expected path, not a 500") and formalized as FR-018/SC-009 (see F1-F3). Design: shared mutable `*accessLogFields` context pointer set before `next.ServeHTTP`, read after, so `RequireAuth` (which runs inside the handler chain) can attach `user_id`/`tenant_id` that the outer logging middleware sees once the request completes. `chi/middleware.NewWrapResponseWriter` captures the real status code.
+
+- [x] T122 Add `backend/internal/auth/handler/access_log.go`: `accessLogFields` struct (`UserID`, `TenantID *string`), a context key + `setAccessLogUserID`/`setAccessLogTenantID` helpers, and an `AccessLog(next http.Handler) http.Handler` middleware that injects a fresh `*accessLogFields` into the request context, wraps the `ResponseWriter` via `chi/middleware.NewWrapResponseWriter`, calls `next`, then logs one line (`Info` for 2xx/4xx, `Error` for 5xx) with `request_id`, `method`, `path`, `status`, `duration_ms`, and `user_id`/`tenant_id` when set, via FR-018 (missing, HIGH)
+- [x] T123 Wire `AccessLog` into `backend/internal/auth/handler/middleware.go`'s `RequireAuth`: after successful claim validation, call `setAccessLogUserID`/`setAccessLogTenantID` on the pointer already in the request context so it's visible to `AccessLog` once the handler chain unwinds via FR-018 (missing, HIGH)
+- [x] T124 Replace `middleware.Logger` with `handler.AccessLog` in `backend/cmd/server/main.go`'s router chain (after `middleware.RequestID`, before `middleware.Recoverer`) so every mounted route gets structured completion logging, not just auth's own handlers via FR-018 (missing, HIGH)
+- [x] T125 Add unit tests in `backend/internal/auth/handler/access_log_test.go` using the existing `capturingLogger` double: assert a revoked/expired refresh-token request (401, e.g. `ErrSessionRevoked`) produces exactly one structured `Info`-level completion entry with `status=401` and no PII fields, and an authenticated-path request (simulating `RequireAuth`'s context mutation) produces one entry carrying non-empty `user_id`/`tenant_id` via SC-009 (missing) — sanity-checked via sed-revert: nulling the context lookup in `access_log.go` makes the second test fail with `user_id = <nil>`, confirming it isn't a tautology
+
+**Checkpoint**: `go build ./... && go vet ./... && go test ./... -count=1` green (handler coverage 82.5%, all packages ≥80%); live-verified against the rebuilt containerized server (`docker compose up -d --build backend`): `POST /api/v1/auth/refresh` with a bogus/revoked token now produces `{"level":"info","message":"request completed",...,"status":401}` in `docker logs solobueno-backend` — previously produced nothing beyond the bare access line

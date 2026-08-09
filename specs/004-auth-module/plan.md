@@ -23,20 +23,20 @@ Implement a complete authentication and authorization module for Solobueno ERP u
 
 _GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 
-| Principle                      | Status  | Notes                                                                                                                                                                                           |
-| ------------------------------ | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| I. Mobile-First                | N/A     | Backend module, no UI                                                                                                                                                                           |
-| II. Domain-Driven Design       | ✅ Pass | Auth is a bounded context per constitution                                                                                                                                                      |
-| III. API-First                 | ✅ Pass | REST endpoints defined in contracts                                                                                                                                                             |
-| IV. Offline-First              | ✅ Pass | JWT tokens enable offline validation                                                                                                                                                            |
-| V. Plugin-Driven               | N/A     | No plugins for auth                                                                                                                                                                             |
-| VI. White-Label & Multi-Tenant | ✅ Pass | Tenant context in tokens, multi-tenant users                                                                                                                                                    |
-| VII. Type Safety               | ✅ Pass | Go strongly typed                                                                                                                                                                               |
-| VIII. Test-Driven              | ✅ Pass | Tests for all auth flows                                                                                                                                                                        |
-| IX. Internationalization       | N/A     | Error codes, not user-facing messages                                                                                                                                                           |
-| X. User-Centric                | ✅ Pass | Fast login, session persistence                                                                                                                                                                 |
-| XI. Observability              | ✅ Pass | Auth events logging (FR-010); operational error logging via `internal/shared/observability` (zerolog), `request_id` correlation, unrecoverable-error logging at every handler boundary (FR-017) |
-| XII. Security                  | ✅ Pass | Argon2id, RS256, rate limiting, secure tokens                                                                                                                                                   |
+| Principle                      | Status  | Notes                                                                                                                                                                                                                                                                             |
+| ------------------------------ | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| I. Mobile-First                | N/A     | Backend module, no UI                                                                                                                                                                                                                                                             |
+| II. Domain-Driven Design       | ✅ Pass | Auth is a bounded context per constitution                                                                                                                                                                                                                                        |
+| III. API-First                 | ✅ Pass | REST endpoints defined in contracts                                                                                                                                                                                                                                               |
+| IV. Offline-First              | ✅ Pass | JWT tokens enable offline validation                                                                                                                                                                                                                                              |
+| V. Plugin-Driven               | N/A     | No plugins for auth                                                                                                                                                                                                                                                               |
+| VI. White-Label & Multi-Tenant | ✅ Pass | Tenant context in tokens, multi-tenant users                                                                                                                                                                                                                                      |
+| VII. Type Safety               | ✅ Pass | Go strongly typed                                                                                                                                                                                                                                                                 |
+| VIII. Test-Driven              | ✅ Pass | Tests for all auth flows                                                                                                                                                                                                                                                          |
+| IX. Internationalization       | N/A     | Error codes, not user-facing messages                                                                                                                                                                                                                                             |
+| X. User-Centric                | ✅ Pass | Fast login, session persistence                                                                                                                                                                                                                                                   |
+| XI. Observability              | ✅ Pass | Auth events logging (FR-010); operational error logging via `internal/shared/observability` (zerolog), `request_id` correlation, unrecoverable-error logging at every handler boundary (FR-017); per-request access logging for every outcome via `accessLog` middleware (FR-018) |
+| XII. Security                  | ✅ Pass | Argon2id, RS256, rate limiting, secure tokens                                                                                                                                                                                                                                     |
 
 **Gate Status**: ✅ PASSED - All applicable principles satisfied
 
@@ -93,6 +93,30 @@ backend/
 ```
 
 **Structure Decision**: Following constitution's modular monolith pattern with `internal/auth` as the bounded context. JWT utilities in `pkg/` for potential reuse by other modules. GORM implementations co-located with interfaces (no separate `postgres/` directory) for simplicity.
+
+## Design: Request/Response Access Logging (FR-018)
+
+Closes the gap where expected 4xx auth rejections (revoked token, wrong password, locked
+account, insufficient role) produced zero structured log output - only chi's bare unstructured
+access line, no `user_id`/`tenant_id`/reason.
+
+- **Where**: root chi router in `cmd/server/main.go`, replacing `middleware.Logger` - so it
+  covers every route mounted on the router, not just auth, as future modules mount onto the
+  same router.
+- **Status capture**: `chi/middleware.NewWrapResponseWriter` (already an indirect dependency via
+  chi) wraps the `ResponseWriter` to expose `.Status()` after the handler returns - no changes to
+  any handler needed.
+- **User/tenant capture**: `RequireAuth` runs _inside_ `next.ServeHTTP`, after this middleware's
+  own `r` variable is fixed - a later `r.Context()` read in the outer middleware would miss
+  values `RequireAuth` attaches via `r.WithContext`. Fix: inject a single mutable
+  `*accessLogFields` pointer into the context _before_ calling `next`; `RequireAuth` (and any
+  future auth-aware middleware) sets `UserID`/`TenantID` fields on that same pointer instead of
+  creating a new context value. The outer middleware reads the pointer after `next.ServeHTTP`
+  returns and sees whatever was set.
+- **One line per request**, level `info` for 2xx/4xx and `error` for 5xx (5xx already gets its
+  own detailed entry from `writeInternalError`/FR-017 - this line is the summary, not a
+  duplicate): `request_id`, `method`, `path`, `status`, `duration_ms`, `user_id`/`tenant_id` when
+  set. Never email, password, or token values (Sensitive Data Handling, Principle XII).
 
 ## Complexity Tracking
 

@@ -90,12 +90,7 @@
       {
         "id": "ci_pipeline_job_flow",
         "label": "CI Pipeline Job Flow (lint to build to test)",
-        "nodes": [
-          "ci_workflow_ci_yml",
-          "lint_job",
-          "build_job",
-          "test_job"
-        ],
+        "nodes": ["ci_workflow_ci_yml", "lint_job", "build_job", "test_job"],
         "relation": "form",
         "confidence": "EXTRACTED",
         "confidence_score": 1.0,
@@ -5930,6 +5925,171 @@
       "norm_label": "testsessionrevokedevent()"
     },
     {
+      "label": "access_log.go",
+      "file_type": "code",
+      "source_file": "backend/internal/auth/handler/access_log.go",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "backend_internal_auth_handler_access_log",
+      "community": 138,
+      "community_name": "TestAccessLog_AuthenticatedRequest_LogsUserAndTenant",
+      "norm_label": "access_log.go"
+    },
+    {
+      "label": "accessLogFields",
+      "file_type": "code",
+      "source_file": "backend/internal/auth/handler/access_log.go",
+      "source_location": "L18",
+      "_origin": "ast",
+      "id": "handler_accesslogfields",
+      "community": 138,
+      "community_name": "TestAccessLog_AuthenticatedRequest_LogsUserAndTenant",
+      "norm_label": "accesslogfields"
+    },
+    {
+      "label": "accessLogContextKey",
+      "file_type": "code",
+      "source_file": "backend/internal/auth/handler/access_log.go",
+      "source_location": "L23",
+      "_origin": "ast",
+      "id": "handler_accesslogcontextkey",
+      "community": 138,
+      "community_name": "TestAccessLog_AuthenticatedRequest_LogsUserAndTenant",
+      "norm_label": "accesslogcontextkey"
+    },
+    {
+      "label": "setAccessLogUserID()",
+      "file_type": "code",
+      "source_file": "backend/internal/auth/handler/access_log.go",
+      "source_location": "L25",
+      "_origin": "ast",
+      "id": "backend_internal_auth_handler_access_log_setaccessloguserid",
+      "community": 138,
+      "community_name": "TestAccessLog_AuthenticatedRequest_LogsUserAndTenant",
+      "norm_label": "setaccessloguserid()"
+    },
+    {
+      "label": "Context",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "_origin": "ast",
+      "id": "backend_internal_auth_handler_access_log_go_context",
+      "community": 138,
+      "community_name": "TestAccessLog_AuthenticatedRequest_LogsUserAndTenant",
+      "norm_label": "context"
+    },
+    {
+      "label": "setAccessLogTenantID()",
+      "file_type": "code",
+      "source_file": "backend/internal/auth/handler/access_log.go",
+      "source_location": "L31",
+      "_origin": "ast",
+      "id": "backend_internal_auth_handler_access_log_setaccesslogtenantid",
+      "community": 138,
+      "community_name": "TestAccessLog_AuthenticatedRequest_LogsUserAndTenant",
+      "norm_label": "setaccesslogtenantid()"
+    },
+    {
+      "label": "AccessLog()",
+      "file_type": "code",
+      "source_file": "backend/internal/auth/handler/access_log.go",
+      "source_location": "L42",
+      "_origin": "ast",
+      "id": "backend_internal_auth_handler_access_log_accesslog",
+      "community": 138,
+      "community_name": "TestAccessLog_AuthenticatedRequest_LogsUserAndTenant",
+      "norm_label": "accesslog()"
+    },
+    {
+      "label": "Handler",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "_origin": "ast",
+      "id": "backend_internal_auth_handler_access_log_go_handler",
+      "community": 138,
+      "community_name": "TestAccessLog_AuthenticatedRequest_LogsUserAndTenant",
+      "norm_label": "handler"
+    },
+    {
+      "label": "access_log_test.go",
+      "file_type": "code",
+      "source_file": "backend/internal/auth/handler/access_log_test.go",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "backend_internal_auth_handler_access_log_test",
+      "community": 138,
+      "community_name": "TestAccessLog_AuthenticatedRequest_LogsUserAndTenant",
+      "norm_label": "access_log_test.go"
+    },
+    {
+      "label": "capturingLogger",
+      "file_type": "code",
+      "source_file": "backend/internal/auth/handler/access_log_test.go",
+      "source_location": "L19",
+      "_origin": "ast",
+      "id": "backend_internal_auth_handler_access_log_test_go_handler_capturinglogger",
+      "community": 138,
+      "community_name": "TestAccessLog_AuthenticatedRequest_LogsUserAndTenant",
+      "norm_label": "capturinglogger"
+    },
+    {
+      "label": ".entryField()",
+      "file_type": "code",
+      "source_file": "backend/internal/auth/handler/access_log_test.go",
+      "source_location": "L19",
+      "_origin": "ast",
+      "id": "handler_capturinglogger_entryfield",
+      "community": 138,
+      "community_name": "TestAccessLog_AuthenticatedRequest_LogsUserAndTenant",
+      "norm_label": ".entryfield()"
+    },
+    {
+      "label": ".lastLevel()",
+      "file_type": "code",
+      "source_file": "backend/internal/auth/handler/access_log_test.go",
+      "source_location": "L37",
+      "_origin": "ast",
+      "id": "handler_capturinglogger_lastlevel",
+      "community": 138,
+      "community_name": "TestAccessLog_AuthenticatedRequest_LogsUserAndTenant",
+      "norm_label": ".lastlevel()"
+    },
+    {
+      "label": "TestAccessLog_RevokedToken_LogsCompletionWithNoPII()",
+      "file_type": "code",
+      "source_file": "backend/internal/auth/handler/access_log_test.go",
+      "source_location": "L51",
+      "_origin": "ast",
+      "id": "backend_internal_auth_handler_access_log_test_testaccesslog_revokedtoken_logscompletionwithnopii",
+      "community": 138,
+      "community_name": "TestAccessLog_AuthenticatedRequest_LogsUserAndTenant",
+      "norm_label": "testaccesslog_revokedtoken_logscompletionwithnopii()"
+    },
+    {
+      "label": "T",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "_origin": "ast",
+      "id": "backend_internal_auth_handler_access_log_test_go_t",
+      "community": 138,
+      "community_name": "TestAccessLog_AuthenticatedRequest_LogsUserAndTenant",
+      "norm_label": "t"
+    },
+    {
+      "label": "TestAccessLog_AuthenticatedRequest_LogsUserAndTenant()",
+      "file_type": "code",
+      "source_file": "backend/internal/auth/handler/access_log_test.go",
+      "source_location": "L100",
+      "_origin": "ast",
+      "id": "backend_internal_auth_handler_access_log_test_testaccesslog_authenticatedrequest_logsuserandtenant",
+      "community": 138,
+      "community_name": "TestAccessLog_AuthenticatedRequest_LogsUserAndTenant",
+      "norm_label": "testaccesslog_authenticatedrequest_logsuserandtenant()"
+    },
+    {
       "label": "auth_handler.go",
       "file_type": "code",
       "source_file": "backend/internal/auth/handler/auth_handler.go",
@@ -6805,8 +6965,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_internal_auth_handler_errors_test",
-      "community": 52,
-      "community_name": "setupWiredAuthHandler",
+      "community": 162,
+      "community_name": "capturingLogger",
       "norm_label": "errors_test.go"
     },
     {
@@ -6815,9 +6975,9 @@
       "source_file": "backend/internal/auth/handler/errors_test.go",
       "source_location": "L23",
       "_origin": "ast",
-      "id": "handler_capturinglogger",
-      "community": 52,
-      "community_name": "setupWiredAuthHandler",
+      "id": "backend_internal_auth_handler_errors_test_go_handler_capturinglogger",
+      "community": 162,
+      "community_name": "capturingLogger",
       "norm_label": "capturinglogger"
     },
     {
@@ -6827,8 +6987,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "backend_internal_auth_handler_errors_test_go_mutex",
-      "community": 52,
-      "community_name": "setupWiredAuthHandler",
+      "community": 162,
+      "community_name": "capturingLogger",
       "norm_label": "mutex"
     },
     {
@@ -6838,8 +6998,8 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "handler_capturedentry",
-      "community": 52,
-      "community_name": "setupWiredAuthHandler",
+      "community": 162,
+      "community_name": "capturingLogger",
       "norm_label": "capturedentry"
     },
     {
@@ -6849,8 +7009,8 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "handler_capturinglogger_debug",
-      "community": 52,
-      "community_name": "setupWiredAuthHandler",
+      "community": 162,
+      "community_name": "capturingLogger",
       "norm_label": ".debug()"
     },
     {
@@ -6860,8 +7020,8 @@
       "source_location": "L37",
       "_origin": "ast",
       "id": "handler_capturinglogger_info",
-      "community": 52,
-      "community_name": "setupWiredAuthHandler",
+      "community": 162,
+      "community_name": "capturingLogger",
       "norm_label": ".info()"
     },
     {
@@ -6871,8 +7031,8 @@
       "source_location": "L38",
       "_origin": "ast",
       "id": "handler_capturinglogger_warn",
-      "community": 52,
-      "community_name": "setupWiredAuthHandler",
+      "community": 162,
+      "community_name": "capturingLogger",
       "norm_label": ".warn()"
     },
     {
@@ -6882,8 +7042,8 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "handler_capturinglogger_error",
-      "community": 52,
-      "community_name": "setupWiredAuthHandler",
+      "community": 162,
+      "community_name": "capturingLogger",
       "norm_label": ".error()"
     },
     {
@@ -6893,8 +7053,8 @@
       "source_location": "L42",
       "_origin": "ast",
       "id": "handler_capturinglogger_with",
-      "community": 52,
-      "community_name": "setupWiredAuthHandler",
+      "community": 161,
+      "community_name": "withFields",
       "norm_label": ".with()"
     },
     {
@@ -6904,8 +7064,8 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "handler_capturinglogger_add",
-      "community": 52,
-      "community_name": "setupWiredAuthHandler",
+      "community": 162,
+      "community_name": "capturingLogger",
       "norm_label": ".add()"
     },
     {
@@ -6915,8 +7075,8 @@
       "source_location": "L54",
       "_origin": "ast",
       "id": "handler_capturinglogger_haserrorcontaining",
-      "community": 52,
-      "community_name": "setupWiredAuthHandler",
+      "community": 162,
+      "community_name": "capturingLogger",
       "norm_label": ".haserrorcontaining()"
     },
     {
@@ -6926,8 +7086,8 @@
       "source_location": "L72",
       "_origin": "ast",
       "id": "backend_internal_auth_handler_errors_test_testauthhandler_refresh_logssessionlookupfailure",
-      "community": 52,
-      "community_name": "setupWiredAuthHandler",
+      "community": 162,
+      "community_name": "capturingLogger",
       "norm_label": "testauthhandler_refresh_logssessionlookupfailure()"
     },
     {
@@ -6937,8 +7097,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "backend_internal_auth_handler_errors_test_go_t",
-      "community": 52,
-      "community_name": "setupWiredAuthHandler",
+      "community": 162,
+      "community_name": "capturingLogger",
       "norm_label": "t"
     },
     {
@@ -6948,8 +7108,8 @@
       "source_location": "L104",
       "_origin": "ast",
       "id": "backend_internal_auth_handler_errors_test_testauthhandler_refresh_logsuserlookupfailure",
-      "community": 52,
-      "community_name": "setupWiredAuthHandler",
+      "community": 162,
+      "community_name": "capturingLogger",
       "norm_label": "testauthhandler_refresh_logsuserlookupfailure()"
     },
     {
@@ -6959,8 +7119,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_internal_auth_handler_logger",
-      "community": 52,
-      "community_name": "setupWiredAuthHandler",
+      "community": 138,
+      "community_name": "TestAccessLog_AuthenticatedRequest_LogsUserAndTenant",
       "norm_label": "handler/logger.go"
     },
     {
@@ -6970,8 +7130,8 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "backend_internal_auth_handler_logger_setlogger",
-      "community": 52,
-      "community_name": "setupWiredAuthHandler",
+      "community": 138,
+      "community_name": "TestAccessLog_AuthenticatedRequest_LogsUserAndTenant",
       "norm_label": "setlogger()"
     },
     {
@@ -6981,8 +7141,8 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "backend_internal_auth_handler_logger_getenv",
-      "community": 52,
-      "community_name": "setupWiredAuthHandler",
+      "community": 138,
+      "community_name": "TestAccessLog_AuthenticatedRequest_LogsUserAndTenant",
       "norm_label": "getenv()"
     },
     {
@@ -7025,8 +7185,8 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "backend_internal_auth_handler_middleware_newauthmiddleware",
-      "community": 138,
-      "community_name": "Router",
+      "community": 122,
+      "community_name": "AuthService",
       "norm_label": "newauthmiddleware()"
     },
     {
@@ -7046,7 +7206,7 @@
       "source_file": "",
       "source_location": "",
       "_origin": "ast",
-      "id": "handler",
+      "id": "backend_internal_auth_handler_middleware_go_handler",
       "community": 108,
       "community_name": "setupAuthMiddleware",
       "norm_label": "handler"
@@ -7055,7 +7215,7 @@
       "label": ".RequireRole()",
       "file_type": "code",
       "source_file": "backend/internal/auth/handler/middleware.go",
-      "source_location": "L82",
+      "source_location": "L85",
       "_origin": "ast",
       "id": "handler_authmiddleware_requirerole",
       "community": 108,
@@ -7066,7 +7226,7 @@
       "label": ".RequireAnyRole()",
       "file_type": "code",
       "source_file": "backend/internal/auth/handler/middleware.go",
-      "source_location": "L103",
+      "source_location": "L106",
       "_origin": "ast",
       "id": "handler_authmiddleware_requireanyrole",
       "community": 108,
@@ -7077,7 +7237,7 @@
       "label": "extractBearerToken()",
       "file_type": "code",
       "source_file": "backend/internal/auth/handler/middleware.go",
-      "source_location": "L126",
+      "source_location": "L129",
       "_origin": "ast",
       "id": "backend_internal_auth_handler_middleware_extractbearertoken",
       "community": 108,
@@ -7099,7 +7259,7 @@
       "label": "GetUserID()",
       "file_type": "code",
       "source_file": "backend/internal/auth/handler/middleware.go",
-      "source_location": "L141",
+      "source_location": "L144",
       "_origin": "ast",
       "id": "backend_internal_auth_handler_middleware_getuserid",
       "community": 108,
@@ -7132,7 +7292,7 @@
       "label": "GetTenantID()",
       "file_type": "code",
       "source_file": "backend/internal/auth/handler/middleware.go",
-      "source_location": "L147",
+      "source_location": "L150",
       "_origin": "ast",
       "id": "backend_internal_auth_handler_middleware_gettenantid",
       "community": 108,
@@ -7143,7 +7303,7 @@
       "label": "GetRole()",
       "file_type": "code",
       "source_file": "backend/internal/auth/handler/middleware.go",
-      "source_location": "L153",
+      "source_location": "L156",
       "_origin": "ast",
       "id": "backend_internal_auth_handler_middleware_getrole",
       "community": 108,
@@ -7154,7 +7314,7 @@
       "label": "GetClaims()",
       "file_type": "code",
       "source_file": "backend/internal/auth/handler/middleware.go",
-      "source_location": "L159",
+      "source_location": "L162",
       "_origin": "ast",
       "id": "backend_internal_auth_handler_middleware_getclaims",
       "community": 108,
@@ -7176,7 +7336,7 @@
       "label": "GetClientIP()",
       "file_type": "code",
       "source_file": "backend/internal/auth/handler/middleware.go",
-      "source_location": "L169",
+      "source_location": "L172",
       "_origin": "ast",
       "id": "backend_internal_auth_handler_middleware_getclientip",
       "community": 108,
@@ -7938,8 +8098,8 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "auth_module",
-      "community": 22,
-      "community_name": "New",
+      "community": 122,
+      "community_name": "AuthService",
       "norm_label": "module"
     },
     {
@@ -7982,8 +8142,8 @@
       "source_location": "L76",
       "_origin": "ast",
       "id": "auth_module_registerroutes",
-      "community": 22,
-      "community_name": "New",
+      "community": 122,
+      "community_name": "AuthService",
       "norm_label": ".registerroutes()"
     },
     {
@@ -7993,8 +8153,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_internal_auth_repository_event_repo",
-      "community": 122,
-      "community_name": "AuthService",
+      "community": 163,
+      "community_name": "AuthServiceConfig",
       "norm_label": "event_repo.go"
     },
     {
@@ -8004,8 +8164,8 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "repository_autheventrepository",
-      "community": 122,
-      "community_name": "AuthService",
+      "community": 163,
+      "community_name": "AuthServiceConfig",
       "norm_label": "autheventrepository"
     },
     {
@@ -8169,8 +8329,8 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "mock_mockuserrepository",
-      "community": 129,
-      "community_name": "Context",
+      "community": 166,
+      "community_name": "MockUserRepository",
       "norm_label": "mockuserrepository"
     },
     {
@@ -8202,8 +8362,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "backend_internal_auth_repository_mock_mocks_go_user",
-      "community": 129,
-      "community_name": "Context",
+      "community": 166,
+      "community_name": "MockUserRepository",
       "norm_label": "user"
     },
     {
@@ -8235,8 +8395,8 @@
       "source_location": "L47",
       "_origin": "ast",
       "id": "mock_mockuserrepository_findbyid",
-      "community": 129,
-      "community_name": "Context",
+      "community": 166,
+      "community_name": "MockUserRepository",
       "norm_label": ".findbyid()"
     },
     {
@@ -8246,8 +8406,8 @@
       "source_location": "L59",
       "_origin": "ast",
       "id": "mock_mockuserrepository_findbyemail",
-      "community": 129,
-      "community_name": "Context",
+      "community": 166,
+      "community_name": "MockUserRepository",
       "norm_label": ".findbyemail()"
     },
     {
@@ -8257,8 +8417,8 @@
       "source_location": "L73",
       "_origin": "ast",
       "id": "mock_mockuserrepository_findbyemailwithtenants",
-      "community": 129,
-      "community_name": "Context",
+      "community": 166,
+      "community_name": "MockUserRepository",
       "norm_label": ".findbyemailwithtenants()"
     },
     {
@@ -8268,8 +8428,8 @@
       "source_location": "L87",
       "_origin": "ast",
       "id": "mock_mockuserrepository_findbyidwithtenants",
-      "community": 129,
-      "community_name": "Context",
+      "community": 166,
+      "community_name": "MockUserRepository",
       "norm_label": ".findbyidwithtenants()"
     },
     {
@@ -8279,8 +8439,8 @@
       "source_location": "L101",
       "_origin": "ast",
       "id": "mock_mockuserrepository_create",
-      "community": 129,
-      "community_name": "Context",
+      "community": 166,
+      "community_name": "MockUserRepository",
       "norm_label": ".create()"
     },
     {
@@ -8290,8 +8450,8 @@
       "source_location": "L114",
       "_origin": "ast",
       "id": "mock_mockuserrepository_update",
-      "community": 129,
-      "community_name": "Context",
+      "community": 166,
+      "community_name": "MockUserRepository",
       "norm_label": ".update()"
     },
     {
@@ -8301,8 +8461,8 @@
       "source_location": "L124",
       "_origin": "ast",
       "id": "mock_mockuserrepository_listbytenant",
-      "community": 129,
-      "community_name": "Context",
+      "community": 166,
+      "community_name": "MockUserRepository",
       "norm_label": ".listbytenant()"
     },
     {
@@ -8312,8 +8472,8 @@
       "source_location": "L158",
       "_origin": "ast",
       "id": "mock_mockuserrepository_existsbyemail",
-      "community": 129,
-      "community_name": "Context",
+      "community": 166,
+      "community_name": "MockUserRepository",
       "norm_label": ".existsbyemail()"
     },
     {
@@ -8323,8 +8483,8 @@
       "source_location": "L173",
       "_origin": "ast",
       "id": "mock_mockuserrepository_adduser",
-      "community": 129,
-      "community_name": "Context",
+      "community": 166,
+      "community_name": "MockUserRepository",
       "norm_label": ".adduser()"
     },
     {
@@ -8334,8 +8494,8 @@
       "source_location": "L182",
       "_origin": "ast",
       "id": "mock_mocksessionrepository",
-      "community": 152,
-      "community_name": "Session",
+      "community": 129,
+      "community_name": "Context",
       "norm_label": "mocksessionrepository"
     },
     {
@@ -8356,8 +8516,8 @@
       "source_location": "L203",
       "_origin": "ast",
       "id": "mock_mocksessionrepository_create",
-      "community": 152,
-      "community_name": "Session",
+      "community": 129,
+      "community_name": "Context",
       "norm_label": ".create()"
     },
     {
@@ -8367,8 +8527,8 @@
       "source_location": "L213",
       "_origin": "ast",
       "id": "mock_mocksessionrepository_findbytoken",
-      "community": 152,
-      "community_name": "Session",
+      "community": 129,
+      "community_name": "Context",
       "norm_label": ".findbytoken()"
     },
     {
@@ -8378,8 +8538,8 @@
       "source_location": "L227",
       "_origin": "ast",
       "id": "mock_mocksessionrepository_findbyid",
-      "community": 152,
-      "community_name": "Session",
+      "community": 129,
+      "community_name": "Context",
       "norm_label": ".findbyid()"
     },
     {
@@ -8433,8 +8593,8 @@
       "source_location": "L294",
       "_origin": "ast",
       "id": "mock_mocksessionrepository_deleteexpired",
-      "community": 152,
-      "community_name": "Session",
+      "community": 129,
+      "community_name": "Context",
       "norm_label": ".deleteexpired()"
     },
     {
@@ -8444,8 +8604,8 @@
       "source_location": "L301",
       "_origin": "ast",
       "id": "mock_mocksessionrepository_countactiveforuser",
-      "community": 152,
-      "community_name": "Session",
+      "community": 129,
+      "community_name": "Context",
       "norm_label": ".countactiveforuser()"
     },
     {
@@ -8598,8 +8758,8 @@
       "source_location": "L459",
       "_origin": "ast",
       "id": "mock_mocktenantrepository_findbyid",
-      "community": 129,
-      "community_name": "Context",
+      "community": 120,
+      "community_name": "Tenant",
       "norm_label": ".findbyid()"
     },
     {
@@ -8873,8 +9033,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_internal_auth_repository_password_reset_repo",
-      "community": 122,
-      "community_name": "AuthService",
+      "community": 128,
+      "community_name": "GormPasswordResetRepository",
       "norm_label": "password_reset_repo.go"
     },
     {
@@ -8884,8 +9044,8 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "repository_passwordresetrepository",
-      "community": 122,
-      "community_name": "AuthService",
+      "community": 128,
+      "community_name": "GormPasswordResetRepository",
       "norm_label": "passwordresetrepository"
     },
     {
@@ -9500,8 +9660,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_internal_auth_repository_session_repo",
-      "community": 122,
-      "community_name": "AuthService",
+      "community": 163,
+      "community_name": "AuthServiceConfig",
       "norm_label": "session_repo.go"
     },
     {
@@ -9511,8 +9671,8 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "repository_sessionrepository",
-      "community": 122,
-      "community_name": "AuthService",
+      "community": 163,
+      "community_name": "AuthServiceConfig",
       "norm_label": "sessionrepository"
     },
     {
@@ -9522,8 +9682,8 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "repository_gormsessionrepository",
-      "community": 122,
-      "community_name": "AuthService",
+      "community": 164,
+      "community_name": "GormSessionRepository",
       "norm_label": "gormsessionrepository"
     },
     {
@@ -9533,8 +9693,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "backend_internal_auth_repository_session_repo_go_db",
-      "community": 122,
-      "community_name": "AuthService",
+      "community": 164,
+      "community_name": "GormSessionRepository",
       "norm_label": "db"
     },
     {
@@ -9555,8 +9715,8 @@
       "source_location": "L54",
       "_origin": "ast",
       "id": "repository_gormsessionrepository_create",
-      "community": 122,
-      "community_name": "AuthService",
+      "community": 164,
+      "community_name": "GormSessionRepository",
       "norm_label": ".create()"
     },
     {
@@ -9566,8 +9726,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "backend_internal_auth_repository_session_repo_go_context",
-      "community": 122,
-      "community_name": "AuthService",
+      "community": 164,
+      "community_name": "GormSessionRepository",
       "norm_label": "context"
     },
     {
@@ -9577,8 +9737,8 @@
       "source_location": "L62",
       "_origin": "ast",
       "id": "repository_gormsessionrepository_findbytoken",
-      "community": 122,
-      "community_name": "AuthService",
+      "community": 164,
+      "community_name": "GormSessionRepository",
       "norm_label": ".findbytoken()"
     },
     {
@@ -9588,8 +9748,8 @@
       "source_location": "L74",
       "_origin": "ast",
       "id": "repository_gormsessionrepository_findbyid",
-      "community": 122,
-      "community_name": "AuthService",
+      "community": 164,
+      "community_name": "GormSessionRepository",
       "norm_label": ".findbyid()"
     },
     {
@@ -9599,8 +9759,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "backend_internal_auth_repository_session_repo_go_uuid",
-      "community": 122,
-      "community_name": "AuthService",
+      "community": 164,
+      "community_name": "GormSessionRepository",
       "norm_label": "uuid"
     },
     {
@@ -9610,8 +9770,8 @@
       "source_location": "L86",
       "_origin": "ast",
       "id": "repository_gormsessionrepository_revoke",
-      "community": 122,
-      "community_name": "AuthService",
+      "community": 164,
+      "community_name": "GormSessionRepository",
       "norm_label": ".revoke()"
     },
     {
@@ -9621,8 +9781,8 @@
       "source_location": "L102",
       "_origin": "ast",
       "id": "repository_gormsessionrepository_revokebytoken",
-      "community": 122,
-      "community_name": "AuthService",
+      "community": 164,
+      "community_name": "GormSessionRepository",
       "norm_label": ".revokebytoken()"
     },
     {
@@ -9632,8 +9792,8 @@
       "source_location": "L118",
       "_origin": "ast",
       "id": "repository_gormsessionrepository_revokeallforuser",
-      "community": 122,
-      "community_name": "AuthService",
+      "community": 164,
+      "community_name": "GormSessionRepository",
       "norm_label": ".revokeallforuser()"
     },
     {
@@ -9643,8 +9803,8 @@
       "source_location": "L126",
       "_origin": "ast",
       "id": "repository_gormsessionrepository_revokeallforuserintenant",
-      "community": 122,
-      "community_name": "AuthService",
+      "community": 164,
+      "community_name": "GormSessionRepository",
       "norm_label": ".revokeallforuserintenant()"
     },
     {
@@ -9654,8 +9814,8 @@
       "source_location": "L134",
       "_origin": "ast",
       "id": "repository_gormsessionrepository_deleteexpired",
-      "community": 122,
-      "community_name": "AuthService",
+      "community": 164,
+      "community_name": "GormSessionRepository",
       "norm_label": ".deleteexpired()"
     },
     {
@@ -9665,8 +9825,8 @@
       "source_location": "L142",
       "_origin": "ast",
       "id": "repository_gormsessionrepository_countactiveforuser",
-      "community": 122,
-      "community_name": "AuthService",
+      "community": 164,
+      "community_name": "GormSessionRepository",
       "norm_label": ".countactiveforuser()"
     },
     {
@@ -9676,8 +9836,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_internal_auth_repository_tenant_repo",
-      "community": 122,
-      "community_name": "AuthService",
+      "community": 120,
+      "community_name": "Tenant",
       "norm_label": "tenant_repo.go"
     },
     {
@@ -9687,8 +9847,8 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "repository_tenantrepository",
-      "community": 122,
-      "community_name": "AuthService",
+      "community": 163,
+      "community_name": "AuthServiceConfig",
       "norm_label": "tenantrepository"
     },
     {
@@ -9808,8 +9968,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_internal_auth_repository_user_repo",
-      "community": 122,
-      "community_name": "AuthService",
+      "community": 163,
+      "community_name": "AuthServiceConfig",
       "norm_label": "user_repo.go"
     },
     {
@@ -9819,8 +9979,8 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "repository_userrepository",
-      "community": 122,
-      "community_name": "AuthService",
+      "community": 163,
+      "community_name": "AuthServiceConfig",
       "norm_label": "userrepository"
     },
     {
@@ -9830,8 +9990,8 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "repository_gormuserrepository",
-      "community": 122,
-      "community_name": "AuthService",
+      "community": 165,
+      "community_name": "GormUserRepository",
       "norm_label": "gormuserrepository"
     },
     {
@@ -9841,8 +10001,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "backend_internal_auth_repository_user_repo_go_db",
-      "community": 122,
-      "community_name": "AuthService",
+      "community": 165,
+      "community_name": "GormUserRepository",
       "norm_label": "db"
     },
     {
@@ -9863,8 +10023,8 @@
       "source_location": "L51",
       "_origin": "ast",
       "id": "repository_gormuserrepository_findbyid",
-      "community": 122,
-      "community_name": "AuthService",
+      "community": 165,
+      "community_name": "GormUserRepository",
       "norm_label": ".findbyid()"
     },
     {
@@ -9874,8 +10034,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "backend_internal_auth_repository_user_repo_go_context",
-      "community": 122,
-      "community_name": "AuthService",
+      "community": 165,
+      "community_name": "GormUserRepository",
       "norm_label": "context"
     },
     {
@@ -9885,8 +10045,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "backend_internal_auth_repository_user_repo_go_uuid",
-      "community": 122,
-      "community_name": "AuthService",
+      "community": 165,
+      "community_name": "GormUserRepository",
       "norm_label": "uuid"
     },
     {
@@ -9896,8 +10056,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "backend_internal_auth_repository_user_repo_go_user",
-      "community": 122,
-      "community_name": "AuthService",
+      "community": 165,
+      "community_name": "GormUserRepository",
       "norm_label": "user"
     },
     {
@@ -9907,8 +10067,8 @@
       "source_location": "L63",
       "_origin": "ast",
       "id": "repository_gormuserrepository_findbyemail",
-      "community": 122,
-      "community_name": "AuthService",
+      "community": 165,
+      "community_name": "GormUserRepository",
       "norm_label": ".findbyemail()"
     },
     {
@@ -9918,8 +10078,8 @@
       "source_location": "L75",
       "_origin": "ast",
       "id": "repository_gormuserrepository_findbyemailwithtenants",
-      "community": 122,
-      "community_name": "AuthService",
+      "community": 165,
+      "community_name": "GormUserRepository",
       "norm_label": ".findbyemailwithtenants()"
     },
     {
@@ -9929,8 +10089,8 @@
       "source_location": "L90",
       "_origin": "ast",
       "id": "repository_gormuserrepository_findbyidwithtenants",
-      "community": 122,
-      "community_name": "AuthService",
+      "community": 165,
+      "community_name": "GormUserRepository",
       "norm_label": ".findbyidwithtenants()"
     },
     {
@@ -9940,8 +10100,8 @@
       "source_location": "L105",
       "_origin": "ast",
       "id": "repository_gormuserrepository_create",
-      "community": 122,
-      "community_name": "AuthService",
+      "community": 165,
+      "community_name": "GormUserRepository",
       "norm_label": ".create()"
     },
     {
@@ -9951,8 +10111,8 @@
       "source_location": "L113",
       "_origin": "ast",
       "id": "repository_gormuserrepository_update",
-      "community": 122,
-      "community_name": "AuthService",
+      "community": 165,
+      "community_name": "GormUserRepository",
       "norm_label": ".update()"
     },
     {
@@ -9962,8 +10122,8 @@
       "source_location": "L118",
       "_origin": "ast",
       "id": "repository_gormuserrepository_listbytenant",
-      "community": 122,
-      "community_name": "AuthService",
+      "community": 165,
+      "community_name": "GormUserRepository",
       "norm_label": ".listbytenant()"
     },
     {
@@ -9973,8 +10133,8 @@
       "source_location": "L146",
       "_origin": "ast",
       "id": "repository_gormuserrepository_existsbyemail",
-      "community": 122,
-      "community_name": "AuthService",
+      "community": 165,
+      "community_name": "GormUserRepository",
       "norm_label": ".existsbyemail()"
     },
     {
@@ -9984,8 +10144,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_internal_auth_repository_user_tenant_role_repo",
-      "community": 122,
-      "community_name": "AuthService",
+      "community": 163,
+      "community_name": "AuthServiceConfig",
       "norm_label": "user_tenant_role_repo.go"
     },
     {
@@ -9995,8 +10155,8 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "repository_usertenantrolerepository",
-      "community": 122,
-      "community_name": "AuthService",
+      "community": 163,
+      "community_name": "AuthServiceConfig",
       "norm_label": "usertenantrolerepository"
     },
     {
@@ -10138,8 +10298,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_internal_auth_router",
-      "community": 138,
-      "community_name": "Router",
+      "community": 122,
+      "community_name": "AuthService",
       "norm_label": "router.go"
     },
     {
@@ -10149,8 +10309,8 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "backend_internal_auth_router_router",
-      "community": 138,
-      "community_name": "Router",
+      "community": 122,
+      "community_name": "AuthService",
       "norm_label": "router()"
     },
     {
@@ -10160,8 +10320,8 @@
       "source_location": "L47",
       "_origin": "ast",
       "id": "backend_internal_auth_router_userrouter",
-      "community": 138,
-      "community_name": "Router",
+      "community": 122,
+      "community_name": "AuthService",
       "norm_label": "userrouter()"
     },
     {
@@ -10171,8 +10331,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_internal_auth_router_test",
-      "community": 138,
-      "community_name": "Router",
+      "community": 35,
+      "community_name": "setupE2E",
       "norm_label": "router_test.go"
     },
     {
@@ -10193,8 +10353,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "backend_internal_auth_router_test_go_t",
-      "community": 138,
-      "community_name": "Router",
+      "community": 35,
+      "community_name": "setupE2E",
       "norm_label": "t"
     },
     {
@@ -10204,8 +10364,8 @@
       "source_location": "L76",
       "_origin": "ast",
       "id": "backend_internal_auth_router_test_testrouteauthcoverage",
-      "community": 138,
-      "community_name": "Router",
+      "community": 35,
+      "community_name": "setupE2E",
       "norm_label": "testrouteauthcoverage()"
     },
     {
@@ -10314,8 +10474,8 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "service_authserviceconfig",
-      "community": 122,
-      "community_name": "AuthService",
+      "community": 163,
+      "community_name": "AuthServiceConfig",
       "norm_label": "authserviceconfig"
     },
     {
@@ -10743,8 +10903,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_internal_auth_service_emailer",
-      "community": 122,
-      "community_name": "AuthService",
+      "community": 168,
+      "community_name": "LogEmailer",
       "norm_label": "emailer.go"
     },
     {
@@ -10754,8 +10914,8 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "service_emailer",
-      "community": 122,
-      "community_name": "AuthService",
+      "community": 163,
+      "community_name": "AuthServiceConfig",
       "norm_label": "emailer"
     },
     {
@@ -10765,8 +10925,8 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "service_logemailer",
-      "community": 122,
-      "community_name": "AuthService",
+      "community": 168,
+      "community_name": "LogEmailer",
       "norm_label": "logemailer"
     },
     {
@@ -10776,8 +10936,8 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "backend_internal_auth_service_emailer_newlogemailer",
-      "community": 122,
-      "community_name": "AuthService",
+      "community": 168,
+      "community_name": "LogEmailer",
       "norm_label": "newlogemailer()"
     },
     {
@@ -10787,8 +10947,8 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "service_logemailer_sendtemporarypassword",
-      "community": 122,
-      "community_name": "AuthService",
+      "community": 168,
+      "community_name": "LogEmailer",
       "norm_label": ".sendtemporarypassword()"
     },
     {
@@ -10798,8 +10958,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "backend_internal_auth_service_emailer_go_context",
-      "community": 122,
-      "community_name": "AuthService",
+      "community": 168,
+      "community_name": "LogEmailer",
       "norm_label": "context"
     },
     {
@@ -10809,8 +10969,8 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "service_logemailer_sendtenantlinked",
-      "community": 122,
-      "community_name": "AuthService",
+      "community": 168,
+      "community_name": "LogEmailer",
       "norm_label": ".sendtenantlinked()"
     },
     {
@@ -10820,8 +10980,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "backend_internal_auth_service_emailer_go_uuid",
-      "community": 122,
-      "community_name": "AuthService",
+      "community": 168,
+      "community_name": "LogEmailer",
       "norm_label": "uuid"
     },
     {
@@ -10831,8 +10991,8 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "service_logemailer_sendpasswordreset",
-      "community": 122,
-      "community_name": "AuthService",
+      "community": 168,
+      "community_name": "LogEmailer",
       "norm_label": ".sendpasswordreset()"
     },
     {
@@ -11161,8 +11321,8 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "service_ratelimiter",
-      "community": 115,
-      "community_name": "NewMemoryRateLimiter",
+      "community": 163,
+      "community_name": "AuthServiceConfig",
       "norm_label": "ratelimiter"
     },
     {
@@ -11678,8 +11838,8 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "service_userserviceconfig",
-      "community": 122,
-      "community_name": "AuthService",
+      "community": 163,
+      "community_name": "AuthServiceConfig",
       "norm_label": "userserviceconfig"
     },
     {
@@ -12448,8 +12608,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_internal_shared_observability_logger",
-      "community": 52,
-      "community_name": "setupWiredAuthHandler",
+      "community": 161,
+      "community_name": "withFields",
       "norm_label": "observability/logger.go"
     },
     {
@@ -12459,8 +12619,8 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "observability_logger",
-      "community": 52,
-      "community_name": "setupWiredAuthHandler",
+      "community": 161,
+      "community_name": "withFields",
       "norm_label": "logger"
     },
     {
@@ -12470,8 +12630,8 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "observability_field",
-      "community": 52,
-      "community_name": "setupWiredAuthHandler",
+      "community": 161,
+      "community_name": "withFields",
       "norm_label": "field"
     },
     {
@@ -12481,8 +12641,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_internal_shared_observability_zerolog_logger",
-      "community": 52,
-      "community_name": "setupWiredAuthHandler",
+      "community": 161,
+      "community_name": "withFields",
       "norm_label": "zerolog_logger.go"
     },
     {
@@ -12492,8 +12652,8 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "backend_internal_shared_observability_zerolog_logger_init",
-      "community": 52,
-      "community_name": "setupWiredAuthHandler",
+      "community": 161,
+      "community_name": "withFields",
       "norm_label": "init()"
     },
     {
@@ -12503,8 +12663,8 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "observability_zerologlogger",
-      "community": 52,
-      "community_name": "setupWiredAuthHandler",
+      "community": 161,
+      "community_name": "withFields",
       "norm_label": "zerologlogger"
     },
     {
@@ -12525,8 +12685,8 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "observability_zerologlogger_debug",
-      "community": 52,
-      "community_name": "setupWiredAuthHandler",
+      "community": 161,
+      "community_name": "withFields",
       "norm_label": ".debug()"
     },
     {
@@ -12536,8 +12696,8 @@
       "source_location": "L45",
       "_origin": "ast",
       "id": "observability_zerologlogger_info",
-      "community": 52,
-      "community_name": "setupWiredAuthHandler",
+      "community": 161,
+      "community_name": "withFields",
       "norm_label": ".info()"
     },
     {
@@ -12547,8 +12707,8 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "observability_zerologlogger_warn",
-      "community": 52,
-      "community_name": "setupWiredAuthHandler",
+      "community": 161,
+      "community_name": "withFields",
       "norm_label": ".warn()"
     },
     {
@@ -12558,8 +12718,8 @@
       "source_location": "L47",
       "_origin": "ast",
       "id": "observability_zerologlogger_error",
-      "community": 52,
-      "community_name": "setupWiredAuthHandler",
+      "community": 161,
+      "community_name": "withFields",
       "norm_label": ".error()"
     },
     {
@@ -12569,8 +12729,8 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "observability_zerologlogger_with",
-      "community": 52,
-      "community_name": "setupWiredAuthHandler",
+      "community": 161,
+      "community_name": "withFields",
       "norm_label": ".with()"
     },
     {
@@ -12580,8 +12740,8 @@
       "source_location": "L57",
       "_origin": "ast",
       "id": "backend_internal_shared_observability_zerolog_logger_withfields",
-      "community": 52,
-      "community_name": "setupWiredAuthHandler",
+      "community": 161,
+      "community_name": "withFields",
       "norm_label": "withfields()"
     },
     {
@@ -12591,8 +12751,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "event",
-      "community": 52,
-      "community_name": "setupWiredAuthHandler",
+      "community": 161,
+      "community_name": "withFields",
       "norm_label": "event"
     },
     {
@@ -12635,8 +12795,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_internal_shared_version_version",
-      "community": 52,
-      "community_name": "setupWiredAuthHandler",
+      "community": 167,
+      "community_name": "version_test.go",
       "norm_label": "version.go"
     },
     {
@@ -12646,8 +12806,8 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "backend_internal_shared_version_version_info",
-      "community": 52,
-      "community_name": "setupWiredAuthHandler",
+      "community": 167,
+      "community_name": "version_test.go",
       "norm_label": "info()"
     },
     {
@@ -12657,8 +12817,8 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "backend_internal_shared_version_version_isprerelease",
-      "community": 52,
-      "community_name": "setupWiredAuthHandler",
+      "community": 167,
+      "community_name": "version_test.go",
       "norm_label": "isprerelease()"
     },
     {
@@ -12668,8 +12828,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "backend_internal_shared_version_version_test",
-      "community": 52,
-      "community_name": "setupWiredAuthHandler",
+      "community": 167,
+      "community_name": "version_test.go",
       "norm_label": "version_test.go"
     },
     {
@@ -12679,8 +12839,8 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "backend_internal_shared_version_version_test_testversion",
-      "community": 52,
-      "community_name": "setupWiredAuthHandler",
+      "community": 167,
+      "community_name": "version_test.go",
       "norm_label": "testversion()"
     },
     {
@@ -12690,8 +12850,8 @@
       "source_location": "",
       "_origin": "ast",
       "id": "backend_internal_shared_version_version_test_go_t",
-      "community": 52,
-      "community_name": "setupWiredAuthHandler",
+      "community": 167,
+      "community_name": "version_test.go",
       "norm_label": "t"
     },
     {
@@ -12701,8 +12861,8 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "backend_internal_shared_version_version_test_testappname",
-      "community": 52,
-      "community_name": "setupWiredAuthHandler",
+      "community": 167,
+      "community_name": "version_test.go",
       "norm_label": "testappname()"
     },
     {
@@ -12712,8 +12872,8 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "backend_internal_shared_version_version_test_testinfo",
-      "community": 52,
-      "community_name": "setupWiredAuthHandler",
+      "community": 167,
+      "community_name": "version_test.go",
       "norm_label": "testinfo()"
     },
     {
@@ -12723,8 +12883,8 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "backend_internal_shared_version_version_test_testisprerelease",
-      "community": 52,
-      "community_name": "setupWiredAuthHandler",
+      "community": 167,
+      "community_name": "version_test.go",
       "norm_label": "testisprerelease()"
     },
     {
@@ -18535,10 +18695,21 @@
       "norm_label": "source code (repository root)"
     },
     {
-      "label": "Complexity Tracking",
+      "label": "Design: Request/Response Access Logging (FR-018)",
       "file_type": "document",
       "source_file": "specs/004-auth-module/plan.md",
       "source_location": "L97",
+      "_origin": "ast",
+      "id": "specs_004_auth_module_plan_design_request_response_access_logging_fr_018",
+      "community": 139,
+      "community_name": "Implementation Plan: Authentication Module",
+      "norm_label": "design: request/response access logging (fr-018)"
+    },
+    {
+      "label": "Complexity Tracking",
+      "file_type": "document",
+      "source_file": "specs/004-auth-module/plan.md",
+      "source_location": "L121",
       "_origin": "ast",
       "id": "specs_004_auth_module_plan_complexity_tracking",
       "community": 139,
@@ -19556,6 +19727,17 @@
       "community": 112,
       "community_name": "Tasks: Authentication Module",
       "norm_label": "phase 18: convergence"
+    },
+    {
+      "label": "Phase 19: Convergence",
+      "file_type": "document",
+      "source_file": "specs/004-auth-module/tasks.md",
+      "source_location": "L459",
+      "_origin": "ast",
+      "id": "specs_004_auth_module_tasks_phase_19_convergence",
+      "community": 112,
+      "community_name": "Tasks: Authentication Module",
+      "norm_label": "phase 19: convergence"
     },
     {
       "label": "cavecrew (skill overview)",
@@ -28912,7 +29094,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "backend/internal/auth/handler/middleware.go",
-      "source_location": "L153",
+      "source_location": "L156",
       "weight": 1.0,
       "context": "return_type",
       "_origin": "ast",
@@ -29087,7 +29269,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "backend/internal/auth/handler/middleware.go",
-      "source_location": "L82",
+      "source_location": "L85",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast",
@@ -33463,6 +33645,345 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
+      "source_file": "backend/internal/auth/handler/access_log.go",
+      "source_location": "L42",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "backend_internal_auth_handler_access_log",
+      "target": "backend_internal_auth_handler_access_log_accesslog",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/internal/auth/handler/access_log.go",
+      "source_location": "L31",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "backend_internal_auth_handler_access_log",
+      "target": "backend_internal_auth_handler_access_log_setaccesslogtenantid",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/internal/auth/handler/access_log.go",
+      "source_location": "L25",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "backend_internal_auth_handler_access_log",
+      "target": "backend_internal_auth_handler_access_log_setaccessloguserid",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/internal/auth/handler/access_log.go",
+      "source_location": "L23",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "backend_internal_auth_handler_access_log",
+      "target": "handler_accesslogcontextkey",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/internal/auth/handler/access_log.go",
+      "source_location": "L18",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "backend_internal_auth_handler_access_log",
+      "target": "handler_accesslogfields",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/internal/auth/handler/access_log.go",
+      "source_location": "L25",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast",
+      "source": "backend_internal_auth_handler_access_log_setaccessloguserid",
+      "target": "backend_internal_auth_handler_access_log_go_context",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "backend/internal/auth/handler/access_log_test.go",
+      "source_location": "L111",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "backend_internal_auth_handler_access_log_test_testaccesslog_authenticatedrequest_logsuserandtenant",
+      "target": "backend_internal_auth_handler_access_log_setaccessloguserid"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "backend/internal/auth/handler/middleware.go",
+      "source_location": "L77",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "handler_authmiddleware_requireauth",
+      "target": "backend_internal_auth_handler_access_log_setaccessloguserid"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/internal/auth/handler/access_log.go",
+      "source_location": "L45",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "backend_internal_auth_handler_access_log_accesslog",
+      "target": "backend_internal_auth_handler_access_log_go_context",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/internal/auth/handler/access_log.go",
+      "source_location": "L31",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast",
+      "source": "backend_internal_auth_handler_access_log_setaccesslogtenantid",
+      "target": "backend_internal_auth_handler_access_log_go_context",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "backend/internal/auth/handler/access_log_test.go",
+      "source_location": "L112",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "backend_internal_auth_handler_access_log_test_testaccesslog_authenticatedrequest_logsuserandtenant",
+      "target": "backend_internal_auth_handler_access_log_setaccesslogtenantid"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "backend/internal/auth/handler/middleware.go",
+      "source_location": "L78",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "handler_authmiddleware_requireauth",
+      "target": "backend_internal_auth_handler_access_log_setaccesslogtenantid"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/internal/auth/handler/access_log.go",
+      "source_location": "L42",
+      "weight": 1.0,
+      "context": "return_type",
+      "_origin": "ast",
+      "source": "backend_internal_auth_handler_access_log_accesslog",
+      "target": "backend_internal_auth_handler_access_log_go_handler",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "backend/internal/auth/handler/access_log_test.go",
+      "source_location": "L119",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "backend_internal_auth_handler_access_log_test_testaccesslog_authenticatedrequest_logsuserandtenant",
+      "target": "backend_internal_auth_handler_access_log_accesslog"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "backend/internal/auth/handler/access_log_test.go",
+      "source_location": "L69",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "backend_internal_auth_handler_access_log_test_testaccesslog_revokedtoken_logscompletionwithnopii",
+      "target": "backend_internal_auth_handler_access_log_accesslog"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/internal/auth/handler/access_log_test.go",
+      "source_location": "L100",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "backend_internal_auth_handler_access_log_test",
+      "target": "backend_internal_auth_handler_access_log_test_testaccesslog_authenticatedrequest_logsuserandtenant",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/internal/auth/handler/access_log_test.go",
+      "source_location": "L51",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "backend_internal_auth_handler_access_log_test",
+      "target": "backend_internal_auth_handler_access_log_test_testaccesslog_revokedtoken_logscompletionwithnopii",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/internal/auth/handler/access_log_test.go",
+      "source_location": "L19",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "backend_internal_auth_handler_access_log_test_go_handler_capturinglogger",
+      "target": "handler_capturinglogger_entryfield",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/internal/auth/handler/access_log_test.go",
+      "source_location": "L37",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "backend_internal_auth_handler_access_log_test_go_handler_capturinglogger",
+      "target": "handler_capturinglogger_lastlevel",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/internal/auth/handler/access_log_test.go",
+      "source_location": "L121",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "backend_internal_auth_handler_access_log_test_testaccesslog_authenticatedrequest_logsuserandtenant",
+      "target": "handler_capturinglogger_entryfield",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/internal/auth/handler/access_log_test.go",
+      "source_location": "L82",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "backend_internal_auth_handler_access_log_test_testaccesslog_revokedtoken_logscompletionwithnopii",
+      "target": "handler_capturinglogger_entryfield",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/internal/auth/handler/access_log_test.go",
+      "source_location": "L75",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "backend_internal_auth_handler_access_log_test_testaccesslog_revokedtoken_logscompletionwithnopii",
+      "target": "handler_capturinglogger_lastlevel",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/internal/auth/handler/access_log_test.go",
+      "source_location": "L51",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast",
+      "source": "backend_internal_auth_handler_access_log_test_testaccesslog_revokedtoken_logscompletionwithnopii",
+      "target": "backend_internal_auth_handler_access_log_test_go_t",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "backend/internal/auth/handler/access_log_test.go",
+      "source_location": "L52",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "backend_internal_auth_handler_access_log_test_testaccesslog_revokedtoken_logscompletionwithnopii",
+      "target": "backend_internal_auth_handler_auth_handler_test_setupwiredauthhandler"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "backend/internal/auth/handler/access_log_test.go",
+      "source_location": "L54",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "backend_internal_auth_handler_access_log_test_testaccesslog_revokedtoken_logscompletionwithnopii",
+      "target": "backend_internal_auth_handler_logger_setlogger"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "backend/internal/auth/handler/access_log_test.go",
+      "source_location": "L55",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "backend_internal_auth_handler_access_log_test_testaccesslog_revokedtoken_logscompletionwithnopii",
+      "target": "backend_internal_shared_observability_zerolog_logger_new"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/internal/auth/handler/access_log_test.go",
+      "source_location": "L100",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast",
+      "source": "backend_internal_auth_handler_access_log_test_testaccesslog_authenticatedrequest_logsuserandtenant",
+      "target": "backend_internal_auth_handler_access_log_test_go_t",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "backend/internal/auth/handler/access_log_test.go",
+      "source_location": "L102",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "backend_internal_auth_handler_access_log_test_testaccesslog_authenticatedrequest_logsuserandtenant",
+      "target": "backend_internal_auth_handler_logger_setlogger"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "backend/internal/auth/handler/access_log_test.go",
+      "source_location": "L103",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "backend_internal_auth_handler_access_log_test_testaccesslog_authenticatedrequest_logsuserandtenant",
+      "target": "backend_internal_shared_observability_zerolog_logger_new"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
       "source_file": "backend/internal/auth/handler/auth_handler.go",
       "source_location": "L20",
       "weight": 1.0,
@@ -34570,7 +35091,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "backend/internal/auth/handler/middleware.go",
-      "source_location": "L108",
+      "source_location": "L111",
       "weight": 1.0,
       "_origin": "ast",
       "source": "handler_authmiddleware_requireanyrole",
@@ -34594,7 +35115,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "backend/internal/auth/handler/middleware.go",
-      "source_location": "L87",
+      "source_location": "L90",
       "weight": 1.0,
       "_origin": "ast",
       "source": "handler_authmiddleware_requirerole",
@@ -36756,6 +37277,17 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "backend/internal/auth/handler/errors_test.go",
+      "source_location": "L23",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "backend_internal_auth_handler_errors_test",
+      "target": "backend_internal_auth_handler_errors_test_go_handler_capturinglogger",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/internal/auth/handler/errors_test.go",
       "source_location": "L72",
       "weight": 1.0,
       "_origin": "ast",
@@ -36786,17 +37318,6 @@
       "confidence_score": 1.0
     },
     {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "backend/internal/auth/handler/errors_test.go",
-      "source_location": "L23",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "backend_internal_auth_handler_errors_test",
-      "target": "handler_capturinglogger",
-      "confidence_score": 1.0
-    },
-    {
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "backend/internal/auth/handler/errors_test.go",
@@ -36804,7 +37325,7 @@
       "weight": 1.0,
       "context": "field",
       "_origin": "ast",
-      "source": "handler_capturinglogger",
+      "source": "backend_internal_auth_handler_errors_test_go_handler_capturinglogger",
       "target": "backend_internal_auth_handler_errors_test_go_mutex",
       "confidence_score": 1.0
     },
@@ -36816,7 +37337,7 @@
       "weight": 1.0,
       "context": "field",
       "_origin": "ast",
-      "source": "handler_capturinglogger",
+      "source": "backend_internal_auth_handler_errors_test_go_handler_capturinglogger",
       "target": "handler_capturedentry",
       "confidence_score": 1.0
     },
@@ -36827,7 +37348,7 @@
       "source_location": "L46",
       "weight": 1.0,
       "_origin": "ast",
-      "source": "handler_capturinglogger",
+      "source": "backend_internal_auth_handler_errors_test_go_handler_capturinglogger",
       "target": "handler_capturinglogger_add",
       "confidence_score": 1.0
     },
@@ -36838,7 +37359,7 @@
       "source_location": "L34",
       "weight": 1.0,
       "_origin": "ast",
-      "source": "handler_capturinglogger",
+      "source": "backend_internal_auth_handler_errors_test_go_handler_capturinglogger",
       "target": "handler_capturinglogger_debug",
       "confidence_score": 1.0
     },
@@ -36849,7 +37370,7 @@
       "source_location": "L39",
       "weight": 1.0,
       "_origin": "ast",
-      "source": "handler_capturinglogger",
+      "source": "backend_internal_auth_handler_errors_test_go_handler_capturinglogger",
       "target": "handler_capturinglogger_error",
       "confidence_score": 1.0
     },
@@ -36860,7 +37381,7 @@
       "source_location": "L54",
       "weight": 1.0,
       "_origin": "ast",
-      "source": "handler_capturinglogger",
+      "source": "backend_internal_auth_handler_errors_test_go_handler_capturinglogger",
       "target": "handler_capturinglogger_haserrorcontaining",
       "confidence_score": 1.0
     },
@@ -36871,7 +37392,7 @@
       "source_location": "L37",
       "weight": 1.0,
       "_origin": "ast",
-      "source": "handler_capturinglogger",
+      "source": "backend_internal_auth_handler_errors_test_go_handler_capturinglogger",
       "target": "handler_capturinglogger_info",
       "confidence_score": 1.0
     },
@@ -36882,7 +37403,7 @@
       "source_location": "L38",
       "weight": 1.0,
       "_origin": "ast",
-      "source": "handler_capturinglogger",
+      "source": "backend_internal_auth_handler_errors_test_go_handler_capturinglogger",
       "target": "handler_capturinglogger_warn",
       "confidence_score": 1.0
     },
@@ -36893,7 +37414,7 @@
       "source_location": "L42",
       "weight": 1.0,
       "_origin": "ast",
-      "source": "handler_capturinglogger",
+      "source": "backend_internal_auth_handler_errors_test_go_handler_capturinglogger",
       "target": "handler_capturinglogger_with",
       "confidence_score": 1.0
     },
@@ -37127,7 +37648,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "backend/internal/auth/handler/middleware.go",
-      "source_location": "L126",
+      "source_location": "L129",
       "weight": 1.0,
       "_origin": "ast",
       "source": "backend_internal_auth_handler_middleware",
@@ -37138,7 +37659,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "backend/internal/auth/handler/middleware.go",
-      "source_location": "L159",
+      "source_location": "L162",
       "weight": 1.0,
       "_origin": "ast",
       "source": "backend_internal_auth_handler_middleware",
@@ -37149,7 +37670,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "backend/internal/auth/handler/middleware.go",
-      "source_location": "L169",
+      "source_location": "L172",
       "weight": 1.0,
       "_origin": "ast",
       "source": "backend_internal_auth_handler_middleware",
@@ -37160,7 +37681,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "backend/internal/auth/handler/middleware.go",
-      "source_location": "L153",
+      "source_location": "L156",
       "weight": 1.0,
       "_origin": "ast",
       "source": "backend_internal_auth_handler_middleware",
@@ -37171,7 +37692,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "backend/internal/auth/handler/middleware.go",
-      "source_location": "L147",
+      "source_location": "L150",
       "weight": 1.0,
       "_origin": "ast",
       "source": "backend_internal_auth_handler_middleware",
@@ -37182,7 +37703,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "backend/internal/auth/handler/middleware.go",
-      "source_location": "L141",
+      "source_location": "L144",
       "weight": 1.0,
       "_origin": "ast",
       "source": "backend_internal_auth_handler_middleware",
@@ -37250,7 +37771,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "backend/internal/auth/handler/middleware.go",
-      "source_location": "L103",
+      "source_location": "L106",
       "weight": 1.0,
       "_origin": "ast",
       "source": "handler_authmiddleware",
@@ -37272,7 +37793,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "backend/internal/auth/handler/middleware.go",
-      "source_location": "L82",
+      "source_location": "L85",
       "weight": 1.0,
       "_origin": "ast",
       "source": "handler_authmiddleware",
@@ -37384,52 +37905,52 @@
       "context": "return_type",
       "_origin": "ast",
       "source": "handler_authmiddleware_requireauth",
-      "target": "handler",
+      "target": "backend_internal_auth_handler_middleware_go_handler",
       "confidence_score": 1.0
     },
     {
       "relation": "references",
-      "confidence": "EXTRACTED",
-      "source_file": "backend/internal/auth/handler/middleware.go",
-      "source_location": "L103",
-      "weight": 1.0,
-      "context": "return_type",
-      "_origin": "ast",
-      "source": "handler_authmiddleware_requireanyrole",
-      "target": "handler",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "references",
-      "confidence": "EXTRACTED",
-      "source_file": "backend/internal/auth/handler/middleware.go",
-      "source_location": "L82",
-      "weight": 1.0,
-      "context": "return_type",
-      "_origin": "ast",
-      "source": "handler_authmiddleware_requirerole",
-      "target": "handler",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "backend/internal/auth/handler/middleware.go",
-      "source_location": "L85",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "handler_authmiddleware_requirerole",
-      "target": "backend_internal_auth_handler_middleware_go_context",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "backend/internal/auth/handler/middleware.go",
       "source_location": "L106",
       "weight": 1.0,
+      "context": "return_type",
+      "_origin": "ast",
+      "source": "handler_authmiddleware_requireanyrole",
+      "target": "backend_internal_auth_handler_middleware_go_handler",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/internal/auth/handler/middleware.go",
+      "source_location": "L85",
+      "weight": 1.0,
+      "context": "return_type",
+      "_origin": "ast",
+      "source": "handler_authmiddleware_requirerole",
+      "target": "backend_internal_auth_handler_middleware_go_handler",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/internal/auth/handler/middleware.go",
+      "source_location": "L88",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "handler_authmiddleware_requirerole",
+      "target": "backend_internal_auth_handler_middleware_go_context",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "backend/internal/auth/handler/middleware.go",
+      "source_location": "L109",
+      "weight": 1.0,
       "_origin": "ast",
       "source": "handler_authmiddleware_requireanyrole",
       "target": "backend_internal_auth_handler_middleware_go_context",
@@ -37439,7 +37960,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "backend/internal/auth/handler/middleware.go",
-      "source_location": "L126",
+      "source_location": "L129",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast",
@@ -37453,7 +37974,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "backend/internal/auth/handler/middleware.go",
-      "source_location": "L129",
+      "source_location": "L132",
       "weight": 1.0,
       "_origin": "ast",
       "source": "backend_internal_auth_handler_middleware_extractbearertoken",
@@ -37475,7 +37996,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "backend/internal/auth/handler/middleware.go",
-      "source_location": "L169",
+      "source_location": "L172",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast",
@@ -37487,7 +38008,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "backend/internal/auth/handler/middleware.go",
-      "source_location": "L141",
+      "source_location": "L144",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast",
@@ -37499,7 +38020,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "backend/internal/auth/handler/middleware.go",
-      "source_location": "L141",
+      "source_location": "L144",
       "weight": 1.0,
       "context": "return_type",
       "_origin": "ast",
@@ -37571,7 +38092,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "backend/internal/auth/handler/middleware.go",
-      "source_location": "L159",
+      "source_location": "L162",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast",
@@ -37583,7 +38104,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "backend/internal/auth/handler/middleware.go",
-      "source_location": "L153",
+      "source_location": "L156",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast",
@@ -37595,7 +38116,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "backend/internal/auth/handler/middleware.go",
-      "source_location": "L147",
+      "source_location": "L150",
       "weight": 1.0,
       "context": "parameter_type",
       "_origin": "ast",
@@ -37607,7 +38128,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "backend/internal/auth/handler/middleware.go",
-      "source_location": "L147",
+      "source_location": "L150",
       "weight": 1.0,
       "context": "return_type",
       "_origin": "ast",
@@ -37763,7 +38284,7 @@
       "relation": "references",
       "confidence": "EXTRACTED",
       "source_file": "backend/internal/auth/handler/middleware.go",
-      "source_location": "L159",
+      "source_location": "L162",
       "weight": 1.0,
       "context": "return_type",
       "_origin": "ast",
@@ -61416,7 +61937,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "specs/004-auth-module/plan.md",
-      "source_location": "L97",
+      "source_location": "L121",
       "weight": 1.0,
       "_origin": "ast",
       "source": "specs_004_auth_module_plan_implementation_plan_authentication_module",
@@ -61432,6 +61953,17 @@
       "_origin": "ast",
       "source": "specs_004_auth_module_plan_implementation_plan_authentication_module",
       "target": "specs_004_auth_module_plan_constitution_check",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "specs/004-auth-module/plan.md",
+      "source_location": "L97",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "specs_004_auth_module_plan_implementation_plan_authentication_module",
+      "target": "specs_004_auth_module_plan_design_request_response_access_logging_fr_018",
       "confidence_score": 1.0
     },
     {
@@ -62103,6 +62635,17 @@
       "_origin": "ast",
       "source": "specs_004_auth_module_tasks_tasks_authentication_module",
       "target": "specs_004_auth_module_tasks_phase_18_convergence",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "specs/004-auth-module/tasks.md",
+      "source_location": "L459",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "specs_004_auth_module_tasks_tasks_authentication_module",
+      "target": "specs_004_auth_module_tasks_phase_19_convergence",
       "confidence_score": 1.0
     },
     {
@@ -65846,12 +66389,7 @@
     {
       "id": "ci_pipeline_job_flow",
       "label": "CI Pipeline Job Flow (lint to build to test)",
-      "nodes": [
-        "ci_workflow_ci_yml",
-        "lint_job",
-        "build_job",
-        "test_job"
-      ],
+      "nodes": ["ci_workflow_ci_yml", "lint_job", "build_job", "test_job"],
       "relation": "form",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
@@ -65930,5 +66468,5 @@
       "source_file": "specs/016-reporting-module/spec.md"
     }
   ],
-  "built_at_commit": "f32f73c372ab09e2c331ebdc3326eb64df5eed74"
+  "built_at_commit": "91b4cb30633549f83220ff5ab1ff1109f8d1ebdb"
 }
