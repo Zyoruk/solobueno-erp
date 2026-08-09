@@ -23,6 +23,19 @@ func NewUserHandler(userService *service.UserService) *UserHandler {
 }
 
 // Create handles POST /users.
+//
+// @Summary      Create a staff account
+// @Description  Manager+ creates a user for their tenant. If the email already has a global account in a different tenant, links a role to it instead (200) rather than creating a duplicate (201). New accounts get a temp password emailed to them (never returned in the response).
+// @Tags         users
+// @Security     BearerAuth
+// @Accept       json
+// @Produce      json
+// @Param        request  body      CreateUserRequest  true  "New user details"
+// @Success      201      {object}  CreateUserResponse "new account created"
+// @Success      200      {object}  CreateUserResponse "linked to existing global account"
+// @Failure      400      {object}  ErrorResponse "invalid_request, invalid_role, email_exists"
+// @Failure      403      {object}  ErrorResponse "insufficient_role"
+// @Router       /users [post]
 func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) {
 	callerRole, ok := GetRole(r.Context())
 	if !ok {
@@ -103,6 +116,16 @@ func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 // List handles GET /users.
+//
+// @Summary      List users in the current tenant
+// @Tags         users
+// @Security     BearerAuth
+// @Produce      json
+// @Param        page   query     int  false  "Page number (default 1)"
+// @Param        limit  query     int  false  "Items per page (default 20, max 100)"
+// @Success      200    {object}  UserListResponse
+// @Failure      401    {object}  ErrorResponse "unauthorized"
+// @Router       /users [get]
 func (h *UserHandler) List(w http.ResponseWriter, r *http.Request) {
 	tenantID, ok := GetTenantID(r.Context())
 	if !ok {
@@ -150,6 +173,16 @@ func (h *UserHandler) List(w http.ResponseWriter, r *http.Request) {
 }
 
 // Get handles GET /users/{id}.
+//
+// @Summary      Get a user
+// @Tags         users
+// @Security     BearerAuth
+// @Produce      json
+// @Param        id   path      string  true  "User ID"
+// @Success      200  {object}  UserResponse
+// @Failure      400  {object}  ErrorResponse "invalid_id"
+// @Failure      404  {object}  ErrorResponse "not_found"
+// @Router       /users/{id} [get]
 func (h *UserHandler) Get(w http.ResponseWriter, r *http.Request) {
 	userIDStr := chi.URLParam(r, "id")
 	userID, err := uuid.Parse(userIDStr)
@@ -172,6 +205,20 @@ func (h *UserHandler) Get(w http.ResponseWriter, r *http.Request) {
 }
 
 // Update handles PATCH /users/{id}.
+//
+// @Summary      Update a user's profile
+// @Description  Manager+ updates a user's name or active status. Deactivating revokes all their sessions.
+// @Tags         users
+// @Security     BearerAuth
+// @Accept       json
+// @Produce      json
+// @Param        id       path      string             true  "User ID"
+// @Param        request  body      UpdateUserRequest  true  "Fields to update"
+// @Success      200      {object}  UserResponse
+// @Failure      400      {object}  ErrorResponse "invalid_id, invalid_request"
+// @Failure      403      {object}  ErrorResponse "insufficient_role"
+// @Failure      404      {object}  ErrorResponse "not_found"
+// @Router       /users/{id} [patch]
 func (h *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
 	callerRole, ok := GetRole(r.Context())
 	if !ok {
@@ -224,6 +271,18 @@ func (h *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
 }
 
 // Unlock handles POST /users/{id}/unlock.
+//
+// @Summary      Clear an account lockout
+// @Description  Manager+ clears a user's account lockout (FR-011a), resetting the failed-login counter.
+// @Tags         users
+// @Security     BearerAuth
+// @Produce      json
+// @Param        id   path      string  true  "User ID"
+// @Success      200  {object}  UserResponse
+// @Failure      400  {object}  ErrorResponse "invalid_id"
+// @Failure      403  {object}  ErrorResponse "insufficient_role"
+// @Failure      404  {object}  ErrorResponse "not_found"
+// @Router       /users/{id}/unlock [post]
 func (h *UserHandler) Unlock(w http.ResponseWriter, r *http.Request) {
 	callerRole, ok := GetRole(r.Context())
 	if !ok {
@@ -267,6 +326,20 @@ func (h *UserHandler) Unlock(w http.ResponseWriter, r *http.Request) {
 }
 
 // UpdateRole handles PATCH /users/{id}/role.
+//
+// @Summary      Change a user's role
+// @Description  Manager+ changes a user's role in the current tenant. Cannot assign or manage a role equal to or higher than your own.
+// @Tags         users
+// @Security     BearerAuth
+// @Accept       json
+// @Produce      json
+// @Param        id       path      string             true  "User ID"
+// @Param        request  body      UpdateRoleRequest  true  "New role"
+// @Success      200      {object}  UserResponse
+// @Failure      400      {object}  ErrorResponse "invalid_id, invalid_role"
+// @Failure      403      {object}  ErrorResponse "insufficient_role"
+// @Failure      404      {object}  ErrorResponse "not_found"
+// @Router       /users/{id}/role [patch]
 func (h *UserHandler) UpdateRole(w http.ResponseWriter, r *http.Request) {
 	callerRole, ok := GetRole(r.Context())
 	if !ok {
