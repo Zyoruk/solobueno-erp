@@ -23,6 +23,12 @@
 - Q: US3 says a manager creates a staff account and "a temporary password is generated" — how does the new staff member receive it? → A: Emailed to the user's account email address.
 - Q: If a manager creates a staff account using an email that already has a global account in a different tenant, what happens? → A: System links a new role for this tenant to the existing user and notifies them by email; no new account or password is created.
 
+### Session 2026-08-09
+
+- Q: If sending the temp-password or password-reset email fails, what should happen? → A: Log the failure at error level and record it in the audit trail (AuthEvent); the account/token creation itself still succeeds (not blocked on the external email service).
+- Q: FR-011a says a locked account can be cleared by "an authorized user" — who exactly? → A: Manager+ in that tenant (same role hierarchy already used for creating/managing staff).
+- Q: The code enforces that a user can't assign a role equal to or higher than their own when creating/promoting staff, but no FR states this ceiling — should it become a formal requirement? → A: Yes, formalize it as an FR.
+
 ## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Staff Member Logs In (Priority: P1)
@@ -85,6 +91,8 @@ As a restaurant manager, I want to create accounts for my staff, so that they ca
 
 4. **Given** a manager creates a staff account using an email that already has a global account in a different tenant, **When** the account is created, **Then** the system links a new role for this tenant to the existing user, notifies them by email, and does not create a duplicate account or temporary password.
 
+5. **Given** a manager is logged in, **When** they attempt to create or promote a staff account to a role equal to or higher than their own (e.g., manager or owner), **Then** the request is rejected.
+
 ---
 
 ### User Story 4 - System Enforces Role-Based Access (Priority: P1)
@@ -127,6 +135,7 @@ As a staff member ending my shift, I want to log out securely, so that the next 
 - What happens during a password reset? Current sessions should remain valid until password is changed.
 - What happens if a user's role changes while they're logged in? Changes take effect on next token refresh.
 - What happens after 5 consecutive failed login attempts on the same account within 15 minutes (regardless of source IP)? The account is locked and further login attempts are rejected until the lockout expires or an authorized user unlocks it.
+- What happens if the temp-password or password-reset email fails to send? The account/token is still created; the failure is logged at error level and recorded in the audit trail so a manager can notice and follow up.
 
 ## Requirements _(mandatory)_
 
@@ -154,11 +163,15 @@ As a staff member ending my shift, I want to log out securely, so that the next 
 
 - **FR-011**: System MUST rate-limit login attempts to 5 per minute per IP.
 
-- **FR-011a**: System MUST lock a user account after 5 consecutive failed login attempts within 15 minutes, independent of source IP, and reject further login attempts on that account until the lockout expires or an authorized user unlocks it.
+- **FR-011a**: System MUST lock a user account after 5 consecutive failed login attempts within 15 minutes, independent of source IP, and reject further login attempts on that account until the lockout expires or a user with Manager role or higher in that tenant unlocks it.
 
 - **FR-012**: System MUST support account creation by managers for their tenant. Upon creation, the system MUST email the generated temporary password to the new account's email address. If the email already has a global account in a different tenant, the system MUST link a new role for this tenant to the existing user and notify them by email, instead of creating a duplicate account or temporary password.
 
 - **FR-013**: System MUST support password reset via a secure token that expires 1 hour after issuance.
+
+- **FR-015**: If a temp-password or password-reset email fails to send, the system MUST log the failure at error level and record it in the audit trail (AuthEvent), and MUST still complete the account creation or reset-token issuance (not blocked on the external email service).
+
+- **FR-016**: System MUST NOT allow a user to create an account with, or promote an existing account to, a role equal to or higher than their own.
 
 - **FR-014**: System MUST invalidate all sessions when password is changed.
 

@@ -422,3 +422,13 @@ Phase 13:
 **Checkpoint**: All 13 auth/user REST endpoints now driven end-to-end over real HTTP (not just unit-tested in isolation). `go test ./internal/auth/ -run TestE2E -count=3` : 18/18 pass, no flakiness. Full suite still ≥80% coverage gate (domain 87.8%, handler 80.7%, repository 83.6%, service 85.8%).
 
 **Checkpoint**: Auth module REST endpoints have a machine-readable OpenAPI 3.0 spec, servable and browsable
+
+---
+
+## Phase 17: Convergence
+
+**Purpose**: Close a gap surfaced by the 2026-08-09 clarify session (see F1)
+
+- [x] T111 Log email send failures at error level and record an `AuthEvent` for each of the 3 call sites in `backend/internal/auth/service/user_service.go` (`SendTemporaryPassword` at L142, `SendTenantLinked` at L174, `SendPasswordReset` at L434) instead of discarding the error with `_ =`, per FR-015 (missing)
+
+**Checkpoint**: Email delivery failures are observable (logged + audited) instead of silent
