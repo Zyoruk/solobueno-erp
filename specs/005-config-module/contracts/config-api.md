@@ -4,9 +4,8 @@
 **Base Path**: `/api/v1/config`
 **Auth**: All endpoints require `Authorization: Bearer <access_token>` (reuses
 `internal/auth/handler.AuthMiddleware`). Role gates per endpoint below use the same
-`domain.Role` hierarchy auth already defines (owner > admin > manager > cashier/waiter/kitchen
-
-> viewer).
+`domain.Role` hierarchy auth already defines (owner &gt; admin &gt; manager &gt;
+cashier/waiter/kitchen &gt; viewer).
 
 ## Endpoints
 
