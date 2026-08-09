@@ -30,5 +30,13 @@ else
     exit 1
 fi
 
+# Check backend (best-effort - schema may not be migrated yet on first boot)
+echo -n "Backend: "
+if curl -sf http://localhost:8080/swagger/index.html > /dev/null 2>&1; then
+    echo "✓ healthy"
+else
+    echo "✗ not responding (run 'make migrate-up'?)"
+fi
+
 echo ""
 echo "All services healthy!"
