@@ -257,6 +257,29 @@ users (globally unique email)
 - sqlc: Requires writing raw SQL, less abstraction
 - sqlboiler: Requires running DB to generate code
 
+### 9. Account Lockout Policy (added 2026-08-08 clarification)
+
+**Decision**: Lock account after 5 consecutive failed login attempts within 15 minutes, independent of the existing per-IP rate limit (FR-011).
+
+**Rationale**:
+
+- FR-011's per-IP limit doesn't stop a distributed/multi-IP credential-stuffing attack against one account
+- 15-minute window matches OWASP guidance and balances security against locking out a legitimate user who mistyped a password a few times
+
+**Implementation**: `failed_login_count` and `locked_until` columns on `users`; counter resets on successful login; Manager+ can clear a lockout via `POST /users/{id}/unlock`.
+
+### 10. Temporary Password Delivery (added 2026-08-08 clarification)
+
+**Decision**: Email the generated temporary password directly to the new account's address (AWS SES); never return it in the API response.
+
+**Rationale**: Avoids the password ever appearing in logs, browser history, or a manager's screen; keeps delivery consistent with the existing password-reset email flow.
+
+### 11. Existing Email Added to a New Tenant (added 2026-08-08 clarification)
+
+**Decision**: If a manager creates a staff account with an email that already has a global account in another tenant, link a new `user_tenant_roles` row to the existing user instead of erroring or creating a duplicate account/password. Notify the existing user by email.
+
+**Rationale**: Email is globally unique (existing decision #5) and a user can already hold roles in multiple tenants — rejecting the request would force the manager to find a workaround, and silently failing would violate uniqueness expectations.
+
 ## Deferred Decisions
 
 ### Service-to-Service Authentication

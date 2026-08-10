@@ -62,6 +62,20 @@ Authenticate user and return token pair.
 }
 ```
 
+**Response 423 (Account Locked):**
+
+```json
+{
+  "error": {
+    "code": "account_locked",
+    "message": "Account locked after 5 failed login attempts. Try again later.",
+    "locked_until": "2026-08-08T12:15:00Z"
+  }
+}
+```
+
+Note: Triggered after 5 consecutive failed attempts on the same account within 15 minutes, independent of the IP-based rate limit below. Lock clears automatically when `locked_until` passes, or a Manager+ can clear it via `PATCH /users/{id}/unlock`.
+
 **Response 429:**
 
 ```json
@@ -303,7 +317,11 @@ Authorization: Bearer <access_token>
 
 Note: Cannot create users with role higher than your own.
 
-**Response 201:**
+If the email has no existing global account, a new user is created with a generated temporary password **emailed to the user** (never returned in the API response) and `must_reset_password: true`.
+
+If the email already has a global account in a different tenant, no new account or password is created — the existing user is linked to this tenant with the given role, and they are notified by email.
+
+**Response 201 (New User Created):**
 
 ```json
 {
@@ -312,9 +330,24 @@ Note: Cannot create users with role higher than your own.
   "first_name": "string",
   "last_name": "string",
   "role": "string",
-  "temporary_password": "string (display once)",
   "must_reset_password": true,
-  "created_at": "2026-01-29T12:00:00Z"
+  "created_at": "2026-01-29T12:00:00Z",
+  "message": "Account created. Temporary password sent to user's email."
+}
+```
+
+**Response 200 (Existing User Linked to Tenant):**
+
+```json
+{
+  "id": "uuid",
+  "email": "string",
+  "first_name": "string",
+  "last_name": "string",
+  "role": "string",
+  "must_reset_password": false,
+  "linked_existing_account": true,
+  "message": "Existing account linked to this tenant. User notified by email."
 }
 ```
 
@@ -323,7 +356,7 @@ Note: Cannot create users with role higher than your own.
 ```json
 {
   "error": {
-    "code": "email_exists | invalid_role",
+    "code": "invalid_role",
     "message": "string"
   }
 }
@@ -452,19 +485,33 @@ Change user role (Manager+, cannot promote to equal or higher role).
 
 ---
 
+### POST /users/{id}/unlock
+
+Clear an account lockout (Manager+).
+
+**Headers:**
+
+```
+Authorization: Bearer <access_token>
+```
+
+**Response 200:** Updated user object with `locked_until: null`
+
+---
+
 ## Common Error Codes
 
 | Code                       | HTTP | Description                                  |
 | -------------------------- | ---- | -------------------------------------------- |
 | invalid_credentials        | 401  | Email or password incorrect                  |
 | account_disabled           | 401  | User account is disabled                     |
+| account_locked              | 423  | Account locked after 5 failed attempts in 15 min |
 | token_invalid              | 401  | JWT signature invalid or malformed           |
-| token_expired              | 401  | JWT has expired                              |
+| token_expired               | 401  | JWT has expired                              |
 | session_revoked            | 401  | Refresh token was revoked                    |
 | tenant_required            | 400  | Must specify tenant_id for multi-tenant user |
 | insufficient_role          | 403  | User role cannot perform this action         |
 | rate_limit_exceeded        | 429  | Too many requests                            |
-| email_exists               | 400  | Email already registered                     |
 | password_weak              | 400  | Password doesn't meet requirements           |
 | current_password_incorrect | 400  | Current password verification failed         |
 
