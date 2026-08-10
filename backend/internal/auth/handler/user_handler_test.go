@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/go-chi/chi/v5"
@@ -63,8 +64,11 @@ func TestUserHandler_Create_Success(t *testing.T) {
 	}
 	var resp CreateUserResponse
 	json.NewDecoder(w.Body).Decode(&resp)
-	if resp.Email != "new@example.com" || resp.TemporaryPassword == "" {
+	if resp.Email != "new@example.com" {
 		t.Errorf("unexpected response: %+v", resp)
+	}
+	if strings.Contains(w.Body.String(), "temporary_password") {
+		t.Errorf("response must never include the temporary password: %s", w.Body.String())
 	}
 }
 
@@ -138,18 +142,52 @@ func TestUserHandler_Create_CannotAssignRole(t *testing.T) {
 	}
 }
 
-func TestUserHandler_Create_EmailExists(t *testing.T) {
+func TestUserHandler_Create_EmailExistsInSameTenant(t *testing.T) {
 	h, userRepo, _ := setupUserHandler(t)
-	userRepo.AddUser(&domain.User{ID: uuid.New(), Email: "dup@example.com"})
+	tenantID := uuid.New()
+	existingID := uuid.New()
+	userRepo.AddUser(&domain.User{
+		ID: existingID, Email: "dup@example.com",
+		TenantRoles: []domain.UserTenantRole{{UserID: existingID, TenantID: tenantID, Role: domain.RoleWaiter}},
+	})
 
 	body, _ := json.Marshal(CreateUserRequest{Email: "dup@example.com", FirstName: "X", LastName: "Y", Role: domain.RoleWaiter})
-	req := httptest.NewRequest("POST", "/users", bytes.NewReader(body)).WithContext(authedContext(uuid.New(), uuid.New(), domain.RoleManager))
+	req := httptest.NewRequest("POST", "/users", bytes.NewReader(body)).WithContext(authedContext(uuid.New(), tenantID, domain.RoleManager))
 	w := httptest.NewRecorder()
 
 	h.Create(w, req)
 
 	if w.Code != http.StatusBadRequest {
 		t.Errorf("Status = %d, want %d", w.Code, http.StatusBadRequest)
+	}
+}
+
+func TestUserHandler_Create_LinksExistingUserToNewTenant(t *testing.T) {
+	h, userRepo, _ := setupUserHandler(t)
+	existingID := uuid.New()
+	otherTenantID := uuid.New()
+	userRepo.AddUser(&domain.User{
+		ID: existingID, Email: "existing@example.com",
+		TenantRoles: []domain.UserTenantRole{{UserID: existingID, TenantID: otherTenantID, Role: domain.RoleWaiter}},
+	})
+
+	newTenantID := uuid.New()
+	body, _ := json.Marshal(CreateUserRequest{Email: "existing@example.com", FirstName: "X", LastName: "Y", Role: domain.RoleManager})
+	req := httptest.NewRequest("POST", "/users", bytes.NewReader(body)).WithContext(authedContext(uuid.New(), newTenantID, domain.RoleAdmin))
+	w := httptest.NewRecorder()
+
+	h.Create(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("Status = %d, want %d, body=%s", w.Code, http.StatusOK, w.Body.String())
+	}
+	var resp CreateUserResponse
+	json.NewDecoder(w.Body).Decode(&resp)
+	if !resp.LinkedExistingAccount {
+		t.Errorf("expected linked_existing_account=true, got %+v", resp)
+	}
+	if strings.Contains(w.Body.String(), "temporary_password") {
+		t.Errorf("linked response must never include a temporary password: %s", w.Body.String())
 	}
 }
 
@@ -304,6 +342,69 @@ func TestUserHandler_Update_NotFound(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	h.Update(w, req)
+
+	if w.Code != http.StatusNotFound {
+		t.Errorf("Status = %d, want %d", w.Code, http.StatusNotFound)
+	}
+}
+
+func TestUserHandler_Unlock_Success(t *testing.T) {
+	h, userRepo, _ := setupUserHandler(t)
+
+	tenantID := uuid.New()
+	user := &domain.User{
+		ID: uuid.New(), Email: "locked@example.com", FailedLoginCount: 5,
+		TenantRoles: []domain.UserTenantRole{{TenantID: tenantID, Role: domain.RoleWaiter}},
+	}
+	userRepo.AddUser(user)
+
+	req := httptest.NewRequest("POST", "/users/"+user.ID.String()+"/unlock", nil).WithContext(authedContext(uuid.New(), tenantID, domain.RoleManager))
+	req = withChiURLParam(req, "id", user.ID.String())
+	w := httptest.NewRecorder()
+
+	h.Unlock(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("Status = %d, want %d, body=%s", w.Code, http.StatusOK, w.Body.String())
+	}
+}
+
+func TestUserHandler_Unlock_Unauthorized(t *testing.T) {
+	h, _, _ := setupUserHandler(t)
+
+	req := httptest.NewRequest("POST", "/users/"+uuid.New().String()+"/unlock", nil)
+	w := httptest.NewRecorder()
+
+	h.Unlock(w, req)
+
+	if w.Code != http.StatusUnauthorized {
+		t.Errorf("Status = %d, want %d", w.Code, http.StatusUnauthorized)
+	}
+}
+
+func TestUserHandler_Unlock_InvalidID(t *testing.T) {
+	h, _, _ := setupUserHandler(t)
+
+	req := httptest.NewRequest("POST", "/users/not-a-uuid/unlock", nil).WithContext(authedContext(uuid.New(), uuid.New(), domain.RoleManager))
+	req = withChiURLParam(req, "id", "not-a-uuid")
+	w := httptest.NewRecorder()
+
+	h.Unlock(w, req)
+
+	if w.Code != http.StatusBadRequest {
+		t.Errorf("Status = %d, want %d", w.Code, http.StatusBadRequest)
+	}
+}
+
+func TestUserHandler_Unlock_NotFound(t *testing.T) {
+	h, _, _ := setupUserHandler(t)
+
+	id := uuid.New()
+	req := httptest.NewRequest("POST", "/users/"+id.String()+"/unlock", nil).WithContext(authedContext(uuid.New(), uuid.New(), domain.RoleManager))
+	req = withChiURLParam(req, "id", id.String())
+	w := httptest.NewRecorder()
+
+	h.Unlock(w, req)
 
 	if w.Code != http.StatusNotFound {
 		t.Errorf("Status = %d, want %d", w.Code, http.StatusNotFound)

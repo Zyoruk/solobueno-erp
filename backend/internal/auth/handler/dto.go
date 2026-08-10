@@ -74,7 +74,7 @@ type LoginResponse struct {
 
 // TenantRequiredResponse is returned when user must select a tenant.
 type TenantRequiredResponse struct {
-	Error   ErrorDetail      `json:"error"`
+	Error ErrorDetail `json:"error"`
 }
 
 // TenantOption represents a selectable tenant.
@@ -109,15 +109,15 @@ type UserResponse struct {
 
 // MeResponse is the response for GET /me.
 type MeResponse struct {
-	ID                uuid.UUID          `json:"id"`
-	Email             string             `json:"email"`
-	FirstName         string             `json:"first_name"`
-	LastName          string             `json:"last_name"`
-	Role              string             `json:"role"`
-	TenantID          uuid.UUID          `json:"tenant_id"`
-	TenantName        string             `json:"tenant_name"`
-	MustResetPassword bool               `json:"must_reset_password"`
-	Tenants           []TenantRoleInfo   `json:"tenants"`
+	ID                uuid.UUID        `json:"id"`
+	Email             string           `json:"email"`
+	FirstName         string           `json:"first_name"`
+	LastName          string           `json:"last_name"`
+	Role              string           `json:"role"`
+	TenantID          uuid.UUID        `json:"tenant_id"`
+	TenantName        string           `json:"tenant_name"`
+	MustResetPassword bool             `json:"must_reset_password"`
+	Tenants           []TenantRoleInfo `json:"tenants"`
 }
 
 // TenantRoleInfo represents a user's role in a tenant.
@@ -127,16 +127,19 @@ type TenantRoleInfo struct {
 	Role string    `json:"role"`
 }
 
-// CreateUserResponse is the response for POST /users.
+// CreateUserResponse is the response for POST /users. It never includes the
+// temporary password (or, for a linked existing user, no password at all) -
+// that is emailed directly to the user, never returned in the API response.
 type CreateUserResponse struct {
-	ID                uuid.UUID `json:"id"`
-	Email             string    `json:"email"`
-	FirstName         string    `json:"first_name"`
-	LastName          string    `json:"last_name"`
-	Role              string    `json:"role"`
-	TemporaryPassword string    `json:"temporary_password"`
-	MustResetPassword bool      `json:"must_reset_password"`
-	CreatedAt         time.Time `json:"created_at"`
+	ID                    uuid.UUID `json:"id"`
+	Email                 string    `json:"email"`
+	FirstName             string    `json:"first_name"`
+	LastName              string    `json:"last_name"`
+	Role                  string    `json:"role"`
+	MustResetPassword     bool      `json:"must_reset_password"`
+	LinkedExistingAccount bool      `json:"linked_existing_account,omitempty"`
+	Message               string    `json:"message"`
+	CreatedAt             time.Time `json:"created_at"`
 }
 
 // UserListResponse is the response for GET /users.
@@ -167,10 +170,11 @@ type ErrorResponse struct {
 
 // ErrorDetail contains error information.
 type ErrorDetail struct {
-	Code       string         `json:"code"`
-	Message    string         `json:"message"`
-	RetryAfter int            `json:"retry_after,omitempty"`
-	Tenants    []TenantOption `json:"tenants,omitempty"`
+	Code        string         `json:"code"`
+	Message     string         `json:"message"`
+	RetryAfter  int            `json:"retry_after,omitempty"`
+	Tenants     []TenantOption `json:"tenants,omitempty"`
+	LockedUntil *time.Time     `json:"locked_until,omitempty"`
 }
 
 // --- Conversion Functions ---

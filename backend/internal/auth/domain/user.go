@@ -9,15 +9,17 @@ import (
 // User represents a person with access to the system.
 // Users have globally unique emails and can have roles in multiple tenants.
 type User struct {
-	ID           uuid.UUID `gorm:"type:uuid;primaryKey;default:gen_random_uuid()" json:"id"`
-	Email        string    `gorm:"uniqueIndex;size:255;not null" json:"email"`
-	PasswordHash string    `gorm:"size:255;not null" json:"-"` // Never serialize
-	FirstName    string    `gorm:"size:100;not null" json:"first_name"`
-	LastName     string    `gorm:"size:100;not null" json:"last_name"`
-	IsActive     bool      `gorm:"default:true;not null;index" json:"is_active"`
-	MustResetPwd bool      `gorm:"column:must_reset_pwd;default:false;not null" json:"must_reset_password"`
-	CreatedAt    time.Time `gorm:"autoCreateTime" json:"created_at"`
-	UpdatedAt    time.Time `gorm:"autoUpdateTime" json:"updated_at"`
+	ID               uuid.UUID  `gorm:"type:uuid;primaryKey;default:gen_random_uuid()" json:"id"`
+	Email            string     `gorm:"uniqueIndex;size:255;not null" json:"email"`
+	PasswordHash     string     `gorm:"size:255;not null" json:"-"` // Never serialize
+	FirstName        string     `gorm:"size:100;not null" json:"first_name"`
+	LastName         string     `gorm:"size:100;not null" json:"last_name"`
+	IsActive         bool       `gorm:"default:true;not null;index" json:"is_active"`
+	MustResetPwd     bool       `gorm:"column:must_reset_pwd;default:false;not null" json:"must_reset_password"`
+	FailedLoginCount int        `gorm:"default:0;not null" json:"-"`
+	LockedUntil      *time.Time `gorm:"index" json:"-"`
+	CreatedAt        time.Time  `gorm:"autoCreateTime" json:"created_at"`
+	UpdatedAt        time.Time  `gorm:"autoUpdateTime" json:"updated_at"`
 
 	// Associations
 	TenantRoles []UserTenantRole `gorm:"foreignKey:UserID" json:"tenant_roles,omitempty"`
@@ -37,6 +39,11 @@ func (u *User) FullName() string {
 // CanLogin checks if the user is allowed to log in.
 func (u *User) CanLogin() bool {
 	return u.IsActive
+}
+
+// IsLocked checks if the user's account is currently locked out due to failed login attempts.
+func (u *User) IsLocked() bool {
+	return u.LockedUntil != nil && time.Now().Before(*u.LockedUntil)
 }
 
 // HasTenant checks if the user has access to the specified tenant.

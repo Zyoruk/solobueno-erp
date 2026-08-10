@@ -24,6 +24,9 @@ const (
 	EventAccountCreated         AuthEventType = "account_created"
 	EventAccountDisabled        AuthEventType = "account_disabled"
 	EventAccountEnabled         AuthEventType = "account_enabled"
+	EventAccountLocked          AuthEventType = "account_locked"
+	EventAccountUnlocked        AuthEventType = "account_unlocked"
+	EventTenantRoleAdded        AuthEventType = "tenant_role_added"
 	EventRoleChanged            AuthEventType = "role_changed"
 	EventSessionRevoked         AuthEventType = "session_revoked"
 )

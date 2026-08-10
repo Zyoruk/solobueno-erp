@@ -12,13 +12,14 @@ import (
 
 // UserService handles user management operations.
 type UserService struct {
-	userRepo        repository.UserRepository
-	roleRepo        repository.UserTenantRoleRepository
-	sessionRepo     repository.SessionRepository
-	eventRepo       repository.AuthEventRepository
-	passwordReset   repository.PasswordResetRepository
-	passwordSvc     *PasswordService
+	userRepo         repository.UserRepository
+	roleRepo         repository.UserTenantRoleRepository
+	sessionRepo      repository.SessionRepository
+	eventRepo        repository.AuthEventRepository
+	passwordReset    repository.PasswordResetRepository
+	passwordSvc      *PasswordService
 	resetRateLimiter RateLimiter
+	emailer          Emailer
 }
 
 // UserServiceConfig holds configuration for UserService.
@@ -29,18 +30,26 @@ type UserServiceConfig struct {
 	EventRepo        repository.AuthEventRepository
 	PasswordReset    repository.PasswordResetRepository
 	ResetRateLimiter RateLimiter
+	// Emailer sends temp-password/tenant-link notifications. Defaults to a
+	// logging stub (LogEmailer) if not provided.
+	Emailer Emailer
 }
 
 // NewUserService creates a new UserService.
 func NewUserService(cfg UserServiceConfig) *UserService {
+	emailer := cfg.Emailer
+	if emailer == nil {
+		emailer = NewLogEmailer()
+	}
 	return &UserService{
-		userRepo:        cfg.UserRepo,
-		roleRepo:        cfg.RoleRepo,
-		sessionRepo:     cfg.SessionRepo,
-		eventRepo:       cfg.EventRepo,
-		passwordReset:   cfg.PasswordReset,
-		passwordSvc:     NewPasswordService(),
+		userRepo:         cfg.UserRepo,
+		roleRepo:         cfg.RoleRepo,
+		sessionRepo:      cfg.SessionRepo,
+		eventRepo:        cfg.EventRepo,
+		passwordReset:    cfg.PasswordReset,
+		passwordSvc:      NewPasswordService(),
 		resetRateLimiter: cfg.ResetRateLimiter,
+		emailer:          emailer,
 	}
 }
 
@@ -57,24 +66,31 @@ type CreateUserRequest struct {
 
 // CreateUserResponse contains the result of user creation.
 type CreateUserResponse struct {
-	User              *domain.User
+	User *domain.User
+	// TemporaryPassword is set only for a brand-new account; it is emailed to
+	// the user and must never be surfaced in an API response.
 	TemporaryPassword string
+	// LinkedExistingAccount is true when the email already had a global
+	// account and this call linked a new tenant role to it instead of
+	// creating a duplicate account.
+	LinkedExistingAccount bool
 }
 
-// Create creates a new user with a temporary password.
+// Create creates a new user with a temporary password, or, if the email
+// already has a global account in a different tenant, links a new tenant
+// role to that existing user instead of creating a duplicate.
 func (s *UserService) Create(ctx context.Context, req CreateUserRequest, callerRole domain.Role) (*CreateUserResponse, error) {
 	// Check if caller can assign this role
 	if !callerRole.CanAssign(req.Role) {
 		return nil, domain.ErrCannotAssignRole
 	}
 
-	// Check if email already exists
-	exists, err := s.userRepo.ExistsByEmail(ctx, req.Email)
-	if err != nil {
+	existing, err := s.userRepo.FindByEmailWithTenants(ctx, req.Email)
+	if err != nil && !errors.Is(err, domain.ErrUserNotFound) {
 		return nil, err
 	}
-	if exists {
-		return nil, domain.ErrEmailExists
+	if err == nil {
+		return s.linkExistingUserToTenant(ctx, existing, req)
 	}
 
 	// Generate temporary password
@@ -123,9 +139,43 @@ func (s *UserService) Create(ctx context.Context, req CreateUserRequest, callerR
 		"role":       req.Role,
 	})
 
+	_ = s.emailer.SendTemporaryPassword(ctx, user.Email, tempPassword)
+
 	return &CreateUserResponse{
 		User:              user,
 		TemporaryPassword: tempPassword,
+	}, nil
+}
+
+// linkExistingUserToTenant links a new tenant role to a user who already has
+// a global account in a different tenant, per FR-012: email is globally
+// unique, so a duplicate account/password must never be created.
+func (s *UserService) linkExistingUserToTenant(ctx context.Context, existing *domain.User, req CreateUserRequest) (*CreateUserResponse, error) {
+	if existing.HasTenant(req.TenantID) {
+		return nil, domain.ErrEmailExists
+	}
+
+	roleAssignment := &domain.UserTenantRole{
+		ID:       uuid.New(),
+		UserID:   existing.ID,
+		TenantID: req.TenantID,
+		Role:     req.Role,
+	}
+
+	if err := s.roleRepo.Create(ctx, roleAssignment); err != nil {
+		return nil, err
+	}
+
+	s.logEvent(ctx, domain.EventTenantRoleAdded, &existing.ID, &req.TenantID, req.IPAddress, "", map[string]interface{}{
+		"created_by": req.CreatedBy,
+		"role":       req.Role,
+	})
+
+	_ = s.emailer.SendTenantLinked(ctx, existing.Email, req.TenantID)
+
+	return &CreateUserResponse{
+		User:                  existing,
+		LinkedExistingAccount: true,
 	}, nil
 }
 
@@ -229,6 +279,40 @@ func (s *UserService) UpdateRole(ctx context.Context, req UpdateRoleRequest, cal
 	})
 
 	return nil
+}
+
+// UnlockRequest contains the data for clearing an account lockout.
+type UnlockRequest struct {
+	UserID    uuid.UUID
+	TenantID  uuid.UUID
+	UpdatedBy uuid.UUID
+	IPAddress string
+}
+
+// Unlock clears a user's account lockout.
+func (s *UserService) Unlock(ctx context.Context, req UnlockRequest, callerRole domain.Role) (*domain.User, error) {
+	user, err := s.userRepo.FindByID(ctx, req.UserID)
+	if err != nil {
+		return nil, err
+	}
+
+	targetRole := user.GetRoleForTenant(req.TenantID)
+	if targetRole != "" && !callerRole.CanManage(targetRole) {
+		return nil, domain.ErrCannotManageRole
+	}
+
+	user.FailedLoginCount = 0
+	user.LockedUntil = nil
+
+	if err := s.userRepo.Update(ctx, user); err != nil {
+		return nil, err
+	}
+
+	s.logEvent(ctx, domain.EventAccountUnlocked, &user.ID, &req.TenantID, req.IPAddress, "", map[string]interface{}{
+		"updated_by": req.UpdatedBy,
+	})
+
+	return user, nil
 }
 
 // List retrieves users in a tenant with pagination.

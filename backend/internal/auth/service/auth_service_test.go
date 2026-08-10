@@ -174,6 +174,95 @@ func TestAuthService_Login_InvalidPassword(t *testing.T) {
 	}
 }
 
+func TestAuthService_Login_LocksAfterFiveFailedAttempts(t *testing.T) {
+	authSvc, userRepo, _, tenantRepo, _ := setupAuthService(t)
+	ctx := context.Background()
+
+	tenantID := uuid.New()
+	userID := uuid.New()
+	passwordHash, _ := NewPasswordService().Hash("CorrectPassword123!")
+
+	user := &domain.User{
+		ID:           userID,
+		Email:        "test@example.com",
+		PasswordHash: passwordHash,
+		IsActive:     true,
+		TenantRoles: []domain.UserTenantRole{
+			{TenantID: tenantID, Role: domain.RoleManager},
+		},
+	}
+	userRepo.AddUser(user)
+	tenantRepo.AddTenant(&domain.Tenant{ID: tenantID, IsActive: true})
+
+	for i := 0; i < 4; i++ {
+		_, err := authSvc.Login(ctx, LoginRequest{Email: "test@example.com", Password: "WrongPassword123!"})
+		if err != domain.ErrInvalidCredentials {
+			t.Fatalf("attempt %d: expected ErrInvalidCredentials, got %v", i+1, err)
+		}
+	}
+	if user.IsLocked() {
+		t.Fatalf("account should not be locked after only 4 failed attempts")
+	}
+
+	// 5th failure locks the account
+	resp, err := authSvc.Login(ctx, LoginRequest{Email: "test@example.com", Password: "WrongPassword123!"})
+	if err != domain.ErrInvalidCredentials {
+		t.Fatalf("5th attempt: expected ErrInvalidCredentials, got %v", err)
+	}
+	_ = resp
+	if !user.IsLocked() {
+		t.Fatalf("account should be locked after 5 failed attempts")
+	}
+
+	// Further attempts, even with the correct password, are rejected while locked
+	resp, err = authSvc.Login(ctx, LoginRequest{Email: "test@example.com", Password: "CorrectPassword123!"})
+	if err != domain.ErrAccountLocked {
+		t.Fatalf("expected ErrAccountLocked, got %v", err)
+	}
+	if resp == nil || resp.LockedUntil == nil {
+		t.Fatalf("expected LockedUntil to be set on the response")
+	}
+}
+
+func TestAuthService_Login_ResetsFailedCountOnSuccess(t *testing.T) {
+	authSvc, userRepo, _, tenantRepo, _ := setupAuthService(t)
+	ctx := context.Background()
+
+	tenantID := uuid.New()
+	userID := uuid.New()
+	passwordHash, _ := NewPasswordService().Hash("CorrectPassword123!")
+
+	user := &domain.User{
+		ID:           userID,
+		Email:        "test@example.com",
+		PasswordHash: passwordHash,
+		IsActive:     true,
+		TenantRoles: []domain.UserTenantRole{
+			{TenantID: tenantID, Role: domain.RoleManager},
+		},
+	}
+	userRepo.AddUser(user)
+	tenantRepo.AddTenant(&domain.Tenant{ID: tenantID, IsActive: true})
+
+	for i := 0; i < 3; i++ {
+		_, _ = authSvc.Login(ctx, LoginRequest{Email: "test@example.com", Password: "WrongPassword123!"})
+	}
+	if user.FailedLoginCount != 3 {
+		t.Fatalf("expected FailedLoginCount=3, got %d", user.FailedLoginCount)
+	}
+
+	_, err := authSvc.Login(ctx, LoginRequest{Email: "test@example.com", Password: "CorrectPassword123!"})
+	if err != nil {
+		t.Fatalf("expected successful login, got %v", err)
+	}
+	if user.FailedLoginCount != 0 {
+		t.Fatalf("expected FailedLoginCount reset to 0, got %d", user.FailedLoginCount)
+	}
+	if user.LockedUntil != nil {
+		t.Fatalf("expected LockedUntil to be nil after successful login")
+	}
+}
+
 func TestAuthService_Login_UserNotFound(t *testing.T) {
 	authSvc, _, _, _, _ := setupAuthService(t)
 	ctx := context.Background()
