@@ -333,7 +333,6 @@ func (h *AuthHandler) RequestPasswordReset(w http.ResponseWriter, r *http.Reques
 	}
 
 	// Always return success to prevent email enumeration
-	w.WriteHeader(http.StatusAccepted)
 	writeJSON(w, http.StatusAccepted, MessageResponse{
 		Message: "If the email exists, a reset link has been sent.",
 	})

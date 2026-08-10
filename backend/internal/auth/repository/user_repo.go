@@ -130,6 +130,7 @@ func (r *GormUserRepository) ListByTenant(ctx context.Context, tenantID uuid.UUI
 
 	// Get paginated results
 	if err := r.db.WithContext(ctx).
+		Preload("TenantRoles").
 		Joins("JOIN user_tenant_roles ON user_tenant_roles.user_id = users.id").
 		Where("user_tenant_roles.tenant_id = ?", tenantID).
 		Offset(offset).

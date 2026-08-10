@@ -212,13 +212,16 @@ func ToTokenResponse(tp *domain.TokenPair) *TokenResponse {
 	}
 }
 
-// ToUserResponse converts a domain user to API response.
-func ToUserResponse(user *domain.User) *UserResponse {
+// ToUserResponse converts a domain user to an API response, scoped to the
+// given tenant so Role/TenantID reflect the caller's tenant context.
+func ToUserResponse(user *domain.User, tenantID uuid.UUID) *UserResponse {
 	return &UserResponse{
 		ID:                user.ID,
 		Email:             user.Email,
 		FirstName:         user.FirstName,
 		LastName:          user.LastName,
+		Role:              string(user.GetRoleForTenant(tenantID)),
+		TenantID:          tenantID,
 		IsActive:          user.IsActive,
 		MustResetPassword: user.MustResetPwd,
 		CreatedAt:         user.CreatedAt,
