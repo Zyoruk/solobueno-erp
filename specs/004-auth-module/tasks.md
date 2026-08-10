@@ -329,22 +329,22 @@ Phase 13:
 
 ### Estimated Task Counts
 
-| Phase             | Tasks  | Description                         |
-| ----------------- | ------ | ----------------------------------- |
-| Setup             | 3      | Dependencies, directories           |
-| Database (GORM)   | 6      | Connection, AutoMigrate, SQL backup |
-| Domain            | 10     | Entities with GORM tags, errors     |
-| Repository (GORM) | 6      | Interfaces + GORM implementations   |
-| Core Services     | 7      | JWT, Password, Token                |
-| US1 (Login)       | 8      | Login flow + handler                |
-| US2 (Refresh)     | 5      | Token refresh                       |
-| US4 (RBAC)        | 6      | Middleware + /me                    |
-| US3 (Users)       | 8      | User CRUD                           |
-| US5 (Logout)      | 5      | Logout flow                         |
-| Passwords         | 9      | Change + Reset                      |
-| Module            | 3      | Interface, router, wiring           |
+| Phase             | Tasks  | Description                                      |
+| ----------------- | ------ | ------------------------------------------------ |
+| Setup             | 3      | Dependencies, directories                        |
+| Database (GORM)   | 6      | Connection, AutoMigrate, SQL backup              |
+| Domain            | 10     | Entities with GORM tags, errors                  |
+| Repository (GORM) | 6      | Interfaces + GORM implementations                |
+| Core Services     | 7      | JWT, Password, Token                             |
+| US1 (Login)       | 8      | Login flow + handler                             |
+| US2 (Refresh)     | 5      | Token refresh                                    |
+| US4 (RBAC)        | 6      | Middleware + /me                                 |
+| US3 (Users)       | 8      | User CRUD                                        |
+| US5 (Logout)      | 5      | Logout flow                                      |
+| Passwords         | 9      | Change + Reset                                   |
+| Module            | 3      | Interface, router, wiring                        |
 | Polish            | 10     | Validation, testing, coverage, perf, route-audit |
-| **Total**         | **86** |                                     |
+| **Total**         | **86** |                                                  |
 
 ---
 
@@ -393,3 +393,13 @@ Phase 13:
 - [x] T101 Add `failed_login_count`/`locked_until` columns to `backend/migrations/001_auth_tables.up.sql` (and drop in `.down.sql`) and the 3 new `auth_event_type` enum values, to match `data-model.md` per data-model.md (partial)
 
 **Checkpoint**: Codebase matches the 2026-08-08 clarified spec/plan/contracts. Verified: `go build ./...` clean, `go vet ./...` clean, full `go test ./...` passes, coverage gate met (domain 87.8%, handler 80.7%, repository 83.6%, service 85.7% — all ≥80%), and the wired `cmd/server` was run live against real Postgres + generated JWT keys with `curl` (login, /me with RBAC middleware, and the new account-lockout path confirmed via DB state after 5 failed attempts).
+
+---
+
+## Phase 15: Convergence
+
+**Purpose**: Close a constitution gap surfaced by the 2026-08-08 convergence run (see F1)
+
+- [x] T102 Add swaggo/swag annotations to all 13 auth REST endpoints (`backend/internal/auth/handler/auth_handler.go`, `user_handler.go`) and general API info annotations in `backend/cmd/server/main.go`, generate the OpenAPI spec via `swag init`, and serve it at `/swagger/*` per Constitution III (missing, CRITICAL)
+
+**Checkpoint**: Auth module REST endpoints have a machine-readable OpenAPI 3.0 spec, servable and browsable

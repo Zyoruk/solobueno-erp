@@ -15,11 +15,22 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	httpSwagger "github.com/swaggo/http-swagger/v2"
+
+	_ "github.com/solobueno/erp/docs"
 	"github.com/solobueno/erp/internal/auth"
 	"github.com/solobueno/erp/internal/shared/database"
 	"github.com/solobueno/erp/pkg/jwt"
 )
 
+// @title                       Solobueno ERP API
+// @version                     0.1
+// @description                 Auth module REST API. GraphQL is the primary API per the project constitution; this OpenAPI spec covers the REST surface (auth, integrations, webhooks).
+// @BasePath                    /api/v1
+// @securityDefinitions.apikey  BearerAuth
+// @in                          header
+// @name                        Authorization
+// @description                 Type "Bearer" followed by a space and the access token.
 func main() {
 	port := os.Getenv("API_PORT")
 	if port == "" {
@@ -50,6 +61,7 @@ func main() {
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 	authModule.RegisterRoutes(r)
+	r.Get("/swagger/*", httpSwagger.WrapHandler)
 
 	srv := &http.Server{
 		Addr:    ":" + port,

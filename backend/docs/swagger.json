@@ -1,0 +1,923 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Auth module REST API. GraphQL is the primary API per the project constitution; this OpenAPI spec covers the REST surface (auth, integrations, webhooks).",
+    "title": "Solobueno ERP API",
+    "contact": {},
+    "version": "0.1"
+  },
+  "basePath": "/api/v1",
+  "paths": {
+    "/auth/change-password": {
+      "post": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Change the authenticated user's password. Invalidates all other sessions (FR-014).",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["auth"],
+        "summary": "Change password",
+        "parameters": [
+          {
+            "description": "Current and new password",
+            "name": "request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/internal_auth_handler.ChangePasswordRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/internal_auth_handler.MessageResponse"
+            }
+          },
+          "400": {
+            "description": "current_password_incorrect, password_weak",
+            "schema": {
+              "$ref": "#/definitions/internal_auth_handler.ErrorResponse"
+            }
+          },
+          "401": {
+            "description": "unauthorized",
+            "schema": {
+              "$ref": "#/definitions/internal_auth_handler.ErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "description": "Authenticate with email and password. If the user belongs to multiple tenants and none is specified, returns 400 tenant_required with the list of choices.",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["auth"],
+        "summary": "Log in",
+        "parameters": [
+          {
+            "description": "Login credentials",
+            "name": "request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/internal_auth_handler.LoginRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/internal_auth_handler.LoginResponse"
+            }
+          },
+          "400": {
+            "description": "tenant_required",
+            "schema": {
+              "$ref": "#/definitions/internal_auth_handler.TenantRequiredResponse"
+            }
+          },
+          "401": {
+            "description": "invalid_credentials, account_disabled",
+            "schema": {
+              "$ref": "#/definitions/internal_auth_handler.ErrorResponse"
+            }
+          },
+          "423": {
+            "description": "account_locked",
+            "schema": {
+              "$ref": "#/definitions/internal_auth_handler.ErrorResponse"
+            }
+          },
+          "429": {
+            "description": "rate_limit_exceeded",
+            "schema": {
+              "$ref": "#/definitions/internal_auth_handler.ErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Revoke the current session's refresh token. Idempotent - always returns 204.",
+        "consumes": ["application/json"],
+        "tags": ["auth"],
+        "summary": "Log out",
+        "parameters": [
+          {
+            "description": "Refresh token to revoke",
+            "name": "request",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/internal_auth_handler.RefreshRequest"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
+    "/auth/me": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Return the authenticated user's identity and current tenant/role, from the access token claims.",
+        "produces": ["application/json"],
+        "tags": ["auth"],
+        "summary": "Get current user",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/internal_auth_handler.MeResponse"
+            }
+          },
+          "401": {
+            "description": "unauthorized",
+            "schema": {
+              "$ref": "#/definitions/internal_auth_handler.ErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/auth/password-reset/complete": {
+      "post": {
+        "description": "Set a new password using a valid, unexpired, unused reset token (1-hour TTL). Invalidates all sessions.",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["auth"],
+        "summary": "Complete password reset",
+        "parameters": [
+          {
+            "description": "Reset token and new password",
+            "name": "request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/internal_auth_handler.PasswordResetCompleteRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/internal_auth_handler.MessageResponse"
+            }
+          },
+          "400": {
+            "description": "token_invalid, token_expired, token_used, password_weak",
+            "schema": {
+              "$ref": "#/definitions/internal_auth_handler.ErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/auth/password-reset/request": {
+      "post": {
+        "description": "Send a password reset token to the given email if it exists. Always returns 202 to prevent email enumeration.",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["auth"],
+        "summary": "Request password reset",
+        "parameters": [
+          {
+            "description": "Email",
+            "name": "request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/internal_auth_handler.PasswordResetRequest"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Accepted",
+            "schema": {
+              "$ref": "#/definitions/internal_auth_handler.MessageResponse"
+            }
+          },
+          "429": {
+            "description": "rate_limit_exceeded",
+            "schema": {
+              "$ref": "#/definitions/internal_auth_handler.ErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/auth/refresh": {
+      "post": {
+        "description": "Exchange a valid refresh token for a new access/refresh token pair (rotates the refresh token).",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["auth"],
+        "summary": "Refresh access token",
+        "parameters": [
+          {
+            "description": "Refresh token",
+            "name": "request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/internal_auth_handler.RefreshRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/internal_auth_handler.TokenResponse"
+            }
+          },
+          "401": {
+            "description": "token_invalid, session_revoked, token_expired, account_disabled",
+            "schema": {
+              "$ref": "#/definitions/internal_auth_handler.ErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/users": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "produces": ["application/json"],
+        "tags": ["users"],
+        "summary": "List users in the current tenant",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "Page number (default 1)",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "Items per page (default 20, max 100)",
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/internal_auth_handler.UserListResponse"
+            }
+          },
+          "401": {
+            "description": "unauthorized",
+            "schema": {
+              "$ref": "#/definitions/internal_auth_handler.ErrorResponse"
+            }
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Manager+ creates a user for their tenant. If the email already has a global account in a different tenant, links a role to it instead (200) rather than creating a duplicate (201). New accounts get a temp password emailed to them (never returned in the response).",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["users"],
+        "summary": "Create a staff account",
+        "parameters": [
+          {
+            "description": "New user details",
+            "name": "request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/internal_auth_handler.CreateUserRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "linked to existing global account",
+            "schema": {
+              "$ref": "#/definitions/internal_auth_handler.CreateUserResponse"
+            }
+          },
+          "201": {
+            "description": "new account created",
+            "schema": {
+              "$ref": "#/definitions/internal_auth_handler.CreateUserResponse"
+            }
+          },
+          "400": {
+            "description": "invalid_request, invalid_role, email_exists",
+            "schema": {
+              "$ref": "#/definitions/internal_auth_handler.ErrorResponse"
+            }
+          },
+          "403": {
+            "description": "insufficient_role",
+            "schema": {
+              "$ref": "#/definitions/internal_auth_handler.ErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/users/{id}": {
+      "get": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "produces": ["application/json"],
+        "tags": ["users"],
+        "summary": "Get a user",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "User ID",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/internal_auth_handler.UserResponse"
+            }
+          },
+          "400": {
+            "description": "invalid_id",
+            "schema": {
+              "$ref": "#/definitions/internal_auth_handler.ErrorResponse"
+            }
+          },
+          "404": {
+            "description": "not_found",
+            "schema": {
+              "$ref": "#/definitions/internal_auth_handler.ErrorResponse"
+            }
+          }
+        }
+      },
+      "patch": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Manager+ updates a user's name or active status. Deactivating revokes all their sessions.",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["users"],
+        "summary": "Update a user's profile",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "User ID",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Fields to update",
+            "name": "request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/internal_auth_handler.UpdateUserRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/internal_auth_handler.UserResponse"
+            }
+          },
+          "400": {
+            "description": "invalid_id, invalid_request",
+            "schema": {
+              "$ref": "#/definitions/internal_auth_handler.ErrorResponse"
+            }
+          },
+          "403": {
+            "description": "insufficient_role",
+            "schema": {
+              "$ref": "#/definitions/internal_auth_handler.ErrorResponse"
+            }
+          },
+          "404": {
+            "description": "not_found",
+            "schema": {
+              "$ref": "#/definitions/internal_auth_handler.ErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/users/{id}/role": {
+      "patch": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Manager+ changes a user's role in the current tenant. Cannot assign or manage a role equal to or higher than your own.",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["users"],
+        "summary": "Change a user's role",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "User ID",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "New role",
+            "name": "request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/internal_auth_handler.UpdateRoleRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/internal_auth_handler.UserResponse"
+            }
+          },
+          "400": {
+            "description": "invalid_id, invalid_role",
+            "schema": {
+              "$ref": "#/definitions/internal_auth_handler.ErrorResponse"
+            }
+          },
+          "403": {
+            "description": "insufficient_role",
+            "schema": {
+              "$ref": "#/definitions/internal_auth_handler.ErrorResponse"
+            }
+          },
+          "404": {
+            "description": "not_found",
+            "schema": {
+              "$ref": "#/definitions/internal_auth_handler.ErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/users/{id}/unlock": {
+      "post": {
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "description": "Manager+ clears a user's account lockout (FR-011a), resetting the failed-login counter.",
+        "produces": ["application/json"],
+        "tags": ["users"],
+        "summary": "Clear an account lockout",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "User ID",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/internal_auth_handler.UserResponse"
+            }
+          },
+          "400": {
+            "description": "invalid_id",
+            "schema": {
+              "$ref": "#/definitions/internal_auth_handler.ErrorResponse"
+            }
+          },
+          "403": {
+            "description": "insufficient_role",
+            "schema": {
+              "$ref": "#/definitions/internal_auth_handler.ErrorResponse"
+            }
+          },
+          "404": {
+            "description": "not_found",
+            "schema": {
+              "$ref": "#/definitions/internal_auth_handler.ErrorResponse"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "github_com_solobueno_erp_internal_auth_domain.Role": {
+      "type": "string",
+      "enum": ["owner", "admin", "manager", "cashier", "waiter", "kitchen", "viewer"],
+      "x-enum-varnames": [
+        "RoleOwner",
+        "RoleAdmin",
+        "RoleManager",
+        "RoleCashier",
+        "RoleWaiter",
+        "RoleKitchen",
+        "RoleViewer"
+      ]
+    },
+    "internal_auth_handler.ChangePasswordRequest": {
+      "type": "object",
+      "properties": {
+        "current_password": {
+          "type": "string"
+        },
+        "new_password": {
+          "type": "string"
+        }
+      }
+    },
+    "internal_auth_handler.CreateUserRequest": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "first_name": {
+          "type": "string"
+        },
+        "last_name": {
+          "type": "string"
+        },
+        "role": {
+          "$ref": "#/definitions/github_com_solobueno_erp_internal_auth_domain.Role"
+        }
+      }
+    },
+    "internal_auth_handler.CreateUserResponse": {
+      "type": "object",
+      "properties": {
+        "created_at": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "first_name": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "last_name": {
+          "type": "string"
+        },
+        "linked_existing_account": {
+          "type": "boolean"
+        },
+        "message": {
+          "type": "string"
+        },
+        "must_reset_password": {
+          "type": "boolean"
+        },
+        "role": {
+          "type": "string"
+        }
+      }
+    },
+    "internal_auth_handler.ErrorDetail": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "locked_until": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "retry_after": {
+          "type": "integer"
+        },
+        "tenants": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/internal_auth_handler.TenantOption"
+          }
+        }
+      }
+    },
+    "internal_auth_handler.ErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "$ref": "#/definitions/internal_auth_handler.ErrorDetail"
+        }
+      }
+    },
+    "internal_auth_handler.LoginRequest": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "tenant_id": {
+          "type": "string"
+        }
+      }
+    },
+    "internal_auth_handler.LoginResponse": {
+      "type": "object",
+      "properties": {
+        "access_token": {
+          "type": "string"
+        },
+        "expires_at": {
+          "type": "string"
+        },
+        "expires_in": {
+          "type": "integer"
+        },
+        "refresh_token": {
+          "type": "string"
+        },
+        "token_type": {
+          "type": "string"
+        },
+        "user": {
+          "$ref": "#/definitions/internal_auth_handler.UserResponse"
+        }
+      }
+    },
+    "internal_auth_handler.MeResponse": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "first_name": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "last_name": {
+          "type": "string"
+        },
+        "must_reset_password": {
+          "type": "boolean"
+        },
+        "role": {
+          "type": "string"
+        },
+        "tenant_id": {
+          "type": "string"
+        },
+        "tenant_name": {
+          "type": "string"
+        },
+        "tenants": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/internal_auth_handler.TenantRoleInfo"
+          }
+        }
+      }
+    },
+    "internal_auth_handler.MessageResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "internal_auth_handler.Pagination": {
+      "type": "object",
+      "properties": {
+        "limit": {
+          "type": "integer"
+        },
+        "page": {
+          "type": "integer"
+        },
+        "total": {
+          "type": "integer"
+        },
+        "total_pages": {
+          "type": "integer"
+        }
+      }
+    },
+    "internal_auth_handler.PasswordResetCompleteRequest": {
+      "type": "object",
+      "properties": {
+        "new_password": {
+          "type": "string"
+        },
+        "token": {
+          "type": "string"
+        }
+      }
+    },
+    "internal_auth_handler.PasswordResetRequest": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        }
+      }
+    },
+    "internal_auth_handler.RefreshRequest": {
+      "type": "object",
+      "properties": {
+        "refresh_token": {
+          "type": "string"
+        }
+      }
+    },
+    "internal_auth_handler.TenantOption": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "slug": {
+          "type": "string"
+        }
+      }
+    },
+    "internal_auth_handler.TenantRequiredResponse": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "$ref": "#/definitions/internal_auth_handler.ErrorDetail"
+        }
+      }
+    },
+    "internal_auth_handler.TenantRoleInfo": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string"
+        }
+      }
+    },
+    "internal_auth_handler.TokenResponse": {
+      "type": "object",
+      "properties": {
+        "access_token": {
+          "type": "string"
+        },
+        "expires_at": {
+          "type": "string"
+        },
+        "expires_in": {
+          "type": "integer"
+        },
+        "refresh_token": {
+          "type": "string"
+        },
+        "token_type": {
+          "type": "string"
+        }
+      }
+    },
+    "internal_auth_handler.UpdateRoleRequest": {
+      "type": "object",
+      "properties": {
+        "role": {
+          "$ref": "#/definitions/github_com_solobueno_erp_internal_auth_domain.Role"
+        }
+      }
+    },
+    "internal_auth_handler.UpdateUserRequest": {
+      "type": "object",
+      "properties": {
+        "first_name": {
+          "type": "string"
+        },
+        "is_active": {
+          "type": "boolean"
+        },
+        "last_name": {
+          "type": "string"
+        }
+      }
+    },
+    "internal_auth_handler.UserListResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/internal_auth_handler.UserResponse"
+          }
+        },
+        "pagination": {
+          "$ref": "#/definitions/internal_auth_handler.Pagination"
+        }
+      }
+    },
+    "internal_auth_handler.UserResponse": {
+      "type": "object",
+      "properties": {
+        "created_at": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "first_name": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "is_active": {
+          "type": "boolean"
+        },
+        "last_name": {
+          "type": "string"
+        },
+        "must_reset_password": {
+          "type": "boolean"
+        },
+        "role": {
+          "type": "string"
+        },
+        "tenant_id": {
+          "type": "string"
+        },
+        "updated_at": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "securityDefinitions": {
+    "BearerAuth": {
+      "description": "Type \"Bearer\" followed by a space and the access token.",
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header"
+    }
+  }
+}

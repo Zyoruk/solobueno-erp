@@ -18,3 +18,4 @@ Before calling any backend code change done:
 - Every backend module (`internal/<module>/`) with business logic MUST have an `e2e_test.go` driving its real router/handlers over HTTP (`httptest`), not just unit tests. If the touched module doesn't have one yet, add it.
 - Run e2e tests with `make backend-test-e2e` (runs every module's `TestE2E*`; `MODULE=<name>` scopes to one, `COUNT=N` repeats)
 - New non-trivial logic (branch, service method, handler) gets a unit test in the same change, not deferred
+- Every new/changed REST handler MUST get swaggo/swag annotations (`@Summary`/`@Router`/etc. — see `backend/internal/auth/handler/*.go` for examples) and `make backend-swagger` regenerated in the same change, per Constitution III's OpenAPI 3.0 requirement

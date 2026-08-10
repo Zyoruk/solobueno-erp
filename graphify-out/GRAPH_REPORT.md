@@ -1,16 +1,16 @@
 # Graph Report - solobueno-erp  (2026-08-08)
 
 ## Corpus Check
-- 208 files · ~136,741 words
+- 211 files · ~146,910 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1864 nodes · 3198 edges · 151 communities (93 shown, 58 thin omitted)
-- Extraction: 88% EXTRACTED · 12% INFERRED · 0% AMBIGUOUS · INFERRED: 371 edges (avg confidence: 0.8)
+- 1903 nodes · 3302 edges · 158 communities (97 shown, 61 thin omitted)
+- Extraction: 88% EXTRACTED · 12% INFERRED · 0% AMBIGUOUS · INFERRED: 387 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `40ceab7f`
+- Built from commit: `6b2e491f`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -26,7 +26,7 @@
 - backoffice/package.json
 - mobile/package.json
 - Feature Specification: Docker Local Development Environment
-- Role
+- events.go
 - admin/package.json
 - kitchen-display/package.json
 - graphql-client/package.json
@@ -66,7 +66,8 @@
 - ui/src/index.ts
 - Observability & Monitoring
 - __init__.py
-- NewConnection
+- main
+- setupUserService
 - health-check.sh
 - NotificationTemplate
 - vitest.config.ts
@@ -122,9 +123,9 @@
 - ReportPermission
 - ScheduledReport
 - setupAuthMiddleware
-- UserService
+- .logEvent
 - KeyManager
-- TokenService
+- Claims
 - Tasks: Authentication Module
 - dto.go
 - setupUserHandler
@@ -137,16 +138,16 @@
 - Context
 - PasswordResetToken
 - Endpoints
-- UUID
+- AuthService
 - Execution Steps
 - Research Tasks
-- GormSessionRepository
-- GormUserRepository
 - Session
-- GormAuthEventRepository
+- GormUserRepository
+- Role
+- UserService
 - User
-- GormPasswordResetRepository
-- GormUserTenantRoleRepository
+- role_test.go
+- UserTenantRole
 - speckit-plan/SKILL.md
 - speckit-specify/SKILL.md
 - speckit-tasks/SKILL.md
@@ -163,18 +164,24 @@
 - speckit-constitution/SKILL.md
 - speckit-taskstoissues/SKILL.md
 - tenant_test.go
+- MockUserRepository
+- PasswordService
+- TokenService
+- LogEmailer
+- Router
+- Metadata
 
 ## God Nodes (most connected - your core abstractions)
 1. `setupTestDB()` - 42 edges
-2. `NewPasswordService()` - 37 edges
-3. `Role` - 35 edges
-4. `setupUserHandler()` - 35 edges
-5. `setupUserService()` - 35 edges
-6. `setupAuthService()` - 32 edges
-7. `setupWiredAuthHandler()` - 31 edges
-8. `UserService` - 29 edges
+2. `setupUserHandler()` - 40 edges
+3. `NewPasswordService()` - 40 edges
+4. `setupUserService()` - 38 edges
+5. `Role` - 36 edges
+6. `setupAuthService()` - 34 edges
+7. `setupWiredAuthHandler()` - 32 edges
+8. `UserService` - 32 edges
 9. `AuthService` - 25 edges
-10. `NewAuthHandler()` - 23 edges
+10. `authedContext()` - 24 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `Graphify Project Instructions (CLAUDE.md)` --semantically_similar_to--> `Agent Context File Template`  [INFERRED] [semantically similar]
@@ -205,7 +212,7 @@
 - **Order as Cross-Module Reference Hub** — specs_009_orders_module_spec_order, specs_011_payments_module_spec_payment, specs_012_billing_module_spec_invoice, specs_015_feedback_module_spec_rating [INFERRED 0.85]
 - **Reporting Module Aggregates All Business Modules** — specs_016_reporting_module_spec_reporting_module, specs_009_orders_module_spec_orders_module, specs_010_inventory_module_spec_inventory_module, specs_011_payments_module_spec_payments_module, specs_012_billing_module_spec_billing_module, specs_014_analytics_module_spec_analytics_module, specs_015_feedback_module_spec_feedback_module [EXTRACTED 1.00]
 
-## Communities (151 total, 58 thin omitted)
+## Communities (158 total, 61 thin omitted)
 
 ### Community 0 - "ci.yml GitHub Actions Workflow"
 Cohesion: 0.12
@@ -228,8 +235,8 @@ Cohesion: 0.08
 Nodes (29): caveman-commit (skill overview), Conventional Commits format, Auto-Clarity rule (commit), caveman-commit (SKILL instructions), out-of-tree backup dir (README), caveman-compress (skill overview), caveman-compress (SECURITY doc), Snyk High Risk rating (false positive) (+21 more)
 
 ### Community 5 - "NewPasswordService"
-Cohesion: 0.05
-Nodes (102): T, TestE2E_LoginUseRefreshLogout(), NewAuthHandler(), T, setupWiredAuthHandler(), TestAuthHandler_ChangePassword_IncorrectCurrent(), TestAuthHandler_ChangePassword_MissingFields(), TestAuthHandler_ChangePassword_Success() (+94 more)
+Cohesion: 0.07
+Nodes (81): T, TestE2E_LoginUseRefreshLogout(), NewAuthHandler(), T, setupWiredAuthHandler(), TestAuthHandler_ChangePassword_IncorrectCurrent(), TestAuthHandler_ChangePassword_MissingFields(), TestAuthHandler_ChangePassword_Success() (+73 more)
 
 ### Community 6 - "compilerOptions"
 Cohesion: 0.08
@@ -251,9 +258,9 @@ Nodes (23): dependencies, @solobueno/analytics, @solobueno/graphql, @solobueno/i
 Cohesion: 0.17
 Nodes (24): Named Volume Data Persistence Strategy, Simple Development Credentials, Enhanced docker-compose.yml (002), solobueno-network Docker Network, Named Docker Volumes (postgres/redis/minio data), health-check.sh Script, Native Docker Health Check Strategy, Makefile docker-* Targets (+16 more)
 
-### Community 11 - "Role"
-Cohesion: 0.06
-Nodes (45): BaseEvent, DomainEvent, LoginFailedEvent, LoginSucceededEvent, LogoutEvent, PasswordChangedEvent, RoleChangedEvent, SessionRevokedEvent (+37 more)
+### Community 11 - "events.go"
+Cohesion: 0.11
+Nodes (31): BaseEvent, DomainEvent, LoginFailedEvent, LoginSucceededEvent, LogoutEvent, PasswordChangedEvent, RoleChangedEvent, SessionRevokedEvent (+23 more)
 
 ### Community 12 - "admin/package.json"
 Cohesion: 0.09
@@ -296,8 +303,8 @@ Cohesion: 0.25
 Nodes (14): BaseEntity, MenuCategory, MenuItem, Order, OrderItem, OrderStatus, Payment, PaymentMethod (+6 more)
 
 ### Community 22 - "setupTestDB"
-Cohesion: 0.11
-Nodes (60): ModuleConfig, NewAuthEvent(), T, TestAuthEvent_TableName(), TestAuthEvent_WithMetadata(), TestAuthEventType_GormDataType(), TestAuthEventType_String(), TestMetadata_GormDataType() (+52 more)
+Cohesion: 0.08
+Nodes (65): ModuleConfig, NewAuthEvent(), T, TestAuthEvent_TableName(), TestAuthEvent_WithMetadata(), TestAuthEventType_GormDataType(), TestAuthEventType_String(), TestMetadata_GormDataType() (+57 more)
 
 ### Community 23 - "analytics/src/index.ts"
 Cohesion: 0.27
@@ -399,41 +406,45 @@ Nodes (3): speckit.tasks Command, speckit.taskstoissues Command, Tasks Template
 Cohesion: 0.67
 Nodes (3): Clickstream & Analytics Events, Feedback Module, Observability & Monitoring
 
-### Community 51 - "NewConnection"
-Cohesion: 0.25
-Nodes (11): main(), AutoMigrate(), DropAll(), DB, DefaultConfig(), getEnv(), DB, Duration (+3 more)
+### Community 51 - "main"
+Cohesion: 0.21
+Nodes (13): main(), generateEphemeralKeys(), main(), AutoMigrate(), DropAll(), DB, DefaultConfig(), getEnv() (+5 more)
+
+### Community 52 - "setupUserService"
+Cohesion: 0.20
+Nodes (27): T, setupUserService(), TestUserService_ChangePassword_Success(), TestUserService_ChangePassword_WeakNew(), TestUserService_ChangePassword_WrongCurrent(), TestUserService_CompletePasswordReset_Success(), TestUserService_CompletePasswordReset_TokenExpired(), TestUserService_CompletePasswordReset_TokenUsed() (+19 more)
 
 ### Community 108 - "setupAuthMiddleware"
 Cohesion: 0.10
 Nodes (39): Request, ResponseWriter, writeError(), writeJSON(), User, ToUserResponse(), extractBearerToken(), GetClaims() (+31 more)
 
-### Community 109 - "UserService"
-Cohesion: 0.08
-Nodes (30): Module, NewAuthMiddleware(), Router(), UserRouter(), Claims, Context, User, UUID (+22 more)
+### Community 109 - ".logEvent"
+Cohesion: 0.25
+Nodes (9): Context, User, UUID, ChangePasswordRequest, CreateUserRequest, CreateUserResponse, UnlockRequest, UpdateRequest (+1 more)
 
 ### Community 110 - "KeyManager"
 Cohesion: 0.09
 Nodes (27): DefaultTokenGeneratorConfig(), GetUserIDFromClaims(), Duration, RegisteredClaims, Time, UUID, NewTokenGenerator(), NewTokenValidator() (+19 more)
 
-### Community 111 - "TokenService"
-Cohesion: 0.07
-Nodes (20): RegisteredClaims, Time, UUID, NewClaims(), NewTokenPair(), T, TestClaims_GetUserID(), TestClaims_IsExpired() (+12 more)
+### Community 111 - "Claims"
+Cohesion: 0.17
+Nodes (14): RegisteredClaims, Time, UUID, NewClaims(), NewTokenPair(), T, TestClaims_GetUserID(), TestClaims_IsExpired() (+6 more)
 
 ### Community 112 - "Tasks: Authentication Module"
-Cohesion: 0.05
-Nodes (38): Dependencies & Execution Order, Endpoint Protection, Estimated Task Counts, Format: `[ID] [P?] [Story] Description`, Implementation, Implementation, Implementation, Implementation (+30 more)
+Cohesion: 0.04
+Nodes (44): Account Lockout (FR-011a), Dependencies & Execution Order, Endpoint Protection, Estimated Task Counts, Format: `[ID] [P?] [Story] Description`, Implementation, Implementation, Implementation (+36 more)
 
 ### Community 113 - "dto.go"
-Cohesion: 0.10
+Cohesion: 0.11
 Nodes (32): Time, UUID, T, TestToLoginResponse(), TestToTenantOptions(), TestToTenantOptions_Empty(), TestToTokenResponse(), TestToUserResponse() (+24 more)
 
 ### Community 114 - "setupUserHandler"
-Cohesion: 0.23
-Nodes (30): authedContext(), Context, Request, T, UUID, setupUserHandler(), TestUserHandler_Create_CannotAssignRole(), TestUserHandler_Create_EmailExists() (+22 more)
+Cohesion: 0.20
+Nodes (35): authedContext(), Context, Request, T, UUID, setupUserHandler(), TestUserHandler_Create_CannotAssignRole(), TestUserHandler_Create_EmailExistsInSameTenant() (+27 more)
 
 ### Community 115 - "NewMemoryRateLimiter"
 Cohesion: 0.13
-Nodes (20): DefaultLoginRateLimiterConfig(), DefaultPasswordResetRateLimiterConfig(), Duration, Context, RWMutex, Time, NewMemoryRateLimiter(), T (+12 more)
+Nodes (19): DefaultLoginRateLimiterConfig(), DefaultPasswordResetRateLimiterConfig(), Duration, Context, RWMutex, Time, NewMemoryRateLimiter(), T (+11 more)
 
 ### Community 116 - "speckit-analyze/SKILL.md"
 Cohesion: 0.08
@@ -441,11 +452,11 @@ Nodes (25): 1. Initialize Analysis Context, 2. Load Artifacts (Progressive Discl
 
 ### Community 117 - "Quickstart: Authentication Module"
 Cohesion: 0.08
-Nodes (24): 1. Login, 2. Access Protected Endpoint, 3. Refresh Token, 4. Logout, Authentication Flows, Checking Permissions, Complete Reset, Create User (+16 more)
+Nodes (25): 1. Login, 2. Access Protected Endpoint, 3. Refresh Token, 4. Logout, Account Lockout, Authentication Flows, Checking Permissions, Complete Reset (+17 more)
 
 ### Community 118 - "AuthEvent"
-Cohesion: 0.14
-Nodes (8): Time, UUID, Value, Time, AuthEvent, AuthEventType, Metadata, MockAuthEventRepository
+Cohesion: 0.12
+Nodes (11): Time, UUID, Context, DB, Time, UUID, Time, AuthEvent (+3 more)
 
 ### Community 119 - "Domain Entities (Go with GORM)"
 Cohesion: 0.09
@@ -457,55 +468,55 @@ Nodes (8): Time, UUID, Context, DB, UUID, Tenant, MockTenantRepository, GormTena
 
 ### Community 121 - "Context"
 Cohesion: 0.22
-Nodes (4): Context, User, MockSessionRepository, MockUserRepository
+Nodes (6): Context, RWMutex, UUID, MockPasswordResetRepository, MockSessionRepository, MockUserTenantRoleRepository
 
 ### Community 122 - "PasswordResetToken"
-Cohesion: 0.12
-Nodes (6): Time, User, UUID, RWMutex, PasswordResetToken, MockPasswordResetRepository
+Cohesion: 0.15
+Nodes (4): Time, User, UUID, PasswordResetToken
 
 ### Community 123 - "Endpoints"
 Cohesion: 0.11
-Nodes (17): Auth API Contracts, Common Error Codes, Endpoints, GET /me, GET /users, GET /users/{id}, JWT Claims, PATCH /users/{id} (+9 more)
+Nodes (18): Auth API Contracts, Common Error Codes, Endpoints, GET /me, GET /users, GET /users/{id}, JWT Claims, PATCH /users/{id} (+10 more)
 
-### Community 124 - "UUID"
-Cohesion: 0.22
-Nodes (6): Time, User, UUID, UUID, UserTenantRole, MockUserTenantRoleRepository
+### Community 124 - "AuthService"
+Cohesion: 0.24
+Nodes (10): Claims, Context, Time, User, UUID, AuthService, LoginRequest, LoginResponse (+2 more)
 
 ### Community 125 - "Execution Steps"
 Cohesion: 0.12
 Nodes (15): 1. Initialize Convergence Context, 2. Load Artifacts (Progressive Disclosure), 3. Build the Intent Inventory, 4. Assess the Codebase and Classify Findings, 5. Assign Severity, 6. Present the In-Session Findings Summary, 7. Append Convergence Tasks (or report converged), 8. Provide Next Actions (Handoff) (+7 more)
 
 ### Community 126 - "Research Tasks"
-Cohesion: 0.13
-Nodes (14): 1. Password Hashing: Argon2id Configuration, 2. JWT Implementation: RS256 with Key Rotation, 3. Session Storage: Database-Backed Refresh Tokens, 4. Rate Limiting: In-Memory with Redis Upgrade Path, 5. Multi-Tenant User Model, 6. Password Reset Flow, 7. Role-Based Access Control (RBAC), 8. ORM Selection (+6 more)
+Cohesion: 0.11
+Nodes (17): 10. Temporary Password Delivery (added 2026-08-08 clarification), 11. Existing Email Added to a New Tenant (added 2026-08-08 clarification), 1. Password Hashing: Argon2id Configuration, 2. JWT Implementation: RS256 with Key Rotation, 3. Session Storage: Database-Backed Refresh Tokens, 4. Rate Limiting: In-Memory with Redis Upgrade Path, 5. Multi-Tenant User Model, 6. Password Reset Flow (+9 more)
 
-### Community 127 - "GormSessionRepository"
-Cohesion: 0.31
-Nodes (4): Context, DB, UUID, GormSessionRepository
+### Community 127 - "Session"
+Cohesion: 0.12
+Nodes (9): Duration, Time, User, UUID, Context, DB, UUID, Session (+1 more)
 
 ### Community 128 - "GormUserRepository"
-Cohesion: 0.35
+Cohesion: 0.31
 Nodes (5): Context, DB, User, UUID, GormUserRepository
 
-### Community 129 - "Session"
-Cohesion: 0.17
-Nodes (5): Duration, Time, User, UUID, Session
+### Community 129 - "Role"
+Cohesion: 0.22
+Nodes (4): AllRoles(), Value, ParseRole(), Role
 
-### Community 130 - "GormAuthEventRepository"
+### Community 130 - "UserService"
 Cohesion: 0.32
-Nodes (5): Context, DB, Time, UUID, GormAuthEventRepository
+Nodes (11): AuthEventRepository, PasswordResetRepository, SessionRepository, TenantRepository, UserRepository, UserTenantRoleRepository, AuthServiceConfig, Emailer (+3 more)
 
 ### Community 131 - "User"
-Cohesion: 0.22
+Cohesion: 0.20
 Nodes (3): Time, UUID, User
 
-### Community 132 - "GormPasswordResetRepository"
-Cohesion: 0.31
-Nodes (5): Context, DB, Time, UUID, GormPasswordResetRepository
+### Community 132 - "role_test.go"
+Cohesion: 0.33
+Nodes (10): T, TestAllRoles(), TestParseRole(), TestRole_CanAssign(), TestRole_CanManage(), TestRole_GormDataType(), TestRole_IsValid(), TestRole_Level() (+2 more)
 
-### Community 133 - "GormUserTenantRoleRepository"
-Cohesion: 0.38
-Nodes (4): Context, DB, UUID, GormUserTenantRoleRepository
+### Community 133 - "UserTenantRole"
+Cohesion: 0.17
+Nodes (8): Time, User, UUID, Context, DB, UUID, UserTenantRole, GormUserTenantRoleRepository
 
 ### Community 134 - "speckit-plan/SKILL.md"
 Cohesion: 0.18
@@ -567,29 +578,41 @@ Nodes (4): Outline, Post-Execution Checks, Pre-Execution Checks, User Input
 Cohesion: 0.67
 Nodes (3): T, TestTenant_IsOperational(), TestTenant_TableName()
 
+### Community 153 - "TokenService"
+Cohesion: 0.24
+Nodes (4): Claims, Duration, Time, TokenService
+
+### Community 154 - "LogEmailer"
+Cohesion: 0.38
+Nodes (4): Context, UUID, NewLogEmailer(), LogEmailer
+
+### Community 155 - "Router"
+Cohesion: 0.60
+Nodes (4): Module, NewAuthMiddleware(), Router(), UserRouter()
+
 ## Ambiguous Edges - Review These
 - `Prettier + ESLint + golangci-lint` → `Lint Job (ci.yml)`  [AMBIGUOUS]
   specs/003-ci-pipeline/data-model.md · relation: implements
 
 ## Knowledge Gaps
-- **561 isolated node(s):** `common.sh script`, `create-new-feature.sh script`, `SPECIFY_FEATURE`, `name`, `version` (+556 more)
+- **571 isolated node(s):** `common.sh script`, `create-new-feature.sh script`, `SPECIFY_FEATURE`, `name`, `version` (+566 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **58 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **61 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **What is the exact relationship between `Prettier + ESLint + golangci-lint` and `Lint Job (ci.yml)`?**
   _Edge tagged AMBIGUOUS (relation: implements) - confidence is low._
-- **Why does `Role` connect `Role` to `User`, `setupAuthMiddleware`, `UserService`, `TokenService`, `dto.go`, `setupUserHandler`, `UUID`?**
-  _High betweenness centrality (0.045) - this node is a cross-community bridge._
-- **Why does `NewModule()` connect `setupTestDB` to `NewPasswordService`, `NewMemoryRateLimiter`, `UserService`?**
-  _High betweenness centrality (0.027) - this node is a cross-community bridge._
-- **Why does `UserTenantRole` connect `UUID` to `Tenant`, `Role`, `User`, `GormUserTenantRoleRepository`?**
-  _High betweenness centrality (0.018) - this node is a cross-community bridge._
-- **Are the 35 inferred relationships involving `NewPasswordService()` (e.g. with `TestE2E_LoginUseRefreshLogout()` and `TestAuthHandler_ChangePassword_IncorrectCurrent()`) actually correct?**
-  _`NewPasswordService()` has 35 INFERRED edges - model-reasoned connections that need verification._
+- **Why does `Role` connect `Role` to `User`, `UserTenantRole`, `events.go`, `setupAuthMiddleware`, `.logEvent`, `Claims`, `dto.go`, `setupUserHandler`, `TokenService`, `AuthService`?**
+  _High betweenness centrality (0.050) - this node is a cross-community bridge._
+- **Why does `NewModule()` connect `setupTestDB` to `NewMemoryRateLimiter`, `main`, `Router`, `NewPasswordService`?**
+  _High betweenness centrality (0.026) - this node is a cross-community bridge._
+- **Why does `UserService` connect `UserService` to `NewPasswordService`, `setupAuthMiddleware`, `.logEvent`, `setupUserService`, `PasswordService`, `Router`?**
+  _High betweenness centrality (0.017) - this node is a cross-community bridge._
+- **Are the 7 inferred relationships involving `setupUserHandler()` (e.g. with `NewUserHandler()` and `NewMockAuthEventRepository()`) actually correct?**
+  _`setupUserHandler()` has 7 INFERRED edges - model-reasoned connections that need verification._
+- **Are the 38 inferred relationships involving `NewPasswordService()` (e.g. with `TestE2E_LoginUseRefreshLogout()` and `TestAuthHandler_ChangePassword_IncorrectCurrent()`) actually correct?**
+  _`NewPasswordService()` has 38 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `common.sh script`, `create-new-feature.sh script`, `SPECIFY_FEATURE` to the rest of the system?**
-  _561 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `ci.yml GitHub Actions Workflow` be split into smaller, more focused modules?**
-  _Cohesion score 0.11538461538461539 - nodes in this community are weakly interconnected._
+  _571 weakly-connected nodes found - possible documentation gaps or missing edges._

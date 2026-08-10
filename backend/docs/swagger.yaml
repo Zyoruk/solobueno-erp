@@ -1,0 +1,659 @@
+basePath: /api/v1
+definitions:
+  github_com_solobueno_erp_internal_auth_domain.Role:
+    enum:
+      - owner
+      - admin
+      - manager
+      - cashier
+      - waiter
+      - kitchen
+      - viewer
+    type: string
+    x-enum-varnames:
+      - RoleOwner
+      - RoleAdmin
+      - RoleManager
+      - RoleCashier
+      - RoleWaiter
+      - RoleKitchen
+      - RoleViewer
+  internal_auth_handler.ChangePasswordRequest:
+    properties:
+      current_password:
+        type: string
+      new_password:
+        type: string
+    type: object
+  internal_auth_handler.CreateUserRequest:
+    properties:
+      email:
+        type: string
+      first_name:
+        type: string
+      last_name:
+        type: string
+      role:
+        $ref: '#/definitions/github_com_solobueno_erp_internal_auth_domain.Role'
+    type: object
+  internal_auth_handler.CreateUserResponse:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: string
+      last_name:
+        type: string
+      linked_existing_account:
+        type: boolean
+      message:
+        type: string
+      must_reset_password:
+        type: boolean
+      role:
+        type: string
+    type: object
+  internal_auth_handler.ErrorDetail:
+    properties:
+      code:
+        type: string
+      locked_until:
+        type: string
+      message:
+        type: string
+      retry_after:
+        type: integer
+      tenants:
+        items:
+          $ref: '#/definitions/internal_auth_handler.TenantOption'
+        type: array
+    type: object
+  internal_auth_handler.ErrorResponse:
+    properties:
+      error:
+        $ref: '#/definitions/internal_auth_handler.ErrorDetail'
+    type: object
+  internal_auth_handler.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+      tenant_id:
+        type: string
+    type: object
+  internal_auth_handler.LoginResponse:
+    properties:
+      access_token:
+        type: string
+      expires_at:
+        type: string
+      expires_in:
+        type: integer
+      refresh_token:
+        type: string
+      token_type:
+        type: string
+      user:
+        $ref: '#/definitions/internal_auth_handler.UserResponse'
+    type: object
+  internal_auth_handler.MeResponse:
+    properties:
+      email:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: string
+      last_name:
+        type: string
+      must_reset_password:
+        type: boolean
+      role:
+        type: string
+      tenant_id:
+        type: string
+      tenant_name:
+        type: string
+      tenants:
+        items:
+          $ref: '#/definitions/internal_auth_handler.TenantRoleInfo'
+        type: array
+    type: object
+  internal_auth_handler.MessageResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  internal_auth_handler.Pagination:
+    properties:
+      limit:
+        type: integer
+      page:
+        type: integer
+      total:
+        type: integer
+      total_pages:
+        type: integer
+    type: object
+  internal_auth_handler.PasswordResetCompleteRequest:
+    properties:
+      new_password:
+        type: string
+      token:
+        type: string
+    type: object
+  internal_auth_handler.PasswordResetRequest:
+    properties:
+      email:
+        type: string
+    type: object
+  internal_auth_handler.RefreshRequest:
+    properties:
+      refresh_token:
+        type: string
+    type: object
+  internal_auth_handler.TenantOption:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      slug:
+        type: string
+    type: object
+  internal_auth_handler.TenantRequiredResponse:
+    properties:
+      error:
+        $ref: '#/definitions/internal_auth_handler.ErrorDetail'
+    type: object
+  internal_auth_handler.TenantRoleInfo:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      role:
+        type: string
+    type: object
+  internal_auth_handler.TokenResponse:
+    properties:
+      access_token:
+        type: string
+      expires_at:
+        type: string
+      expires_in:
+        type: integer
+      refresh_token:
+        type: string
+      token_type:
+        type: string
+    type: object
+  internal_auth_handler.UpdateRoleRequest:
+    properties:
+      role:
+        $ref: '#/definitions/github_com_solobueno_erp_internal_auth_domain.Role'
+    type: object
+  internal_auth_handler.UpdateUserRequest:
+    properties:
+      first_name:
+        type: string
+      is_active:
+        type: boolean
+      last_name:
+        type: string
+    type: object
+  internal_auth_handler.UserListResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/internal_auth_handler.UserResponse'
+        type: array
+      pagination:
+        $ref: '#/definitions/internal_auth_handler.Pagination'
+    type: object
+  internal_auth_handler.UserResponse:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: string
+      is_active:
+        type: boolean
+      last_name:
+        type: string
+      must_reset_password:
+        type: boolean
+      role:
+        type: string
+      tenant_id:
+        type: string
+      updated_at:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: Auth module REST API. GraphQL is the primary API per the project constitution;
+    this OpenAPI spec covers the REST surface (auth, integrations, webhooks).
+  title: Solobueno ERP API
+  version: '0.1'
+paths:
+  /auth/change-password:
+    post:
+      consumes:
+        - application/json
+      description: Change the authenticated user's password. Invalidates all other
+        sessions (FR-014).
+      parameters:
+        - description: Current and new password
+          in: body
+          name: request
+          required: true
+          schema:
+            $ref: '#/definitions/internal_auth_handler.ChangePasswordRequest'
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_auth_handler.MessageResponse'
+        '400':
+          description: current_password_incorrect, password_weak
+          schema:
+            $ref: '#/definitions/internal_auth_handler.ErrorResponse'
+        '401':
+          description: unauthorized
+          schema:
+            $ref: '#/definitions/internal_auth_handler.ErrorResponse'
+      security:
+        - BearerAuth: []
+      summary: Change password
+      tags:
+        - auth
+  /auth/login:
+    post:
+      consumes:
+        - application/json
+      description: Authenticate with email and password. If the user belongs to multiple
+        tenants and none is specified, returns 400 tenant_required with the list of
+        choices.
+      parameters:
+        - description: Login credentials
+          in: body
+          name: request
+          required: true
+          schema:
+            $ref: '#/definitions/internal_auth_handler.LoginRequest'
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_auth_handler.LoginResponse'
+        '400':
+          description: tenant_required
+          schema:
+            $ref: '#/definitions/internal_auth_handler.TenantRequiredResponse'
+        '401':
+          description: invalid_credentials, account_disabled
+          schema:
+            $ref: '#/definitions/internal_auth_handler.ErrorResponse'
+        '423':
+          description: account_locked
+          schema:
+            $ref: '#/definitions/internal_auth_handler.ErrorResponse'
+        '429':
+          description: rate_limit_exceeded
+          schema:
+            $ref: '#/definitions/internal_auth_handler.ErrorResponse'
+      summary: Log in
+      tags:
+        - auth
+  /auth/logout:
+    post:
+      consumes:
+        - application/json
+      description: Revoke the current session's refresh token. Idempotent - always
+        returns 204.
+      parameters:
+        - description: Refresh token to revoke
+          in: body
+          name: request
+          schema:
+            $ref: '#/definitions/internal_auth_handler.RefreshRequest'
+      responses:
+        '204':
+          description: No Content
+      security:
+        - BearerAuth: []
+      summary: Log out
+      tags:
+        - auth
+  /auth/me:
+    get:
+      description: Return the authenticated user's identity and current tenant/role,
+        from the access token claims.
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_auth_handler.MeResponse'
+        '401':
+          description: unauthorized
+          schema:
+            $ref: '#/definitions/internal_auth_handler.ErrorResponse'
+      security:
+        - BearerAuth: []
+      summary: Get current user
+      tags:
+        - auth
+  /auth/password-reset/complete:
+    post:
+      consumes:
+        - application/json
+      description: Set a new password using a valid, unexpired, unused reset token
+        (1-hour TTL). Invalidates all sessions.
+      parameters:
+        - description: Reset token and new password
+          in: body
+          name: request
+          required: true
+          schema:
+            $ref: '#/definitions/internal_auth_handler.PasswordResetCompleteRequest'
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_auth_handler.MessageResponse'
+        '400':
+          description: token_invalid, token_expired, token_used, password_weak
+          schema:
+            $ref: '#/definitions/internal_auth_handler.ErrorResponse'
+      summary: Complete password reset
+      tags:
+        - auth
+  /auth/password-reset/request:
+    post:
+      consumes:
+        - application/json
+      description: Send a password reset token to the given email if it exists. Always
+        returns 202 to prevent email enumeration.
+      parameters:
+        - description: Email
+          in: body
+          name: request
+          required: true
+          schema:
+            $ref: '#/definitions/internal_auth_handler.PasswordResetRequest'
+      produces:
+        - application/json
+      responses:
+        '202':
+          description: Accepted
+          schema:
+            $ref: '#/definitions/internal_auth_handler.MessageResponse'
+        '429':
+          description: rate_limit_exceeded
+          schema:
+            $ref: '#/definitions/internal_auth_handler.ErrorResponse'
+      summary: Request password reset
+      tags:
+        - auth
+  /auth/refresh:
+    post:
+      consumes:
+        - application/json
+      description: Exchange a valid refresh token for a new access/refresh token pair
+        (rotates the refresh token).
+      parameters:
+        - description: Refresh token
+          in: body
+          name: request
+          required: true
+          schema:
+            $ref: '#/definitions/internal_auth_handler.RefreshRequest'
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_auth_handler.TokenResponse'
+        '401':
+          description: token_invalid, session_revoked, token_expired, account_disabled
+          schema:
+            $ref: '#/definitions/internal_auth_handler.ErrorResponse'
+      summary: Refresh access token
+      tags:
+        - auth
+  /users:
+    get:
+      parameters:
+        - description: Page number (default 1)
+          in: query
+          name: page
+          type: integer
+        - description: Items per page (default 20, max 100)
+          in: query
+          name: limit
+          type: integer
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_auth_handler.UserListResponse'
+        '401':
+          description: unauthorized
+          schema:
+            $ref: '#/definitions/internal_auth_handler.ErrorResponse'
+      security:
+        - BearerAuth: []
+      summary: List users in the current tenant
+      tags:
+        - users
+    post:
+      consumes:
+        - application/json
+      description: Manager+ creates a user for their tenant. If the email already
+        has a global account in a different tenant, links a role to it instead (200)
+        rather than creating a duplicate (201). New accounts get a temp password emailed
+        to them (never returned in the response).
+      parameters:
+        - description: New user details
+          in: body
+          name: request
+          required: true
+          schema:
+            $ref: '#/definitions/internal_auth_handler.CreateUserRequest'
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: linked to existing global account
+          schema:
+            $ref: '#/definitions/internal_auth_handler.CreateUserResponse'
+        '201':
+          description: new account created
+          schema:
+            $ref: '#/definitions/internal_auth_handler.CreateUserResponse'
+        '400':
+          description: invalid_request, invalid_role, email_exists
+          schema:
+            $ref: '#/definitions/internal_auth_handler.ErrorResponse'
+        '403':
+          description: insufficient_role
+          schema:
+            $ref: '#/definitions/internal_auth_handler.ErrorResponse'
+      security:
+        - BearerAuth: []
+      summary: Create a staff account
+      tags:
+        - users
+  /users/{id}:
+    get:
+      parameters:
+        - description: User ID
+          in: path
+          name: id
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_auth_handler.UserResponse'
+        '400':
+          description: invalid_id
+          schema:
+            $ref: '#/definitions/internal_auth_handler.ErrorResponse'
+        '404':
+          description: not_found
+          schema:
+            $ref: '#/definitions/internal_auth_handler.ErrorResponse'
+      security:
+        - BearerAuth: []
+      summary: Get a user
+      tags:
+        - users
+    patch:
+      consumes:
+        - application/json
+      description: Manager+ updates a user's name or active status. Deactivating revokes
+        all their sessions.
+      parameters:
+        - description: User ID
+          in: path
+          name: id
+          required: true
+          type: string
+        - description: Fields to update
+          in: body
+          name: request
+          required: true
+          schema:
+            $ref: '#/definitions/internal_auth_handler.UpdateUserRequest'
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_auth_handler.UserResponse'
+        '400':
+          description: invalid_id, invalid_request
+          schema:
+            $ref: '#/definitions/internal_auth_handler.ErrorResponse'
+        '403':
+          description: insufficient_role
+          schema:
+            $ref: '#/definitions/internal_auth_handler.ErrorResponse'
+        '404':
+          description: not_found
+          schema:
+            $ref: '#/definitions/internal_auth_handler.ErrorResponse'
+      security:
+        - BearerAuth: []
+      summary: Update a user's profile
+      tags:
+        - users
+  /users/{id}/role:
+    patch:
+      consumes:
+        - application/json
+      description: Manager+ changes a user's role in the current tenant. Cannot assign
+        or manage a role equal to or higher than your own.
+      parameters:
+        - description: User ID
+          in: path
+          name: id
+          required: true
+          type: string
+        - description: New role
+          in: body
+          name: request
+          required: true
+          schema:
+            $ref: '#/definitions/internal_auth_handler.UpdateRoleRequest'
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_auth_handler.UserResponse'
+        '400':
+          description: invalid_id, invalid_role
+          schema:
+            $ref: '#/definitions/internal_auth_handler.ErrorResponse'
+        '403':
+          description: insufficient_role
+          schema:
+            $ref: '#/definitions/internal_auth_handler.ErrorResponse'
+        '404':
+          description: not_found
+          schema:
+            $ref: '#/definitions/internal_auth_handler.ErrorResponse'
+      security:
+        - BearerAuth: []
+      summary: Change a user's role
+      tags:
+        - users
+  /users/{id}/unlock:
+    post:
+      description: Manager+ clears a user's account lockout (FR-011a), resetting the
+        failed-login counter.
+      parameters:
+        - description: User ID
+          in: path
+          name: id
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_auth_handler.UserResponse'
+        '400':
+          description: invalid_id
+          schema:
+            $ref: '#/definitions/internal_auth_handler.ErrorResponse'
+        '403':
+          description: insufficient_role
+          schema:
+            $ref: '#/definitions/internal_auth_handler.ErrorResponse'
+        '404':
+          description: not_found
+          schema:
+            $ref: '#/definitions/internal_auth_handler.ErrorResponse'
+      security:
+        - BearerAuth: []
+      summary: Clear an account lockout
+      tags:
+        - users
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and the access token.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: '2.0'

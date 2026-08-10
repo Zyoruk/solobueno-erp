@@ -20,6 +20,19 @@ func NewAuthHandler(authService *service.AuthService) *AuthHandler {
 }
 
 // Login handles POST /login.
+//
+// @Summary      Log in
+// @Description  Authenticate with email and password. If the user belongs to multiple tenants and none is specified, returns 400 tenant_required with the list of choices.
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        request  body      LoginRequest  true  "Login credentials"
+// @Success      200      {object}  LoginResponse
+// @Failure      400      {object}  TenantRequiredResponse "tenant_required"
+// @Failure      401      {object}  ErrorResponse "invalid_credentials, account_disabled"
+// @Failure      423      {object}  ErrorResponse "account_locked"
+// @Failure      429      {object}  ErrorResponse "rate_limit_exceeded"
+// @Router       /auth/login [post]
 func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	var req LoginRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -100,6 +113,16 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 }
 
 // Refresh handles POST /refresh.
+//
+// @Summary      Refresh access token
+// @Description  Exchange a valid refresh token for a new access/refresh token pair (rotates the refresh token).
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        request  body      RefreshRequest  true  "Refresh token"
+// @Success      200      {object}  TokenResponse
+// @Failure      401      {object}  ErrorResponse "token_invalid, session_revoked, token_expired, account_disabled"
+// @Router       /auth/refresh [post]
 func (h *AuthHandler) Refresh(w http.ResponseWriter, r *http.Request) {
 	var req RefreshRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -143,6 +166,15 @@ func (h *AuthHandler) Refresh(w http.ResponseWriter, r *http.Request) {
 }
 
 // Logout handles POST /logout.
+//
+// @Summary      Log out
+// @Description  Revoke the current session's refresh token. Idempotent - always returns 204.
+// @Tags         auth
+// @Security     BearerAuth
+// @Accept       json
+// @Param        request  body  RefreshRequest  false  "Refresh token to revoke"
+// @Success      204  "No Content"
+// @Router       /auth/logout [post]
 func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	var req RefreshRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -167,6 +199,15 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 }
 
 // Me handles GET /me.
+//
+// @Summary      Get current user
+// @Description  Return the authenticated user's identity and current tenant/role, from the access token claims.
+// @Tags         auth
+// @Security     BearerAuth
+// @Produce      json
+// @Success      200  {object}  MeResponse
+// @Failure      401  {object}  ErrorResponse "unauthorized"
+// @Router       /auth/me [get]
 func (h *AuthHandler) Me(w http.ResponseWriter, r *http.Request) {
 	claims, ok := GetClaims(r.Context())
 	if !ok {
@@ -194,6 +235,18 @@ func (h *AuthHandler) Me(w http.ResponseWriter, r *http.Request) {
 }
 
 // ChangePassword handles POST /change-password.
+//
+// @Summary      Change password
+// @Description  Change the authenticated user's password. Invalidates all other sessions (FR-014).
+// @Tags         auth
+// @Security     BearerAuth
+// @Accept       json
+// @Produce      json
+// @Param        request  body      ChangePasswordRequest  true  "Current and new password"
+// @Success      200      {object}  MessageResponse
+// @Failure      400      {object}  ErrorResponse "current_password_incorrect, password_weak"
+// @Failure      401      {object}  ErrorResponse "unauthorized"
+// @Router       /auth/change-password [post]
 func (h *AuthHandler) ChangePassword(w http.ResponseWriter, r *http.Request, userService *service.UserService) {
 	userID, ok := GetUserID(r.Context())
 	if !ok {
@@ -240,6 +293,16 @@ func (h *AuthHandler) ChangePassword(w http.ResponseWriter, r *http.Request, use
 }
 
 // RequestPasswordReset handles POST /password-reset/request.
+//
+// @Summary      Request password reset
+// @Description  Send a password reset token to the given email if it exists. Always returns 202 to prevent email enumeration.
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        request  body      PasswordResetRequest  true  "Email"
+// @Success      202      {object}  MessageResponse
+// @Failure      429      {object}  ErrorResponse "rate_limit_exceeded"
+// @Router       /auth/password-reset/request [post]
 func (h *AuthHandler) RequestPasswordReset(w http.ResponseWriter, r *http.Request, userService *service.UserService) {
 	var req PasswordResetRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -277,6 +340,16 @@ func (h *AuthHandler) RequestPasswordReset(w http.ResponseWriter, r *http.Reques
 }
 
 // CompletePasswordReset handles POST /password-reset/complete.
+//
+// @Summary      Complete password reset
+// @Description  Set a new password using a valid, unexpired, unused reset token (1-hour TTL). Invalidates all sessions.
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        request  body      PasswordResetCompleteRequest  true  "Reset token and new password"
+// @Success      200      {object}  MessageResponse
+// @Failure      400      {object}  ErrorResponse "token_invalid, token_expired, token_used, password_weak"
+// @Router       /auth/password-reset/complete [post]
 func (h *AuthHandler) CompletePasswordReset(w http.ResponseWriter, r *http.Request, userService *service.UserService) {
 	var req PasswordResetCompleteRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
