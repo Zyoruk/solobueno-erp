@@ -161,7 +161,7 @@ As a staff member ending my shift, I want to log out securely, so that the next 
 
 - **SC-002**: Token refresh completes within 200ms without user-perceived delay.
 
-- **SC-003**: 100% of API endpoints enforce authentication (no unprotected routes except login/health).
+- **SC-003**: 100% of API endpoints enforce authentication (no unprotected routes except login, refresh, and password-reset request/complete).
 
 - **SC-004**: 100% of protected endpoints enforce role-based authorization.
 
@@ -169,4 +169,4 @@ As a staff member ending my shift, I want to log out securely, so that the next 
 
 - **SC-006**: All authentication events are logged with timestamp, user, IP, and result.
 
-- **SC-007**: Password hashing uses industry-standard algorithm with appropriate work factor.
+- **SC-007**: Password hashing uses Argon2id with 64MB memory, 3 iterations, and 4-way parallelism (OWASP-recommended parameters).

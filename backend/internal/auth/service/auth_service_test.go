@@ -11,7 +11,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/solobueno/erp/internal/auth/domain"
-	"github.com/solobueno/erp/internal/auth/repository"
+	"github.com/solobueno/erp/internal/auth/repository/mock"
 	"github.com/solobueno/erp/pkg/jwt"
 )
 
@@ -40,7 +40,7 @@ func testKeyPair(t *testing.T) (*rsa.PrivateKey, []byte, []byte) {
 	return privateKey, privateKeyPEM, publicKeyPEM
 }
 
-func setupAuthService(t *testing.T) (*AuthService, *repository.MockUserRepository, *repository.MockSessionRepository, *repository.MockTenantRepository, *repository.MockAuthEventRepository) {
+func setupAuthService(t *testing.T) (*AuthService, *mock.MockUserRepository, *mock.MockSessionRepository, *mock.MockTenantRepository, *mock.MockAuthEventRepository) {
 	t.Helper()
 
 	_, privatePEM, publicPEM := testKeyPair(t)
@@ -55,11 +55,11 @@ func setupAuthService(t *testing.T) (*AuthService, *repository.MockUserRepositor
 
 	tokenSvc := NewTokenService(km, jwt.DefaultTokenGeneratorConfig())
 
-	userRepo := repository.NewMockUserRepository()
-	sessionRepo := repository.NewMockSessionRepository()
-	eventRepo := repository.NewMockAuthEventRepository()
-	tenantRepo := repository.NewMockTenantRepository()
-	roleRepo := repository.NewMockUserTenantRoleRepository()
+	userRepo := mock.NewMockUserRepository()
+	sessionRepo := mock.NewMockSessionRepository()
+	eventRepo := mock.NewMockAuthEventRepository()
+	tenantRepo := mock.NewMockTenantRepository()
+	roleRepo := mock.NewMockUserTenantRoleRepository()
 
 	authSvc := NewAuthService(AuthServiceConfig{
 		UserRepo:     userRepo,
@@ -320,11 +320,11 @@ func TestAuthService_Login_RateLimited(t *testing.T) {
 	})
 
 	authSvc := NewAuthService(AuthServiceConfig{
-		UserRepo:     repository.NewMockUserRepository(),
-		SessionRepo:  repository.NewMockSessionRepository(),
-		EventRepo:    repository.NewMockAuthEventRepository(),
-		TenantRepo:   repository.NewMockTenantRepository(),
-		RoleRepo:     repository.NewMockUserTenantRoleRepository(),
+		UserRepo:     mock.NewMockUserRepository(),
+		SessionRepo:  mock.NewMockSessionRepository(),
+		EventRepo:    mock.NewMockAuthEventRepository(),
+		TenantRepo:   mock.NewMockTenantRepository(),
+		RoleRepo:     mock.NewMockUserTenantRoleRepository(),
 		TokenService: tokenSvc,
 		RateLimiter:  rateLimiter,
 	})
