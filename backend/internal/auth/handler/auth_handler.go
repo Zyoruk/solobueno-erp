@@ -5,8 +5,10 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/solobueno/erp/internal/auth/domain"
 	"github.com/solobueno/erp/internal/auth/service"
+	"github.com/solobueno/erp/internal/shared/observability"
 )
 
 // AuthHandler handles authentication endpoints.
@@ -104,7 +106,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 			writeError(w, http.StatusBadRequest, "invalid_tenant", "User does not belong to this tenant")
 			return
 		default:
-			writeError(w, http.StatusInternalServerError, "internal_error", "An unexpected error occurred")
+			writeInternalError(w, r, err)
 			return
 		}
 	}
@@ -157,7 +159,7 @@ func (h *AuthHandler) Refresh(w http.ResponseWriter, r *http.Request) {
 			writeError(w, http.StatusUnauthorized, "account_disabled", "Account is disabled")
 			return
 		default:
-			writeError(w, http.StatusInternalServerError, "internal_error", "An unexpected error occurred")
+			writeInternalError(w, r, err)
 			return
 		}
 	}
@@ -282,7 +284,7 @@ func (h *AuthHandler) ChangePassword(w http.ResponseWriter, r *http.Request, use
 			writeError(w, http.StatusBadRequest, "password_weak", "Password does not meet requirements")
 			return
 		default:
-			writeError(w, http.StatusInternalServerError, "internal_error", "An unexpected error occurred")
+			writeInternalError(w, r, err)
 			return
 		}
 	}
@@ -377,7 +379,7 @@ func (h *AuthHandler) CompletePasswordReset(w http.ResponseWriter, r *http.Reque
 			writeError(w, http.StatusBadRequest, "password_weak", "Password does not meet requirements")
 			return
 		default:
-			writeError(w, http.StatusInternalServerError, "internal_error", "An unexpected error occurred")
+			writeInternalError(w, r, err)
 			return
 		}
 	}
@@ -406,4 +408,16 @@ func writeError(w http.ResponseWriter, status int, code, message string) {
 			Message: message,
 		},
 	})
+}
+
+// writeInternalError logs an unexpected error at error level (with the
+// request-correlation ID for troubleshooting) and returns a generic 500 to
+// the client - the real error detail never reaches the response body, per FR-017.
+func writeInternalError(w http.ResponseWriter, r *http.Request, err error) {
+	logger.Error("unhandled error",
+		observability.Field{Key: "error", Value: err.Error()},
+		observability.Field{Key: "request_id", Value: middleware.GetReqID(r.Context())},
+		observability.Field{Key: "path", Value: r.URL.Path},
+	)
+	writeError(w, http.StatusInternalServerError, "internal_error", "An unexpected error occurred")
 }

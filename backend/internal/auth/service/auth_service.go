@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -88,7 +89,7 @@ func (s *AuthService) Login(ctx context.Context, req LoginRequest) (*LoginRespon
 	if s.rateLimiter != nil {
 		allowed, err := s.rateLimiter.Allow(ctx, req.IPAddress)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("login: rate limit check: %w", err)
 		}
 		if !allowed {
 			s.logEvent(ctx, domain.EventLoginFailed, nil, nil, req.IPAddress, req.UserAgent, map[string]interface{}{
@@ -109,7 +110,7 @@ func (s *AuthService) Login(ctx context.Context, req LoginRequest) (*LoginRespon
 			})
 			return nil, domain.ErrInvalidCredentials
 		}
-		return nil, err
+		return nil, fmt.Errorf("login: user lookup: %w", err)
 	}
 
 	// Check account lockout (independent of the IP rate limit above)
@@ -123,7 +124,7 @@ func (s *AuthService) Login(ctx context.Context, req LoginRequest) (*LoginRespon
 	// Verify password
 	match, err := s.passwordSvc.Verify(req.Password, user.PasswordHash)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("login: password verify: %w", err)
 	}
 	if !match {
 		user.FailedLoginCount++
@@ -134,7 +135,7 @@ func (s *AuthService) Login(ctx context.Context, req LoginRequest) (*LoginRespon
 			lockedUntil = &until
 		}
 		if err := s.userRepo.Update(ctx, user); err != nil {
-			return nil, err
+			return nil, fmt.Errorf("login: update failed-login count: %w", err)
 		}
 		if lockedUntil != nil {
 			s.logEvent(ctx, domain.EventAccountLocked, &user.ID, nil, req.IPAddress, req.UserAgent, map[string]interface{}{
@@ -160,7 +161,7 @@ func (s *AuthService) Login(ctx context.Context, req LoginRequest) (*LoginRespon
 		user.FailedLoginCount = 0
 		user.LockedUntil = nil
 		if err := s.userRepo.Update(ctx, user); err != nil {
-			return nil, err
+			return nil, fmt.Errorf("login: reset failed-login count: %w", err)
 		}
 	}
 
@@ -210,7 +211,7 @@ func (s *AuthService) Login(ctx context.Context, req LoginRequest) (*LoginRespon
 	// Verify tenant is active
 	tenant, err := s.tenantRepo.FindByID(ctx, selectedTenantID)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("login: tenant lookup: %w", err)
 	}
 	if !tenant.IsOperational() {
 		return nil, domain.ErrTenantInactive
@@ -219,7 +220,7 @@ func (s *AuthService) Login(ctx context.Context, req LoginRequest) (*LoginRespon
 	// Generate tokens
 	tokenPair, refreshTokenHash, err := s.tokenService.GenerateTokenPair(user, selectedTenantID, selectedRole)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("login: token generation: %w", err)
 	}
 
 	// Create session
@@ -234,7 +235,7 @@ func (s *AuthService) Login(ctx context.Context, req LoginRequest) (*LoginRespon
 	}
 
 	if err := s.sessionRepo.Create(ctx, session); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("login: session create: %w", err)
 	}
 
 	// Log successful login
@@ -266,7 +267,7 @@ func (s *AuthService) Refresh(ctx context.Context, req RefreshRequest) (*domain.
 		if errors.Is(err, domain.ErrSessionNotFound) {
 			return nil, domain.ErrRefreshTokenInvalid
 		}
-		return nil, err
+		return nil, fmt.Errorf("refresh: session lookup: %w", err)
 	}
 
 	// Check if session is valid
@@ -277,10 +278,11 @@ func (s *AuthService) Refresh(ctx context.Context, req RefreshRequest) (*domain.
 		return nil, domain.ErrTokenExpired
 	}
 
-	// Get user
-	user, err := s.userRepo.FindByID(ctx, session.UserID)
+	// Get user (WithTenants: GetRoleForTenant below needs TenantRoles preloaded,
+	// same fix as T103's Update/Unlock - plain FindByID never populates it)
+	user, err := s.userRepo.FindByIDWithTenants(ctx, session.UserID)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("refresh: user lookup: %w", err)
 	}
 
 	// Check if user is still active
@@ -298,12 +300,12 @@ func (s *AuthService) Refresh(ctx context.Context, req RefreshRequest) (*domain.
 	// Generate new token pair
 	tokenPair, newRefreshTokenHash, err := s.tokenService.GenerateTokenPair(user, session.TenantID, role)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("refresh: token generation: %w", err)
 	}
 
 	// Revoke old session
 	if err := s.sessionRepo.Revoke(ctx, session.ID); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("refresh: session revoke: %w", err)
 	}
 
 	// Create new session with rotated refresh token
@@ -318,7 +320,7 @@ func (s *AuthService) Refresh(ctx context.Context, req RefreshRequest) (*domain.
 	}
 
 	if err := s.sessionRepo.Create(ctx, newSession); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("refresh: session create: %w", err)
 	}
 
 	// Log token refresh
@@ -339,12 +341,12 @@ func (s *AuthService) Logout(ctx context.Context, refreshToken, ipAddress string
 			// Already logged out or invalid token - treat as success
 			return nil
 		}
-		return err
+		return fmt.Errorf("logout: session lookup: %w", err)
 	}
 
 	// Revoke session
 	if err := s.sessionRepo.Revoke(ctx, session.ID); err != nil {
-		return err
+		return fmt.Errorf("logout: session revoke: %w", err)
 	}
 
 	// Log logout
@@ -356,7 +358,7 @@ func (s *AuthService) Logout(ctx context.Context, refreshToken, ipAddress string
 // LogoutAll invalidates all sessions for a user.
 func (s *AuthService) LogoutAll(ctx context.Context, userID uuid.UUID, ipAddress string) error {
 	if err := s.sessionRepo.RevokeAllForUser(ctx, userID); err != nil {
-		return err
+		return fmt.Errorf("logout all: revoke sessions: %w", err)
 	}
 
 	s.logEvent(ctx, domain.EventSessionRevoked, &userID, nil, ipAddress, "", map[string]interface{}{

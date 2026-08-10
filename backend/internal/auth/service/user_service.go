@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 	"time"
 
@@ -88,7 +89,7 @@ func (s *UserService) Create(ctx context.Context, req CreateUserRequest, callerR
 
 	existing, err := s.userRepo.FindByEmailWithTenants(ctx, req.Email)
 	if err != nil && !errors.Is(err, domain.ErrUserNotFound) {
-		return nil, err
+		return nil, fmt.Errorf("create user: existing-user lookup: %w", err)
 	}
 	if err == nil {
 		return s.linkExistingUserToTenant(ctx, existing, req)
@@ -97,13 +98,13 @@ func (s *UserService) Create(ctx context.Context, req CreateUserRequest, callerR
 	// Generate temporary password
 	tempPassword, err := s.passwordSvc.GenerateTemporaryPassword()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("create user: generate temp password: %w", err)
 	}
 
 	// Hash the password
 	passwordHash, err := s.passwordSvc.Hash(tempPassword)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("create user: hash password: %w", err)
 	}
 
 	// Create user
@@ -118,7 +119,7 @@ func (s *UserService) Create(ctx context.Context, req CreateUserRequest, callerR
 	}
 
 	if err := s.userRepo.Create(ctx, user); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("create user: insert user: %w", err)
 	}
 
 	// Create tenant role assignment
@@ -131,7 +132,7 @@ func (s *UserService) Create(ctx context.Context, req CreateUserRequest, callerR
 
 	if err := s.roleRepo.Create(ctx, roleAssignment); err != nil {
 		// Rollback user creation would be ideal here with a transaction
-		return nil, err
+		return nil, fmt.Errorf("create user: insert role: %w", err)
 	}
 
 	// Log event
@@ -166,7 +167,7 @@ func (s *UserService) linkExistingUserToTenant(ctx context.Context, existing *do
 	}
 
 	if err := s.roleRepo.Create(ctx, roleAssignment); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("link existing user: insert role: %w", err)
 	}
 
 	s.logEvent(ctx, domain.EventTenantRoleAdded, &existing.ID, &req.TenantID, req.IPAddress, "", map[string]interface{}{
@@ -204,7 +205,7 @@ type UpdateRequest struct {
 func (s *UserService) Update(ctx context.Context, req UpdateRequest, callerRole domain.Role) (*domain.User, error) {
 	user, err := s.userRepo.FindByIDWithTenants(ctx, req.UserID)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("update user: lookup: %w", err)
 	}
 
 	// Get target user's role in the tenant
@@ -236,7 +237,7 @@ func (s *UserService) Update(ctx context.Context, req UpdateRequest, callerRole 
 	}
 
 	if err := s.userRepo.Update(ctx, user); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("update user: save: %w", err)
 	}
 
 	return user, nil
@@ -261,7 +262,7 @@ func (s *UserService) UpdateRole(ctx context.Context, req UpdateRoleRequest, cal
 	// Get current role assignment
 	roleAssignment, err := s.roleRepo.FindByUserAndTenant(ctx, req.UserID, req.TenantID)
 	if err != nil {
-		return err
+		return fmt.Errorf("update role: lookup: %w", err)
 	}
 
 	// Check if caller can manage the current role
@@ -273,7 +274,7 @@ func (s *UserService) UpdateRole(ctx context.Context, req UpdateRoleRequest, cal
 	roleAssignment.Role = req.NewRole
 
 	if err := s.roleRepo.Update(ctx, roleAssignment); err != nil {
-		return err
+		return fmt.Errorf("update role: save: %w", err)
 	}
 
 	// Log role change
@@ -298,7 +299,7 @@ type UnlockRequest struct {
 func (s *UserService) Unlock(ctx context.Context, req UnlockRequest, callerRole domain.Role) (*domain.User, error) {
 	user, err := s.userRepo.FindByIDWithTenants(ctx, req.UserID)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("unlock user: lookup: %w", err)
 	}
 
 	targetRole := user.GetRoleForTenant(req.TenantID)
@@ -310,7 +311,7 @@ func (s *UserService) Unlock(ctx context.Context, req UnlockRequest, callerRole 
 	user.LockedUntil = nil
 
 	if err := s.userRepo.Update(ctx, user); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("unlock user: save: %w", err)
 	}
 
 	s.logEvent(ctx, domain.EventAccountUnlocked, &user.ID, &req.TenantID, req.IPAddress, "", map[string]interface{}{
@@ -345,13 +346,13 @@ type ChangePasswordRequest struct {
 func (s *UserService) ChangePassword(ctx context.Context, req ChangePasswordRequest) error {
 	user, err := s.userRepo.FindByID(ctx, req.UserID)
 	if err != nil {
-		return err
+		return fmt.Errorf("change password: lookup: %w", err)
 	}
 
 	// Verify current password
 	match, err := s.passwordSvc.Verify(req.CurrentPassword, user.PasswordHash)
 	if err != nil {
-		return err
+		return fmt.Errorf("change password: verify: %w", err)
 	}
 	if !match {
 		return domain.ErrPasswordIncorrect
@@ -365,19 +366,19 @@ func (s *UserService) ChangePassword(ctx context.Context, req ChangePasswordRequ
 	// Hash new password
 	newHash, err := s.passwordSvc.Hash(req.NewPassword)
 	if err != nil {
-		return err
+		return fmt.Errorf("change password: hash: %w", err)
 	}
 
 	user.PasswordHash = newHash
 	user.MustResetPwd = false
 
 	if err := s.userRepo.Update(ctx, user); err != nil {
-		return err
+		return fmt.Errorf("change password: save: %w", err)
 	}
 
 	// Revoke all sessions per FR-014
 	if err := s.sessionRepo.RevokeAllForUser(ctx, user.ID); err != nil {
-		return err
+		return fmt.Errorf("change password: revoke sessions: %w", err)
 	}
 
 	// Log password change
@@ -392,7 +393,7 @@ func (s *UserService) RequestPasswordReset(ctx context.Context, email, ipAddress
 	if s.resetRateLimiter != nil {
 		allowed, err := s.resetRateLimiter.Allow(ctx, email)
 		if err != nil {
-			return err
+			return fmt.Errorf("request password reset: rate limit check: %w", err)
 		}
 		if !allowed {
 			return domain.ErrRateLimitExceeded
@@ -410,13 +411,13 @@ func (s *UserService) RequestPasswordReset(ctx context.Context, email, ipAddress
 			})
 			return nil // Success response to prevent email enumeration
 		}
-		return err
+		return fmt.Errorf("request password reset: user lookup: %w", err)
 	}
 
 	// Generate reset token
 	plainToken, tokenHash, err := s.passwordSvc.GenerateResetToken()
 	if err != nil {
-		return err
+		return fmt.Errorf("request password reset: generate token: %w", err)
 	}
 
 	// Store token (1 hour expiry)
@@ -428,7 +429,7 @@ func (s *UserService) RequestPasswordReset(ctx context.Context, email, ipAddress
 	}
 
 	if err := s.passwordReset.Create(ctx, resetToken); err != nil {
-		return err
+		return fmt.Errorf("request password reset: store token: %w", err)
 	}
 
 	// Log reset request
@@ -456,7 +457,7 @@ func (s *UserService) CompletePasswordReset(ctx context.Context, token, newPassw
 	// Find token
 	resetToken, err := s.passwordReset.FindByToken(ctx, tokenHash)
 	if err != nil {
-		return err
+		return fmt.Errorf("complete password reset: token lookup: %w", err)
 	}
 
 	// Check if token is valid
@@ -470,13 +471,13 @@ func (s *UserService) CompletePasswordReset(ctx context.Context, token, newPassw
 	// Hash new password
 	newHash, err := s.passwordSvc.Hash(newPassword)
 	if err != nil {
-		return err
+		return fmt.Errorf("complete password reset: hash password: %w", err)
 	}
 
 	// Get user
 	user, err := s.userRepo.FindByID(ctx, resetToken.UserID)
 	if err != nil {
-		return err
+		return fmt.Errorf("complete password reset: user lookup: %w", err)
 	}
 
 	// Update password
@@ -484,17 +485,17 @@ func (s *UserService) CompletePasswordReset(ctx context.Context, token, newPassw
 	user.MustResetPwd = false
 
 	if err := s.userRepo.Update(ctx, user); err != nil {
-		return err
+		return fmt.Errorf("complete password reset: save password: %w", err)
 	}
 
 	// Mark token as used
 	if err := s.passwordReset.MarkUsed(ctx, resetToken.ID); err != nil {
-		return err
+		return fmt.Errorf("complete password reset: mark token used: %w", err)
 	}
 
 	// Revoke all sessions per FR-014
 	if err := s.sessionRepo.RevokeAllForUser(ctx, user.ID); err != nil {
-		return err
+		return fmt.Errorf("complete password reset: revoke sessions: %w", err)
 	}
 
 	// Log password reset completion

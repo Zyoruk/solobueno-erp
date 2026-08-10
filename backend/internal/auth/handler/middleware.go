@@ -74,6 +74,9 @@ func (m *AuthMiddleware) RequireAuth(next http.Handler) http.Handler {
 		ctx = context.WithValue(ctx, TenantIDContextKey, claims.TenantID)
 		ctx = context.WithValue(ctx, RoleContextKey, claims.Role)
 
+		setAccessLogUserID(ctx, userID.String())
+		setAccessLogTenantID(ctx, claims.TenantID.String())
+
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
