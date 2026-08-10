@@ -160,9 +160,9 @@
     "semantic_hash": "55c5e6d0d6ccab8b3bdec8ebfab20b67"
   },
   "infrastructure/scripts/health-check.sh": {
-    "mtime": 1786063387.2501972,
-    "ast_hash": "613d64cc7b9470fff9fea7fb97d42fdb",
-    "semantic_hash": "613d64cc7b9470fff9fea7fb97d42fdb"
+    "mtime": 1786241943.088446,
+    "ast_hash": "f5ca585cad85956bb9c37cf059913570",
+    "semantic_hash": ""
   },
   "package.json": {
     "mtime": 1786063387.250282,
@@ -465,9 +465,9 @@
     "semantic_hash": ""
   },
   "infrastructure/docker/docker-compose.yml": {
-    "mtime": 1786063387.2494934,
-    "ast_hash": "bc6075977bb0b2604c5682bf067e35cc",
-    "semantic_hash": "bc6075977bb0b2604c5682bf067e35cc"
+    "mtime": 1786241924.8044415,
+    "ast_hash": "9383c698f6e5bf9b54235a957d8c0e5f",
+    "semantic_hash": ""
   },
   "pnpm-workspace.yaml": {
     "mtime": 1786063387.2529655,

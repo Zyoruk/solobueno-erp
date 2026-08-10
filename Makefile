@@ -55,17 +55,19 @@ clean: ## Clean all build artifacts
 
 DOCKER_COMPOSE := docker compose -f infrastructure/docker/docker-compose.yml
 
-docker-up: ## Start Docker services (PostgreSQL, Redis, MinIO)
+docker-up: ## Start Docker services (PostgreSQL, Redis, MinIO, backend server)
 	@command -v docker >/dev/null 2>&1 || (echo "Error: Docker not found. Install Docker Desktop or Docker Engine." && exit 1)
 	@docker info >/dev/null 2>&1 || (echo "Error: Docker is not running. Start Docker Desktop or the Docker daemon." && exit 1)
 	@lsof -i :5432 >/dev/null 2>&1 && (echo "Error: Port 5432 already in use. Run: lsof -i :5432" && exit 1) || true
 	@lsof -i :6379 >/dev/null 2>&1 && (echo "Error: Port 6379 already in use. Run: lsof -i :6379" && exit 1) || true
 	@lsof -i :9000 >/dev/null 2>&1 && (echo "Error: Port 9000 already in use. Run: lsof -i :9000" && exit 1) || true
 	@lsof -i :9001 >/dev/null 2>&1 && (echo "Error: Port 9001 already in use. Run: lsof -i :9001" && exit 1) || true
-	$(DOCKER_COMPOSE) up -d
+	@lsof -i :8080 >/dev/null 2>&1 && (echo "Error: Port 8080 already in use. Run: lsof -i :8080" && exit 1) || true
+	$(DOCKER_COMPOSE) up -d --build
 	@echo "Waiting for services to be healthy..."
 	@sleep 5
 	@$(MAKE) docker-status
+	@echo "Run 'make migrate-up' if the backend logs show a missing schema."
 
 docker-down: ## Stop Docker services (preserve data)
 	$(DOCKER_COMPOSE) down

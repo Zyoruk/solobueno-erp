@@ -40,6 +40,34 @@ services:
     networks:
       - solobueno-network
 
+  backend:
+    build:
+      context: ../../backend
+      dockerfile: ../infrastructure/docker/Dockerfile.backend
+    container_name: solobueno-backend
+    restart: unless-stopped
+    ports:
+      - '8080:8080'
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: solobueno
+      DB_PASSWORD: solobueno_dev
+      DB_NAME: solobueno_dev
+      DB_SSLMODE: disable
+      API_PORT: 8080
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD', 'wget', '-q', '--spider', 'http://localhost:8080/swagger/index.html']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - solobueno-network
+
   minio:
     image: minio/minio:latest
     container_name: solobueno-minio
