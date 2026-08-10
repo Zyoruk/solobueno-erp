@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"testing"
 	"time"
 
@@ -9,6 +10,19 @@ import (
 	"github.com/solobueno/erp/internal/auth/domain"
 	"github.com/solobueno/erp/internal/auth/repository/mock"
 )
+
+// failingEmailer always fails, for testing FR-015's log+audit-on-failure path.
+type failingEmailer struct{ err error }
+
+func (f *failingEmailer) SendTemporaryPassword(ctx context.Context, toEmail, tempPassword string) error {
+	return f.err
+}
+func (f *failingEmailer) SendTenantLinked(ctx context.Context, toEmail string, tenantID uuid.UUID) error {
+	return f.err
+}
+func (f *failingEmailer) SendPasswordReset(ctx context.Context, toEmail, resetToken string) error {
+	return f.err
+}
 
 func setupUserService(t *testing.T) (*UserService, *mock.MockUserRepository, *mock.MockUserTenantRoleRepository, *mock.MockSessionRepository, *mock.MockPasswordResetRepository) {
 	t.Helper()
@@ -140,6 +154,101 @@ func TestUserService_Create_LinksExistingUserToNewTenant(t *testing.T) {
 	if resp.User.ID != existingID {
 		t.Errorf("expected the same existing user, got a different ID")
 	}
+}
+
+func TestUserService_Create_LogsEmailFailure(t *testing.T) {
+	userRepo := mock.NewMockUserRepository()
+	roleRepo := mock.NewMockUserTenantRoleRepository()
+	sessionRepo := mock.NewMockSessionRepository()
+	eventRepo := mock.NewMockAuthEventRepository()
+	passwordResetRepo := mock.NewMockPasswordResetRepository()
+	emailer := &failingEmailer{err: errors.New("smtp timeout")}
+
+	userSvc := NewUserService(UserServiceConfig{
+		UserRepo: userRepo, RoleRepo: roleRepo, SessionRepo: sessionRepo,
+		EventRepo: eventRepo, PasswordReset: passwordResetRepo, Emailer: emailer,
+	})
+	ctx := context.Background()
+
+	resp, err := userSvc.Create(ctx, CreateUserRequest{
+		Email: "new@example.com", FirstName: "New", LastName: "User",
+		TenantID: uuid.New(), Role: domain.RoleWaiter,
+	}, domain.RoleManager)
+
+	if err != nil {
+		t.Fatalf("Create should still succeed when email delivery fails: %v", err)
+	}
+	if resp.TemporaryPassword == "" {
+		t.Error("TemporaryPassword should still be generated even if the email fails")
+	}
+	if !hasEventType(eventRepo, domain.EventEmailDeliveryFailed) {
+		t.Error("expected an email_delivery_failed AuthEvent to be recorded")
+	}
+}
+
+func TestUserService_LinkExistingUser_LogsEmailFailure(t *testing.T) {
+	userRepo := mock.NewMockUserRepository()
+	roleRepo := mock.NewMockUserTenantRoleRepository()
+	sessionRepo := mock.NewMockSessionRepository()
+	eventRepo := mock.NewMockAuthEventRepository()
+	passwordResetRepo := mock.NewMockPasswordResetRepository()
+	emailer := &failingEmailer{err: errors.New("smtp timeout")}
+
+	userSvc := NewUserService(UserServiceConfig{
+		UserRepo: userRepo, RoleRepo: roleRepo, SessionRepo: sessionRepo,
+		EventRepo: eventRepo, PasswordReset: passwordResetRepo, Emailer: emailer,
+	})
+	ctx := context.Background()
+
+	existingID := uuid.New()
+	userRepo.AddUser(&domain.User{
+		ID: existingID, Email: "existing@example.com",
+		TenantRoles: []domain.UserTenantRole{{UserID: existingID, TenantID: uuid.New(), Role: domain.RoleWaiter}},
+	})
+
+	_, err := userSvc.Create(ctx, CreateUserRequest{
+		Email: "existing@example.com", TenantID: uuid.New(), Role: domain.RoleManager,
+	}, domain.RoleAdmin)
+
+	if err != nil {
+		t.Fatalf("Create should still succeed when email delivery fails: %v", err)
+	}
+	if !hasEventType(eventRepo, domain.EventEmailDeliveryFailed) {
+		t.Error("expected an email_delivery_failed AuthEvent to be recorded")
+	}
+}
+
+func TestUserService_RequestPasswordReset_LogsEmailFailure(t *testing.T) {
+	userRepo := mock.NewMockUserRepository()
+	roleRepo := mock.NewMockUserTenantRoleRepository()
+	sessionRepo := mock.NewMockSessionRepository()
+	eventRepo := mock.NewMockAuthEventRepository()
+	passwordResetRepo := mock.NewMockPasswordResetRepository()
+	emailer := &failingEmailer{err: errors.New("smtp timeout")}
+
+	userSvc := NewUserService(UserServiceConfig{
+		UserRepo: userRepo, RoleRepo: roleRepo, SessionRepo: sessionRepo,
+		EventRepo: eventRepo, PasswordReset: passwordResetRepo, Emailer: emailer,
+	})
+	ctx := context.Background()
+
+	userRepo.AddUser(&domain.User{ID: uuid.New(), Email: "reset@example.com"})
+
+	if err := userSvc.RequestPasswordReset(ctx, "reset@example.com", "127.0.0.1"); err != nil {
+		t.Fatalf("RequestPasswordReset should still succeed when email delivery fails: %v", err)
+	}
+	if !hasEventType(eventRepo, domain.EventEmailDeliveryFailed) {
+		t.Error("expected an email_delivery_failed AuthEvent to be recorded")
+	}
+}
+
+func hasEventType(eventRepo *mock.MockAuthEventRepository, eventType domain.AuthEventType) bool {
+	for _, e := range eventRepo.GetEvents() {
+		if e.EventType == eventType {
+			return true
+		}
+	}
+	return false
 }
 
 func TestUserService_GetByID(t *testing.T) {

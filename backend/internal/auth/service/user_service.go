@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"log"
 	"time"
 
 	"github.com/google/uuid"
@@ -139,7 +140,9 @@ func (s *UserService) Create(ctx context.Context, req CreateUserRequest, callerR
 		"role":       req.Role,
 	})
 
-	_ = s.emailer.SendTemporaryPassword(ctx, user.Email, tempPassword)
+	if err := s.emailer.SendTemporaryPassword(ctx, user.Email, tempPassword); err != nil {
+		s.logEmailFailure(ctx, "temporary_password", user.ID, &req.TenantID, req.IPAddress, err)
+	}
 
 	return &CreateUserResponse{
 		User:              user,
@@ -171,7 +174,9 @@ func (s *UserService) linkExistingUserToTenant(ctx context.Context, existing *do
 		"role":       req.Role,
 	})
 
-	_ = s.emailer.SendTenantLinked(ctx, existing.Email, req.TenantID)
+	if err := s.emailer.SendTenantLinked(ctx, existing.Email, req.TenantID); err != nil {
+		s.logEmailFailure(ctx, "tenant_linked", existing.ID, &req.TenantID, req.IPAddress, err)
+	}
 
 	return &CreateUserResponse{
 		User:                  existing,
@@ -431,7 +436,9 @@ func (s *UserService) RequestPasswordReset(ctx context.Context, email, ipAddress
 		"found": true,
 	})
 
-	_ = s.emailer.SendPasswordReset(ctx, user.Email, plainToken)
+	if err := s.emailer.SendPasswordReset(ctx, user.Email, plainToken); err != nil {
+		s.logEmailFailure(ctx, "password_reset", user.ID, nil, ipAddress, err)
+	}
 
 	return nil
 }
@@ -503,4 +510,15 @@ func (s *UserService) logEvent(ctx context.Context, eventType domain.AuthEventTy
 		event.Metadata = metadata
 	}
 	_ = s.eventRepo.Create(ctx, event)
+}
+
+// logEmailFailure records an email delivery failure per FR-015: logged at
+// error level and audited, but never blocks the caller (the account/token
+// action it's attached to has already succeeded).
+func (s *UserService) logEmailFailure(ctx context.Context, emailType string, userID uuid.UUID, tenantID *uuid.UUID, ipAddress string, err error) {
+	log.Printf("ERROR: failed to send %s email to user %s: %v", emailType, userID, err)
+	s.logEvent(ctx, domain.EventEmailDeliveryFailed, &userID, tenantID, ipAddress, "", map[string]interface{}{
+		"email_type": emailType,
+		"error":      err.Error(),
+	})
 }

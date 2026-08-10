@@ -29,6 +29,7 @@ const (
 	EventTenantRoleAdded        AuthEventType = "tenant_role_added"
 	EventRoleChanged            AuthEventType = "role_changed"
 	EventSessionRevoked         AuthEventType = "session_revoked"
+	EventEmailDeliveryFailed    AuthEventType = "email_delivery_failed"
 )
 
 // String returns the string representation of the event type.
