@@ -47,7 +47,7 @@ npm install -g pnpm@8
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/solobueno/erp.git
+git clone https://github.com/Zyoruk/solobueno-erp.git
 cd solobueno-erp
 ```
 
