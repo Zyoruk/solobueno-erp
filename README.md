@@ -23,7 +23,7 @@ A modern restaurant ERP system built with Go, React Native, and TypeScript.
 
 ```bash
 # Clone the repository
-git clone https://github.com/solobueno/erp.git
+git clone https://github.com/Zyoruk/solobueno-erp.git
 cd solobueno-erp
 
 # Install dependencies and start services
